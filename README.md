@@ -158,10 +158,14 @@ Nowa scena będzie pod `?scene=kuchnia`. Żeby stała się domyślna, zmień
 
 ## Publikacja
 
-Repo ma workflow GitHub Actions — każdy `push` na `main` odświeża stronę na
-GitHub Pages. Nic nie trzeba budować ani wgrywać ręcznie.
+Strona stoi na GitHub Pages, serwowana wprost z gałęzi `main`. Żadnego builda —
+publikacja zmiany to:
 
-Adres znajdziesz w **Settings → Pages**.
+```bash
+git add -A && git commit -m "nowe ceny" && git push
+```
+
+Po minucie-dwóch zmiana jest na żywo. Adres znajdziesz w **Settings → Pages**.
 
 ---
 
