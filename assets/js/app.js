@@ -133,7 +133,7 @@ function renderList(products) {
     btn.dataset.id = p.id;
     btn.innerHTML = `
       <span class="list__idx">${String(i + 1).padStart(2, '0')}</span>
-      <span>
+      <span class="list__text">
         <span class="list__name">${escapeHTML(p.name)}</span>
         <span class="list__brand">${escapeHTML(p.brand || '')}</span>
       </span>
