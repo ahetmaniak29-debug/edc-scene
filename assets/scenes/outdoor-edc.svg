@@ -1,167 +1,161 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1250" width="1000" height="1250" role="img" aria-label="Stylizowana scena EDC">
   <!--
-    ZDJĘCIE ZASTĘPCZE. Podmień ten plik na własną fotografię (jpg/webp),
-    zaktualizuj "image" w data/scenes/outdoor-edc.json i ustaw punkty
-    przez ?pick=1. Szczegóły w README.
+    ZDJĘCIE ZASTĘPCZE — układ knolling na jasnym tle.
+    Podmień ten plik na własną fotografię (jpg/webp), zaktualizuj "image"
+    w data/scenes/outdoor-edc.json i ustaw punkty przez ?pick=1.
   -->
   <defs>
-    <radialGradient id="surface" cx="50%" cy="38%" r="78%">
-      <stop offset="0%"  stop-color="#20232b"/>
-      <stop offset="55%" stop-color="#171a21"/>
-      <stop offset="100%" stop-color="#0e1015"/>
+    <linearGradient id="surface" x1="0.1" y1="0" x2="0.9" y2="1">
+      <stop offset="0%"   stop-color="#f0ebe3"/>
+      <stop offset="45%"  stop-color="#e6e0d6"/>
+      <stop offset="100%" stop-color="#d9d2c7"/>
+    </linearGradient>
+    <radialGradient id="light" cx="34%" cy="16%" r="82%">
+      <stop offset="0%"   stop-color="#fffdf9" stop-opacity="0.95"/>
+      <stop offset="55%"  stop-color="#fffdf9" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#b9b1a4" stop-opacity="0.34"/>
     </radialGradient>
+
+    <linearGradient id="body" x1="0" y1="0" x2="0.6" y2="1">
+      <stop offset="0%"   stop-color="#3c4046"/>
+      <stop offset="55%"  stop-color="#2a2d33"/>
+      <stop offset="100%" stop-color="#1d2025"/>
+    </linearGradient>
     <linearGradient id="steel" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%"   stop-color="#5b626e"/>
-      <stop offset="45%"  stop-color="#3b414a"/>
-      <stop offset="100%" stop-color="#2a2f37"/>
+      <stop offset="0%"   stop-color="#e4e8ed"/>
+      <stop offset="42%"  stop-color="#b3bac3"/>
+      <stop offset="100%" stop-color="#8b939e"/>
     </linearGradient>
-    <linearGradient id="dark" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%"   stop-color="#333943"/>
-      <stop offset="100%" stop-color="#1f232a"/>
+    <linearGradient id="orange" x1="0" y1="0" x2="0.4" y2="1">
+      <stop offset="0%"   stop-color="#ff8a3d"/>
+      <stop offset="60%"  stop-color="#f26522"/>
+      <stop offset="100%" stop-color="#d24d13"/>
     </linearGradient>
-    <linearGradient id="brass" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%"   stop-color="#8a7350"/>
-      <stop offset="50%"  stop-color="#5e4f37"/>
-      <stop offset="100%" stop-color="#3d3425"/>
+    <linearGradient id="card" x1="0" y1="0" x2="0.5" y2="1">
+      <stop offset="0%"   stop-color="#fdfcfa"/>
+      <stop offset="100%" stop-color="#e8e3da"/>
     </linearGradient>
-    <linearGradient id="paper" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%"   stop-color="#4a4f58"/>
-      <stop offset="100%" stop-color="#333840"/>
-    </linearGradient>
-    <filter id="soft" x="-40%" y="-40%" width="180%" height="180%">
-      <feGaussianBlur stdDeviation="14"/>
+
+    <!-- miękki cień jak przy zdjęciu w rozproszonym świetle -->
+    <filter id="drop" x="-30%" y="-30%" width="170%" height="170%">
+      <feDropShadow dx="5" dy="11" stdDeviation="10" flood-color="#57503f" flood-opacity="0.30"/>
+      <feDropShadow dx="1" dy="2"  stdDeviation="2"  flood-color="#57503f" flood-opacity="0.22"/>
     </filter>
     <filter id="grain">
-      <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="3" result="n"/>
+      <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="4" result="n"/>
       <feColorMatrix in="n" type="saturate" values="0"/>
-      <feComponentTransfer><feFuncA type="linear" slope="0.055"/></feComponentTransfer>
+      <feComponentTransfer><feFuncA type="linear" slope="0.05"/></feComponentTransfer>
     </filter>
   </defs>
 
   <rect width="1000" height="1250" fill="url(#surface)"/>
+  <rect width="1000" height="1250" fill="url(#light)"/>
 
-  <!-- faktura blatu -->
-  <g opacity="0.5">
-    <path d="M0 190 H1000 M0 470 H1000 M0 760 H1000 M0 1050 H1000" stroke="#000" stroke-opacity="0.35" stroke-width="2"/>
-    <path d="M0 192 H1000 M0 472 H1000 M0 762 H1000 M0 1052 H1000" stroke="#fff" stroke-opacity="0.025" stroke-width="1"/>
-  </g>
+  <!-- Wszystkie przedmioty powiększone wokół środka kadru, żeby układ był gęstszy.
+       Punkty w JSON są policzone dla tej skali. -->
+  <g transform="translate(500 625) scale(1.1) translate(-500 -625)">
 
-  <!-- 1. SCYZORYK  ~ (300, 325) -->
-  <g transform="translate(300 325) rotate(-24)">
-    <ellipse cx="6" cy="26" rx="150" ry="26" fill="#000" opacity="0.5" filter="url(#soft)"/>
-    <!-- ostrze -->
-    <path d="M-6 -16 L-150 -12 Q-176 -6 -150 4 L-6 12 Z" fill="url(#steel)"/>
-    <path d="M-14 -12 L-140 -8 Q-158 -4 -140 0 L-14 6 Z" fill="#6b7382" opacity="0.35"/>
-    <!-- rękojeść -->
-    <rect x="-8" y="-24" width="168" height="48" rx="22" fill="url(#dark)"/>
-    <rect x="-2" y="-19" width="156" height="12" rx="6" fill="#fff" opacity="0.045"/>
-    <g stroke="#0d0f13" stroke-width="3" opacity="0.65">
-      <path d="M34 -18 V18 M50 -18 V18 M66 -18 V18 M82 -18 V18 M98 -18 V18"/>
+  <!-- 1. SCYZORYK  (22.5%, 17%) -->
+  <g transform="translate(250 250)" filter="url(#drop)">
+    <path d="M18 -19 L196 -14 Q224 -8 196 0 L18 6 Z" fill="url(#steel)"/>
+    <path d="M30 -13 L178 -9 Q192 -6 178 -3 L30 0 Z" fill="#fff" opacity="0.45"/>
+    <rect x="-200" y="-27" width="222" height="54" rx="25" fill="url(#body)"/>
+    <rect x="-192" y="-21" width="196" height="13" rx="7" fill="#fff" opacity="0.13"/>
+    <g stroke="#14161a" stroke-width="3.5" opacity="0.55">
+      <path d="M-150 -20 V20 M-132 -20 V20 M-114 -20 V20 M-96 -20 V20 M-78 -20 V20 M-60 -20 V20"/>
     </g>
-    <circle cx="12" cy="0" r="7" fill="#5a616c"/>
-    <circle cx="140" cy="0" r="5" fill="#4b525c"/>
-    <path d="M150 -14 q22 6 0 12" stroke="#5a616c" stroke-width="5" fill="none" stroke-linecap="round"/>
+    <circle cx="4" cy="0" r="8.5" fill="#aeb6c0"/>
+    <circle cx="-168" cy="0" r="6" fill="#8b939e"/>
+    <path d="M-198 -17 q-20 8 0 16" fill="none" stroke="url(#orange)" stroke-width="7" stroke-linecap="round"/>
   </g>
 
-  <!-- 2. LATARKA  ~ (690, 275) -->
-  <g transform="translate(690 275) rotate(14)">
-    <ellipse cx="0" cy="18" rx="42" ry="126" fill="#000" opacity="0.5" filter="url(#soft)"/>
-    <rect x="-26" y="-118" width="52" height="236" rx="14" fill="url(#brass)"/>
-    <rect x="-31" y="-124" width="62" height="30" rx="10" fill="#6d5b3f"/>
-    <circle cx="0" cy="-109" r="17" fill="#1a1c20"/>
-    <circle cx="0" cy="-109" r="10" fill="#3f434b"/>
-    <circle cx="-4" cy="-113" r="4" fill="#9aa2ae" opacity="0.7"/>
-    <g stroke="#2c2519" stroke-width="4" opacity="0.75">
-      <path d="M-26 -50 H26 M-26 -34 H26 M-26 -18 H26 M-26 -2 H26 M-26 14 H26 M-26 30 H26 M-26 46 H26"/>
+  <!-- 2. LATARKA  (72%, 20%) -->
+  <g transform="translate(720 250)" filter="url(#drop)">
+    <rect x="-30" y="-140" width="60" height="272" rx="15" fill="url(#body)"/>
+    <rect x="-36" y="-148" width="72" height="36" rx="12" fill="#33373d"/>
+    <circle cx="0" cy="-130" r="20" fill="#0f1114"/>
+    <circle cx="0" cy="-130" r="12" fill="url(#steel)"/>
+    <circle cx="-4" cy="-135" r="4.5" fill="#fff" opacity="0.85"/>
+    <g stroke="#12141a" stroke-width="4.5" opacity="0.6">
+      <path d="M-30 -58 H30 M-30 -38 H30 M-30 -18 H30 M-30 2 H30 M-30 22 H30 M-30 42 H30 M-30 62 H30"/>
     </g>
-    <rect x="-20" y="-118" width="9" height="236" rx="4" fill="#fff" opacity="0.07"/>
-    <rect x="-31" y="96" width="62" height="26" rx="9" fill="#6d5b3f"/>
-    <path d="M28 -70 q16 30 0 60" stroke="#7d6949" stroke-width="7" fill="none" stroke-linecap="round"/>
+    <rect x="-23" y="-140" width="10" height="272" rx="5" fill="#fff" opacity="0.14"/>
+    <rect x="-36" y="104" width="72" height="30" rx="11" fill="url(#orange)"/>
+    <path d="M32 -84 q20 36 0 72" fill="none" stroke="#4a4f57" stroke-width="8" stroke-linecap="round"/>
   </g>
 
-  <!-- 3. MULTITOOL  ~ (250, 687) -->
-  <g transform="translate(250 687) rotate(8)">
-    <ellipse cx="0" cy="16" rx="96" ry="46" fill="#000" opacity="0.5" filter="url(#soft)"/>
-    <path d="M-88 -34 h150 q26 0 26 26 v16 q0 26 -26 26 h-150 q-14 0 -14 -14 v-40 q0 -14 14 -14 z" fill="url(#steel)"/>
-    <path d="M-84 -28 h140 q20 0 20 20 v4 h-160 z" fill="#fff" opacity="0.05"/>
-    <circle cx="60" cy="0" r="13" fill="#14161a"/>
-    <path d="M-64 -18 h30 v14 h-30 z" fill="#14161a"/>
-    <path d="M-64 4 h30 v14 h-30 z" fill="#14161a"/>
-    <path d="M-16 -20 l26 0 l-8 40 l-18 0 z" fill="#14161a" opacity="0.85"/>
-    <path d="M18 -22 q16 22 0 44" stroke="#14161a" stroke-width="7" fill="none"/>
-    <path d="M-96 -6 q-12 6 0 12" stroke="#4a515b" stroke-width="6" fill="none" stroke-linecap="round"/>
+  <!-- 3. MULTITOOL  (25%, 48%) -->
+  <g transform="translate(250 600)" filter="url(#drop)">
+    <path d="M-118 -44 h196 q34 0 34 34 v20 q0 34 -34 34 h-196 q-18 0 -18 -18 v-52 q0 -18 18 -18 z" fill="url(#steel)"/>
+    <path d="M-112 -37 h184 q24 0 24 24 v3 h-208 z" fill="#fff" opacity="0.5"/>
+    <circle cx="74" cy="0" r="17" fill="#e6e0d6"/>
+    <circle cx="74" cy="0" r="17" fill="none" stroke="#7d8590" stroke-width="3"/>
+    <rect x="-88" y="-25" width="42" height="18" rx="3" fill="#e6e0d6"/>
+    <rect x="-88" y="6"  width="42" height="18" rx="3" fill="#e6e0d6"/>
+    <path d="M-22 -27 l34 0 l-10 54 l-24 0 z" fill="#e6e0d6"/>
+    <path d="M24 -29 q22 29 0 58" fill="none" stroke="#e6e0d6" stroke-width="9"/>
+    <path d="M-132 -9 q-16 9 0 18" fill="none" stroke="url(#orange)" stroke-width="7" stroke-linecap="round"/>
   </g>
 
-  <!-- 4. PORTFEL  ~ (660, 650) -->
-  <g transform="translate(660 650) rotate(-9)">
-    <ellipse cx="0" cy="22" rx="112" ry="72" fill="#000" opacity="0.5" filter="url(#soft)"/>
-    <!-- karty wystające -->
-    <rect x="-84" y="-64" width="158" height="98" rx="9" fill="#454b55"/>
-    <rect x="-90" y="-58" width="158" height="98" rx="9" fill="#565d68"/>
-    <!-- korpus -->
-    <rect x="-96" y="-50" width="192" height="106" rx="12" fill="url(#dark)"/>
-    <rect x="-96" y="-50" width="192" height="20" rx="10" fill="#fff" opacity="0.05"/>
-    <rect x="-96" y="-6" width="192" height="13" rx="5" fill="#141216"/>
-    <rect x="-96" y="-4" width="192" height="4" fill="url(#brass)" opacity="0.55"/>
-    <circle cx="0" cy="30" r="9" fill="#5a616c"/>
-    <circle cx="0" cy="30" r="4" fill="#20242a"/>
-    <path d="M-70 46 h140" stroke="#0d0f13" stroke-width="3" opacity="0.6"/>
+  <!-- 4. PORTFEL  (72%, 48%) -->
+  <g transform="translate(720 600)" filter="url(#drop)">
+    <rect x="-104" y="-78" width="188" height="118" rx="10" fill="url(#card)"/>
+    <rect x="-112" y="-68" width="188" height="118" rx="10" fill="#f7f4ee"/>
+    <rect x="-118" y="-58" width="236" height="128" rx="14" fill="url(#body)"/>
+    <rect x="-118" y="-58" width="236" height="24" rx="12" fill="#fff" opacity="0.11"/>
+    <rect x="-118" y="-8" width="236" height="16" rx="6" fill="#15171b"/>
+    <rect x="-118" y="-5" width="236" height="6" fill="url(#orange)"/>
+    <circle cx="0" cy="38" r="11" fill="url(#steel)"/>
+    <circle cx="0" cy="38" r="4.5" fill="#22252a"/>
+    <path d="M-84 56 h168" stroke="#0f1114" stroke-width="3" opacity="0.5"/>
   </g>
 
-  <!-- 5. NOTES + DŁUGOPIS  ~ (310, 1025) -->
-  <g transform="translate(310 1025)">
-    <g transform="rotate(-7)">
-      <ellipse cx="0" cy="16" rx="104" ry="132" fill="#000" opacity="0.5" filter="url(#soft)"/>
-      <rect x="-92" y="-124" width="184" height="248" rx="8" fill="#2a2e35"/>
-      <rect x="-86" y="-130" width="184" height="248" rx="8" fill="url(#paper)"/>
-      <rect x="-86" y="-130" width="184" height="34" rx="8" fill="#20242b"/>
-      <rect x="-64" y="-46" width="140" height="4" rx="2" fill="#20242b" opacity="0.6"/>
-      <rect x="-64" y="-22" width="140" height="4" rx="2" fill="#20242b" opacity="0.6"/>
-      <rect x="-64" y="2"   width="110" height="4" rx="2" fill="#20242b" opacity="0.6"/>
-      <rect x="-64" y="26"  width="140" height="4" rx="2" fill="#20242b" opacity="0.6"/>
-      <rect x="-64" y="50"  width="86"  height="4" rx="2" fill="#20242b" opacity="0.6"/>
-      <rect x="-86" y="-130" width="14" height="248" fill="#000" opacity="0.25"/>
+  <!-- 5. NOTES + DŁUGOPIS  (27%, 78%) -->
+  <g transform="translate(270 975)">
+    <g filter="url(#drop)">
+      <rect x="-112" y="-152" width="224" height="304" rx="9" fill="url(#body)"/>
+      <rect x="-112" y="-152" width="224" height="52" rx="9" fill="url(#orange)"/>
+      <rect x="-112" y="-108" width="224" height="8" fill="#c9450f" opacity="0.4"/>
+      <g stroke="#4b5057" stroke-width="4.5" stroke-linecap="round">
+        <path d="M-72 -46 H72 M-72 -12 H72 M-72 22 H36 M-72 56 H72 M-72 90 H12"/>
+      </g>
+      <rect x="-112" y="-152" width="18" height="304" fill="#000" opacity="0.24"/>
+      <rect x="-100" y="-144" width="6" height="288" rx="3" fill="#fff" opacity="0.10"/>
     </g>
-    <!-- długopis -->
-    <g transform="translate(76 46) rotate(66)">
-      <ellipse cx="0" cy="8" rx="14" ry="88" fill="#000" opacity="0.45" filter="url(#soft)"/>
-      <rect x="-11" y="-86" width="22" height="172" rx="10" fill="url(#steel)"/>
-      <path d="M-11 -86 q11 -24 22 0 z" fill="#2b3038"/>
-      <rect x="-11" y="52" width="22" height="20" rx="6" fill="#20242b"/>
-      <rect x="8" y="-70" width="7" height="52" rx="3" fill="#4b525c"/>
-      <rect x="-7" y="-80" width="5" height="160" rx="2" fill="#fff" opacity="0.09"/>
+    <g transform="translate(154 8)" filter="url(#drop)">
+      <rect x="-13" y="-140" width="26" height="280" rx="12" fill="url(#steel)"/>
+      <path d="M-13 -140 q13 -30 26 0 z" fill="#8b939e"/>
+      <rect x="-13" y="96" width="26" height="26" rx="8" fill="url(#orange)"/>
+      <rect x="10" y="-118" width="9" height="76" rx="4" fill="#8b939e"/>
+      <rect x="-8" y="-130" width="7" height="260" rx="3" fill="#fff" opacity="0.55"/>
     </g>
   </g>
 
-  <!-- 6. ZEGAREK  ~ (710, 1012) -->
-  <g transform="translate(710 1012) rotate(-4)">
-    <ellipse cx="0" cy="18" rx="72" ry="128" fill="#000" opacity="0.5" filter="url(#soft)"/>
-    <!-- paski -->
-    <path d="M-26 -60 q-6 -70 4 -96 h44 q10 26 4 96 z" fill="#2b3038"/>
-    <path d="M-26 60 q-6 70 4 96 h44 q10 -26 4 -96 z" fill="#2b3038"/>
-    <g stroke="#14161a" stroke-width="3" opacity="0.7">
-      <path d="M-24 -96 h48 M-25 -122 h50 M-24 96 h48 M-25 122 h50"/>
+  <!-- 6. ZEGAREK  (73%, 78%) -->
+  <g transform="translate(730 975)" filter="url(#drop)">
+    <path d="M-32 -72 q-7 -84 5 -116 h54 q12 32 5 116 z" fill="url(#body)"/>
+    <path d="M-32 72 q-7 84 5 116 h54 q12 -32 5 -116 z" fill="url(#body)"/>
+    <g stroke="#0f1114" stroke-width="3.5" opacity="0.55">
+      <path d="M-29 -116 h58 M-30 -148 h60 M-29 116 h58 M-30 148 h60"/>
     </g>
-    <!-- koperta -->
-    <circle cx="0" cy="0" r="66" fill="url(#steel)"/>
-    <circle cx="0" cy="0" r="57" fill="#15181d"/>
-    <circle cx="0" cy="0" r="52" fill="#1c2027"/>
-    <g stroke="#7f8795" stroke-width="3" stroke-linecap="round">
-      <path d="M0 -44 V-34 M0 44 V34 M-44 0 H-34 M44 0 H34"/>
+    <circle cx="0" cy="0" r="80" fill="url(#steel)"/>
+    <circle cx="0" cy="0" r="69" fill="#20242a"/>
+    <circle cx="0" cy="0" r="63" fill="#161a1f"/>
+    <g stroke="#e8ecf1" stroke-width="3.5" stroke-linecap="round">
+      <path d="M0 -53 V-41 M0 53 V41 M-53 0 H-41 M53 0 H41"/>
     </g>
-    <g stroke="#565d68" stroke-width="2" stroke-linecap="round" opacity="0.8">
-      <path d="M31 -31 l-6 6 M-31 -31 l6 6 M31 31 l-6 -6 M-31 31 l6 -6"/>
+    <g stroke="#9aa2ad" stroke-width="2.5" stroke-linecap="round" opacity="0.85">
+      <path d="M37 -37 l-7 7 M-37 -37 l7 7 M37 37 l-7 -7 M-37 37 l7 -7"/>
     </g>
-    <!-- wskazówki -->
-    <path d="M0 4 V-26" stroke="#d6dbe3" stroke-width="5" stroke-linecap="round"/>
-    <path d="M0 4 L30 22" stroke="#d6dbe3" stroke-width="4" stroke-linecap="round"/>
-    <circle cx="0" cy="0" r="4" fill="#8f97a4"/>
-    <rect x="64" y="-9" width="12" height="18" rx="4" fill="#4b525c"/>
-    <circle cx="0" cy="-18" r="9" fill="#fff" opacity="0.03"/>
+    <path d="M0 5 V-32" stroke="#f2f5f8" stroke-width="6" stroke-linecap="round"/>
+    <path d="M0 5 L36 27" stroke="#f2f5f8" stroke-width="5" stroke-linecap="round"/>
+    <path d="M0 12 L-22 -40" stroke="url(#orange)" stroke-width="3" stroke-linecap="round"/>
+    <circle cx="0" cy="0" r="5" fill="url(#orange)"/>
+    <rect x="77" y="-11" width="15" height="22" rx="5" fill="#8b939e"/>
+    <ellipse cx="-22" cy="-26" rx="26" ry="17" fill="#fff" opacity="0.07"/>
   </g>
 
-  <!-- winieta + ziarno -->
-  <rect width="1000" height="1250" fill="url(#surface)" opacity="0" />
-  <rect width="1000" height="1250" filter="url(#grain)" opacity="0.9"/>
-  <rect width="1000" height="1250" fill="none" stroke="#000" stroke-width="120" opacity="0.18"/>
+  </g>
+
+  <rect width="1000" height="1250" filter="url(#grain)" opacity="0.75"/>
 </svg>

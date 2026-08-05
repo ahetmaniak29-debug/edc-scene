@@ -12,7 +12,7 @@ i czy przechodzą do sklepów małych marek.
 
 ```
 index.html                      strona
-assets/css/style.css            motyw (ciemne tło, jeden akcent)
+assets/css/style.css            motyw (jasne papierowe tło, jeden akcent)
 assets/js/app.js                logika sceny i panelu
 assets/js/counter.js            licznik kliknięć
 assets/scenes/outdoor-edc.svg   ZDJĘCIE ZASTĘPCZE — podmień na własne

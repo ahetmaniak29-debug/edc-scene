@@ -112,12 +112,12 @@ function renderHotspots(products) {
     btn.style.top = `${hs.y}%`;
     btn.dataset.id = p.id;
     btn.setAttribute('aria-label', `${p.name}${p.brand ? `, ${p.brand}` : ''} — pokaż szczegóły`);
+    // Numer wiąże punkt na zdjęciu z pozycją na liście pod spodem.
     btn.innerHTML = `
       <span class="hotspot__label">${escapeHTML(p.name)}</span>
-      <span class="hotspot__dot" aria-hidden="true"></span>`;
+      <span class="hotspot__dot" aria-hidden="true">${i + 1}</span>`;
     btn.addEventListener('click', () => openProduct(p));
     wrap.appendChild(btn);
-    void i;
   });
 }
 
@@ -176,7 +176,10 @@ function openProduct(p, { silent = false } = {}) {
   const link = $('[data-sheet-link]');
   link.href = p.url || '#';
   $('[data-sheet-cta]').textContent = p.ctaLabel || 'Zobacz u sprzedawcy';
-  $('[data-sheet-note]').textContent = state.config.site?.outboundNote || '';
+
+  // Pokazujemy domenę sprzedawcy — widać, dokąd prowadzi przycisk, zanim się w niego kliknie.
+  const note = state.config.site?.outboundNote || '';
+  $('[data-sheet-note]').textContent = [note, hostOf(p.url)].filter(Boolean).join(' · ');
 
   markActive(p.id);
 
@@ -345,6 +348,10 @@ function enablePicker() {
 }
 
 /* ------------------------------------------------------------------ */
+
+function hostOf(url) {
+  try { return new URL(url).hostname.replace(/^www\./, ''); } catch { return ''; }
+}
 
 function escapeHTML(str) {
   return String(str ?? '').replace(/[&<>"']/g, c =>

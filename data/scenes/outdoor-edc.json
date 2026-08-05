@@ -4,10 +4,10 @@
   "id": "outdoor-edc",
   "label": "Outdoor EDC",
   "title": "Sześć rzeczy, które nosimy codziennie",
-  "subtitle": "Sprzęt od małych, niezależnych warsztatów. Dotknij przedmiotu na zdjęciu, żeby zobaczyć, dlaczego trafił na tę listę.",
+  "subtitle": "Nic tu nie trafiło przypadkiem — każdą z tych rzeczy nosimy przy sobie na co dzień. Dotknij przedmiotu, żeby zobaczyć, dlaczego akurat ten i gdzie go kupić.",
 
   "image": "assets/scenes/outdoor-edc.svg",
-  "imageAlt": "Ciemne biurko widziane z góry: scyzoryk, latarka, multitool, portfel, notes z długopisem i zegarek.",
+  "imageAlt": "Jasny blat widziany z góry, przedmioty ułożone równo w trzech rzędach: scyzoryk, latarka, multitool, portfel, notes z długopisem i zegarek.",
 
   "products": [
     {
@@ -24,7 +24,7 @@
       ],
       "url": "https://vosteed.com/",
       "ctaLabel": "Zobacz u sprzedawcy",
-      "hotspot": { "x": 30, "y": 26 }
+      "hotspot": { "x": 24.0, "y": 13.5 }
     },
     {
       "id": "latarka-aa",
@@ -40,7 +40,7 @@
       ],
       "url": "https://www.reylight.net/",
       "ctaLabel": "Zobacz u sprzedawcy",
-      "hotspot": { "x": 69, "y": 22 }
+      "hotspot": { "x": 80.5, "y": 9.0 }
     },
     {
       "id": "multitool-plaski",
@@ -56,7 +56,7 @@
       ],
       "url": "https://countycomm.com/",
       "ctaLabel": "Zobacz u sprzedawcy",
-      "hotspot": { "x": 25, "y": 55 }
+      "hotspot": { "x": 29.0, "y": 45.5 }
     },
     {
       "id": "portfel-metal",
@@ -72,7 +72,7 @@
       ],
       "url": "https://trayvax.com/",
       "ctaLabel": "Zobacz u sprzedawcy",
-      "hotspot": { "x": 66, "y": 52 }
+      "hotspot": { "x": 82.0, "y": 42.5 }
     },
     {
       "id": "notes-wodoodporny",
@@ -88,7 +88,7 @@
       ],
       "url": "https://fieldnotesbrand.com/",
       "ctaLabel": "Zobacz u sprzedawcy",
-      "hotspot": { "x": 31, "y": 82 }
+      "hotspot": { "x": 15.0, "y": 68.0 }
     },
     {
       "id": "zegarek-polowy",
@@ -104,7 +104,7 @@
       ],
       "url": "https://lorier.co/",
       "ctaLabel": "Zobacz u sprzedawcy",
-      "hotspot": { "x": 71, "y": 81 }
+      "hotspot": { "x": 82.0, "y": 68.0 }
     }
   ]
 }
