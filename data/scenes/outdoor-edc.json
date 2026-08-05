@@ -1,0 +1,110 @@
+{
+  "_uwaga": "DANE DEMO. Marki i adresy są prawdziwe, ale CENY I LINKI DO KONKRETNYCH PRODUKTÓW są przykładowe — zweryfikuj i podmień, zanim pokażesz stronę komukolwiek.",
+
+  "id": "outdoor-edc",
+  "label": "Outdoor EDC",
+  "title": "Sześć rzeczy, które nosimy codziennie",
+  "subtitle": "Sprzęt od małych, niezależnych warsztatów. Dotknij przedmiotu na zdjęciu, żeby zobaczyć, dlaczego trafił na tę listę.",
+
+  "image": "assets/scenes/outdoor-edc.svg",
+  "imageAlt": "Ciemne biurko widziane z góry: scyzoryk, latarka, multitool, portfel, notes z długopisem i zegarek.",
+
+  "products": [
+    {
+      "id": "folder-titan",
+      "name": "Scyzoryk kieszonkowy, ostrze 8 cm",
+      "brand": "Vosteed",
+      "category": "outdoor-edc",
+      "price": "ok. 420 zł",
+      "why": "Zamek na łożysku otwiera się jedną ręką, a przy 78 g nie ciągnie kieszeni w dół. Marka robi krótkie serie i wymienia sprężyny na gwarancji bez dyskusji.",
+      "specs": [
+        { "k": "Waga", "v": "78 g" },
+        { "k": "Stal", "v": "14C28N" },
+        { "k": "Ostrze", "v": "8,0 cm" }
+      ],
+      "url": "https://vosteed.com/",
+      "ctaLabel": "Zobacz u sprzedawcy",
+      "hotspot": { "x": 30, "y": 26 }
+    },
+    {
+      "id": "latarka-aa",
+      "name": "Latarka na jedno AA, 600 lm",
+      "brand": "ReyLight",
+      "category": "outdoor-edc",
+      "price": "ok. 350 zł",
+      "why": "Jedna paluszkowa bateria, którą kupisz na każdej stacji — zero szukania ładowarki w lesie. Korpus toczony w małej pracowni, każda sztuka numerowana.",
+      "specs": [
+        { "k": "Zasilanie", "v": "1 × AA / 14500" },
+        { "k": "Maks.", "v": "600 lm" },
+        { "k": "Materiał", "v": "mosiądz" }
+      ],
+      "url": "https://www.reylight.net/",
+      "ctaLabel": "Zobacz u sprzedawcy",
+      "hotspot": { "x": 69, "y": 22 }
+    },
+    {
+      "id": "multitool-plaski",
+      "name": "Płaski multitool do kieszeni",
+      "brand": "Maratac",
+      "category": "outdoor-edc",
+      "price": "ok. 190 zł",
+      "why": "Osiem funkcji w kawałku stali cieńszym niż karta kredytowa. Nie zastąpi kombinerek, ale przez rok nie znaleźliśmy sytuacji, w której zabrakło nam czegoś ważnego.",
+      "specs": [
+        { "k": "Grubość", "v": "3 mm" },
+        { "k": "Funkcje", "v": "8" },
+        { "k": "Waga", "v": "42 g" }
+      ],
+      "url": "https://countycomm.com/",
+      "ctaLabel": "Zobacz u sprzedawcy",
+      "hotspot": { "x": 25, "y": 55 }
+    },
+    {
+      "id": "portfel-metal",
+      "name": "Portfel metalowy z klipsem",
+      "brand": "Trayvax",
+      "category": "outdoor-edc",
+      "price": "ok. 260 zł",
+      "why": "Mieści 6 kart i kilka banknotów, a przy tym nie puchnie jak skórzany. Przetrwał u nas dwa lata w tylnej kieszeni i wygląda po prostu na używany, nie na zniszczony.",
+      "specs": [
+        { "k": "Pojemność", "v": "do 6 kart" },
+        { "k": "Materiał", "v": "stal + skóra" },
+        { "k": "RFID", "v": "tak" }
+      ],
+      "url": "https://trayvax.com/",
+      "ctaLabel": "Zobacz u sprzedawcy",
+      "hotspot": { "x": 66, "y": 52 }
+    },
+    {
+      "id": "notes-wodoodporny",
+      "name": "Notes wodoodporny + długopis tytanowy",
+      "brand": "Field Notes / Big Idea Design",
+      "category": "outdoor-edc",
+      "price": "ok. 300 zł za komplet",
+      "why": "Papier, na którym da się pisać w deszczu, i długopis, który przyjmuje standardowe wkłady — więc nie uzależniasz się od jednego sklepu na resztę życia.",
+      "specs": [
+        { "k": "Notes", "v": "3 szt., 48 str." },
+        { "k": "Długopis", "v": "tytan klasy 5" },
+        { "k": "Wkład", "v": "standard D1" }
+      ],
+      "url": "https://fieldnotesbrand.com/",
+      "ctaLabel": "Zobacz u sprzedawcy",
+      "hotspot": { "x": 31, "y": 82 }
+    },
+    {
+      "id": "zegarek-polowy",
+      "name": "Zegarek polowy, szkło szafirowe",
+      "brand": "Lorier",
+      "category": "outdoor-edc",
+      "price": "ok. 2 100 zł",
+      "why": "Najdroższa rzecz na tej liście i jedyna, która ma szansę przeżyć swojego właściciela. Mechanizm automatyczny, serwisowalny w każdym zakładzie — żadnej elektroniki do wymiany.",
+      "specs": [
+        { "k": "Mechanizm", "v": "automat" },
+        { "k": "Wodoszczelność", "v": "100 m" },
+        { "k": "Średnica", "v": "39 mm" }
+      ],
+      "url": "https://lorier.co/",
+      "ctaLabel": "Zobacz u sprzedawcy",
+      "hotspot": { "x": 71, "y": 81 }
+    }
+  ]
+}

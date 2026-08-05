@@ -1,0 +1,20 @@
+{
+  "_komentarz": "Spis scen + ustawienia całej strony. Żeby dodać drugą scenę: wrzuć nowy plik do data/scenes/ i dopisz jego id na listę 'scenes'. Nic w kodzie nie trzeba zmieniać.",
+
+  "site": {
+    "name": "Scena",
+    "footerNote": "Wybieramy sprzęt od małych, niezależnych marek. Linki prowadzą bezpośrednio do sprzedawcy.",
+    "outboundNote": "Przejdziesz na stronę sprzedawcy"
+  },
+
+  "defaultScene": "outdoor-edc",
+
+  "scenes": [
+    "outdoor-edc"
+  ],
+
+  "analytics": {
+    "_komentarz": "Puste = liczniki tylko lokalnie w przeglądarce (localStorage), widoczne pod ?stats=1. Wpisz tu adres endpointu (np. Formspree, Google Apps Script, własna funkcja), żeby zbierać kliknięcia od wszystkich odwiedzających. Szczegóły w README.",
+    "endpoint": ""
+  }
+}

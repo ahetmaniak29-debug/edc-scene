@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Scena</title>
+  <meta name="description" content="Wyselekcjonowany sprzęt na jednym zdjęciu. Dotknij przedmiotu, żeby zobaczyć szczegóły.">
+  <meta name="theme-color" content="#0d0e12">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+  <a class="skip-link" href="#lista">Przejdź do listy przedmiotów</a>
+
+  <header class="topbar">
+    <div class="topbar__inner">
+      <span class="wordmark" data-site-name>Scena</span>
+      <span class="chip" data-scene-label hidden></span>
+    </div>
+  </header>
+
+  <main class="page">
+    <section class="intro">
+      <h1 class="intro__title" data-scene-title>&nbsp;</h1>
+      <p class="intro__sub" data-scene-subtitle></p>
+    </section>
+
+    <!-- Scena: zdjęcie + punkty. Punkty są pozycjonowane w % względem obrazka,
+         więc skalują się razem z nim na każdym ekranie. -->
+    <section class="stage" aria-label="Scena z przedmiotami">
+      <div class="stage__frame" data-stage>
+        <img class="stage__img" data-scene-img alt="" decoding="async">
+        <div class="stage__hotspots" data-hotspots></div>
+        <div class="stage__loading" data-stage-loading>Wczytywanie sceny…</div>
+      </div>
+      <p class="stage__hint" data-stage-hint hidden>
+        <span class="stage__hint-dot" aria-hidden="true"></span>
+        Dotknij punktu, żeby zobaczyć przedmiot
+      </p>
+    </section>
+
+    <!-- Fallback / dostępność: ta sama lista produktów w formie tekstowej.
+         Działa też, gdy ktoś nie trafi w punkt na zdjęciu. -->
+    <section class="list" id="lista">
+      <h2 class="list__title">Wszystko na tym zdjęciu</h2>
+      <ul class="list__items" data-product-list></ul>
+    </section>
+
+    <footer class="foot">
+      <p data-foot-note></p>
+      <p class="foot__meta">
+        <a href="?stats=1">Statystyki kliknięć</a>
+      </p>
+    </footer>
+  </main>
+
+  <!-- Panel produktu: bottom sheet na telefonie, panel boczny na desktopie -->
+  <div class="scrim" data-scrim hidden></div>
+  <aside class="sheet" data-sheet hidden aria-modal="true" role="dialog" aria-labelledby="sheet-name">
+    <div class="sheet__grip" data-sheet-grip><span></span></div>
+    <button class="sheet__close" data-sheet-close type="button" aria-label="Zamknij">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+
+    <div class="sheet__body">
+      <div class="sheet__head">
+        <p class="sheet__brand" data-sheet-brand></p>
+        <h2 class="sheet__name" id="sheet-name" data-sheet-name></h2>
+        <p class="sheet__price" data-sheet-price></p>
+      </div>
+
+      <div class="sheet__why">
+        <p class="sheet__why-label">Dlaczego polecamy</p>
+        <p class="sheet__why-text" data-sheet-why></p>
+      </div>
+
+      <ul class="sheet__specs" data-sheet-specs hidden></ul>
+    </div>
+
+    <div class="sheet__cta">
+      <a class="btn" data-sheet-link target="_blank" rel="noopener noreferrer">
+        <span data-sheet-cta>Zobacz u sprzedawcy</span>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17L17 7M9 7h8v8"/></svg>
+      </a>
+      <p class="sheet__note" data-sheet-note></p>
+    </div>
+  </aside>
+
+  <!-- Widok statystyk (?stats=1) -->
+  <section class="stats" data-stats hidden></section>
+
+  <script src="assets/js/app.js" type="module"></script>
+</body>
+</html>
