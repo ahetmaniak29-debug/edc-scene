@@ -1,5 +1,9 @@
 import { track, getScene, getAll, reset } from './counter.js';
-import { icon, loadSite, renderChrome } from './chrome.js';
+import { icon, media, loadSite, renderChrome } from './chrome.js';
+
+/** Od tej szerokości panel wjeżdża w kadr zdjęcia zamiast wysuwać się z dołu. */
+const SZEROKI = 900;
+const naSzerokim = () => window.innerWidth >= SZEROKI;
 
 const $  = (sel, root = document) => root.querySelector(sel);
 const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
@@ -110,6 +114,7 @@ function renderScene() {
 
   renderHotspots(s.products || []);
   renderList(s.products || []);
+  renderGallery(s.gallery || []);
 
   if (params.get('pick') !== null) enablePicker();
 
@@ -164,6 +169,59 @@ function renderList(products) {
 }
 
 /* ------------------------------------------------------------------ *
+ * Mniejsza karuzela pod zdjęciem
+ * ------------------------------------------------------------------ */
+
+function renderGallery(slides) {
+  const box = $('[data-gallery]');
+  if (!slides.length) return;          // brak slajdów = sekcja się nie pokazuje
+
+  box.hidden = false;
+  $('[data-gal-track]').innerHTML = slides.map((g, i) => `
+    <article class="gslide" role="group" aria-roledescription="slide" aria-label="Zdjęcie ${i + 1} z ${slides.length}">
+      <div class="gslide__media">${media(g.image, g.title, 'kolekcje', '1200 × 900 px')}</div>
+      <div class="gslide__body">
+        <h3 class="gslide__title">${escapeHTML(g.title)}</h3>
+        <p class="gslide__text">${escapeHTML(g.text)}</p>
+      </div>
+    </article>`).join('');
+
+  const dots = $('[data-gal-dots]');
+  dots.innerHTML = slides.map((_, i) =>
+    `<button type="button" role="tab" aria-label="Zdjęcie ${i + 1}" aria-selected="${i === 0}"></button>`).join('');
+
+  // Jeden slajd nie potrzebuje sterowania.
+  const single = slides.length < 2;
+  $('[data-gal-prev]').hidden = single;
+  $('[data-gal-next]').hidden = single;
+  dots.hidden = single;
+  if (single) return;
+
+  const track = $('[data-gal-track]');
+  let at = 0;
+  const go = i => {
+    at = (i + slides.length) % slides.length;
+    track.style.transform = `translateX(-${at * 100}%)`;
+    [...dots.children].forEach((d, k) => d.setAttribute('aria-selected', String(k === at)));
+  };
+
+  $('[data-gal-prev]').addEventListener('click', () => go(at - 1));
+  $('[data-gal-next]').addEventListener('click', () => go(at + 1));
+  [...dots.children].forEach((d, i) => d.addEventListener('click', () => go(i)));
+
+  // Przesuwanie palcem — bez auto-przewijania, żeby nie odciągało od sceny.
+  let x0 = null;
+  const frame = $('.gal__frame');
+  frame.addEventListener('touchstart', e => { x0 = e.touches[0].clientX; }, { passive: true });
+  frame.addEventListener('touchend', e => {
+    if (x0 === null) return;
+    const dx = e.changedTouches[0].clientX - x0;
+    if (Math.abs(dx) > 45) go(at + (dx < 0 ? 1 : -1));
+    x0 = null;
+  });
+}
+
+/* ------------------------------------------------------------------ *
  * Panel produktu
  * ------------------------------------------------------------------ */
 
@@ -202,10 +260,15 @@ function openProduct(p, { silent = false } = {}) {
 
   markActive(p.id);
 
+  // Panel ucieka na stronę przeciwną do klikniętego punktu, żeby go nie zasłonić.
+  const hx = p.hotspot?.x ?? 50;
+  sheet.classList.toggle('glass--left', hx > 55);
+
   lastFocus = document.activeElement;
   sheet.hidden = false;
   scrim.hidden = false;
-  document.body.classList.add('is-locked');
+  // Blokada przewijania ma sens tylko przy panelu wysuwanym z dołu ekranu.
+  document.body.classList.toggle('is-locked', !naSzerokim());
   sheet.style.transform = '';
   void sheet.offsetHeight; // wymuszony reflow — bez tego przeglądarka scala oba stany w jeden i animacja nie rusza
   sheet.classList.add('is-open');
@@ -257,7 +320,7 @@ $('[data-sheet-link]').addEventListener('click', () => {
   const grip = $('[data-sheet-grip]');
 
   const start = e => {
-    if (window.innerWidth >= 860) return;
+    if (naSzerokim()) return;   // w kadrze zdjęcia nie ma czego ściągać w dół
     dragging = true; dy = 0;
     startY = (e.touches ? e.touches[0].clientY : e.clientY);
     sheet.classList.add('is-dragging');

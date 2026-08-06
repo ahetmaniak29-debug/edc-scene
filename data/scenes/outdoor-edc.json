@@ -6,8 +6,27 @@
   "title": "Główne hasło kategorii.",
   "subtitle": "Dwa–trzy zdania o tym, co jest na zdjęciu i dla kogo. Dotknij numeru, żeby zobaczyć szczegóły przedmiotu.",
 
-  "image": "ZDJECIA/produkty/image-1786014155651.png",
-  "imageAlt": "Ekwipunek ułożony równo z góry wokół czarnego plecaka: latarka, obiektyw, saszetka, kompas, mata i drobne akcesoria.",
+  "image": "ZDJECIA/kolekcje/edc-scena-duza.jpg",
+  "imageAlt": "Ekwipunek ułożony równo z góry wokół czarnego plecaka: latarka, aparat, termos, saszetka, kompas i drobne akcesoria.",
+
+  "_galeria": "Mniejsza karuzela pod zdjęciem. Dodajesz i usuwasz slajdy tutaj — kolejność jak w tablicy.",
+  "gallery": [
+    {
+      "image": "ZDJECIA/produkty/image-1786014155651.png",
+      "title": "Podpis pierwszego zdjęcia",
+      "text": "Dwa–trzy zdania o tym ujęciu: co widać, w jakich warunkach, dlaczego tak ułożone."
+    },
+    {
+      "image": "",
+      "title": "Podpis drugiego zdjęcia",
+      "text": "Tu wchodzi opis kolejnego ujęcia. Slajdy dodajesz w pliku, bez ruszania kodu."
+    },
+    {
+      "image": "",
+      "title": "Podpis trzeciego zdjęcia",
+      "text": "Trzeci slajd. Możesz zostawić dwa albo dorzucić dziesięć."
+    }
+  ],
 
   "products": [
     {
@@ -23,7 +42,7 @@
       ],
       "url": "#",
       "ctaLabel": "Zobacz u sprzedawcy",
-      "hotspot": { "x": 49, "y": 45 }
+      "hotspot": { "x": 50.0, "y": 52.0 }
     },
     {
       "id": "przedmiot-2",
@@ -38,7 +57,7 @@
       ],
       "url": "#",
       "ctaLabel": "Zobacz u sprzedawcy",
-      "hotspot": { "x": 21, "y": 12 }
+      "hotspot": { "x": 24.0, "y": 10.0 }
     },
     {
       "id": "przedmiot-3",
@@ -53,7 +72,7 @@
       ],
       "url": "#",
       "ctaLabel": "Zobacz u sprzedawcy",
-      "hotspot": { "x": 72, "y": 14 }
+      "hotspot": { "x": 72.0, "y": 16.0 }
     },
     {
       "id": "przedmiot-4",
@@ -68,7 +87,7 @@
       ],
       "url": "#",
       "ctaLabel": "Zobacz u sprzedawcy",
-      "hotspot": { "x": 36, "y": 79 }
+      "hotspot": { "x": 10.5, "y": 33.5 }
     },
     {
       "id": "przedmiot-5",
@@ -83,7 +102,7 @@
       ],
       "url": "#",
       "ctaLabel": "Zobacz u sprzedawcy",
-      "hotspot": { "x": 70, "y": 81 }
+      "hotspot": { "x": 38.0, "y": 85.0 }
     },
     {
       "id": "przedmiot-6",
@@ -98,7 +117,7 @@
       ],
       "url": "#",
       "ctaLabel": "Zobacz u sprzedawcy",
-      "hotspot": { "x": 88, "y": 79 }
+      "hotspot": { "x": 83.0, "y": 83.0 }
     }
   ]
 }

@@ -54,39 +54,82 @@
   <main id="tresc">
     <div class="shell">
 
-      <!-- Okruszki -->
       <nav class="crumbs" aria-label="Ścieżka">
         <a href="index.html">Strona główna</a>
         <span aria-hidden="true">/</span>
         <span data-crumb aria-current="page"></span>
       </nav>
 
-      <!-- Nagłówek kategorii -->
       <section class="chead">
         <p class="chead__kicker" data-scene-label hidden></p>
         <h1 class="chead__title" data-scene-title>&nbsp;</h1>
         <p class="chead__sub" data-scene-subtitle></p>
       </section>
 
-      <!-- Na szerokim ekranie zdjęcie i lista stoją obok siebie -->
-      <div class="cat-grid">
-
-      <!-- Scena: zdjęcie + punkty. Punkty są pozycjonowane w % względem obrazka,
-           więc skalują się razem z nim na każdym ekranie. -->
+      <!-- ================= DUŻE ZDJĘCIE ================= -->
+      <!-- Punkty są pozycjonowane w % względem obrazka, więc trzymają się
+           przedmiotów niezależnie od wielkości ekranu. Panel produktu wysuwa się
+           w środku kadru — po stronie przeciwnej do klikniętego punktu, żeby go
+           nie zasłaniać. -->
       <section class="stage" aria-label="Scena z przedmiotami">
         <div class="stage__frame" data-stage>
           <img class="stage__img" data-scene-img alt="" decoding="async">
           <div class="stage__hotspots" data-hotspots></div>
           <div class="stage__loading" data-stage-loading>Wczytywanie sceny…</div>
+
+          <!-- Panel produktu — szkło -->
+          <aside class="glass" data-sheet hidden aria-modal="true" role="dialog" aria-labelledby="sheet-name">
+            <div class="glass__grip" data-sheet-grip><span></span></div>
+            <button class="glass__close" data-sheet-close type="button" aria-label="Zamknij">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+            </button>
+
+            <div class="glass__body">
+              <p class="glass__brand" data-sheet-brand></p>
+              <h2 class="glass__name" id="sheet-name" data-sheet-name></h2>
+              <p class="glass__price" data-sheet-price></p>
+
+              <div class="glass__why">
+                <p class="glass__why-label">Dlaczego polecamy</p>
+                <p class="glass__why-text" data-sheet-why></p>
+              </div>
+
+              <ul class="glass__specs" data-sheet-specs hidden></ul>
+            </div>
+
+            <div class="glass__cta">
+              <a class="btn" data-sheet-link target="_blank" rel="noopener noreferrer">
+                <span data-sheet-cta>Zobacz u sprzedawcy</span>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17L17 7M9 7h8v8"/></svg>
+              </a>
+              <p class="glass__note" data-sheet-note></p>
+            </div>
+          </aside>
         </div>
+
         <p class="stage__hint" data-stage-hint hidden>
           <span class="stage__hint-dot" aria-hidden="true"></span>
           Dotknij numeru, żeby zobaczyć przedmiot
         </p>
       </section>
 
+      <!-- ================= MNIEJSZA KARUZELA POD ZDJĘCIEM ================= -->
+      <section class="gal" data-gallery hidden aria-label="Więcej ujęć" aria-roledescription="carousel">
+        <div class="gal__frame">
+          <div class="gal__track" data-gal-track></div>
+
+          <button class="gal__arrow gal__arrow--prev" type="button" data-gal-prev aria-label="Poprzednie zdjęcie">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+          </button>
+          <button class="gal__arrow gal__arrow--next" type="button" data-gal-next aria-label="Następne zdjęcie">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+          </button>
+        </div>
+        <div class="gal__dots" data-gal-dots role="tablist" aria-label="Wybór zdjęcia"></div>
+      </section>
+
       <!-- Lista tekstowa: to samo, co punkty na zdjęciu.
-           Działa też, gdy ktoś nie trafi w punkt. -->
+           Zostaje jako spis i jako wyjście awaryjne, gdy ktoś nie trafi w punkt. -->
       <section class="block" id="lista" aria-labelledby="lista-h">
         <div class="block__head">
           <h2 class="block__title" id="lista-h">Wszystko na tym zdjęciu</h2>
@@ -95,9 +138,6 @@
         <ul class="list__items" data-product-list></ul>
       </section>
 
-      </div><!-- /.cat-grid -->
-
-      <!-- Pasek zaufania — ten sam co na stronie głównej -->
       <section class="trust" aria-label="Nasze zasady">
         <ul class="trust__list" data-trust></ul>
       </section>
@@ -107,42 +147,12 @@
     </div>
   </main>
 
-  <!-- ================= STOPKA (wspólna) ================= -->
   <footer class="ftr">
     <div class="shell ftr__inner" data-footer></div>
   </footer>
 
-  <!-- Panel produktu: bottom sheet na telefonie, panel boczny na desktopie -->
+  <!-- Przyciemnienie tła — tylko na telefonie, gdzie panel jest wysuwany z dołu -->
   <div class="scrim" data-scrim hidden></div>
-  <aside class="sheet" data-sheet hidden aria-modal="true" role="dialog" aria-labelledby="sheet-name">
-    <div class="sheet__grip" data-sheet-grip><span></span></div>
-    <button class="sheet__close" data-sheet-close type="button" aria-label="Zamknij">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
-    </button>
-
-    <div class="sheet__body">
-      <div class="sheet__head">
-        <p class="sheet__brand" data-sheet-brand></p>
-        <h2 class="sheet__name" id="sheet-name" data-sheet-name></h2>
-        <p class="sheet__price" data-sheet-price></p>
-      </div>
-
-      <div class="sheet__why">
-        <p class="sheet__why-label">Dlaczego polecamy</p>
-        <p class="sheet__why-text" data-sheet-why></p>
-      </div>
-
-      <ul class="sheet__specs" data-sheet-specs hidden></ul>
-    </div>
-
-    <div class="sheet__cta">
-      <a class="btn" data-sheet-link target="_blank" rel="noopener noreferrer">
-        <span data-sheet-cta>Zobacz u sprzedawcy</span>
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17L17 7M9 7h8v8"/></svg>
-      </a>
-      <p class="sheet__note" data-sheet-note></p>
-    </div>
-  </aside>
 
   <!-- Widok statystyk (?stats=1) -->
   <section class="stats" data-stats hidden></section>

@@ -85,6 +85,17 @@ Otwórz `data/scenes/outdoor-edc.json`. Jeden produkt to jeden blok:
 }
 ```
 
+Pod dużym zdjęciem jest mniejsza karuzela — slajdy dodajesz w tablicy
+`gallery` w tym samym pliku:
+
+```json
+"gallery": [
+  { "image": "ZDJECIA/kolekcje/ujecie-2.jpg", "title": "Podpis", "text": "Opis ujęcia." }
+]
+```
+
+Pusta tablica albo brak pola = karuzela w ogóle się nie pokaże.
+
 | Pole        | Do czego                                                        |
 |-------------|-----------------------------------------------------------------|
 | `id`        | Musi być unikalny — po nim liczą się kliknięcia. Nie zmieniaj bez potrzeby, bo wyzerujesz historię. |

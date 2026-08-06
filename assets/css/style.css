@@ -74,11 +74,15 @@ svg { width: 1em; height: 1em; fill: none; stroke: currentColor; stroke-width: 2
 }
 
 /* ---------- Scena ---------- */
-.stage { margin: 0 0 42px; }
+.stage { margin: 0 0 34px; }
 
+/* Ramka oblepia zdjęcie co do piksela (fit-content, bez object-fit),
+   dzięki czemu punkty podane w % zawsze trafiają w ten sam przedmiot. */
 .stage__frame {
   position: relative;
-  width: 100%;
+  width: fit-content;
+  max-width: 100%;
+  margin: 0 auto;
   border-radius: var(--r-lg);
   overflow: hidden;
   background: var(--paper-warm);
@@ -91,7 +95,6 @@ svg { width: 1em; height: 1em; fill: none; stroke: currentColor; stroke-width: 2
   display: block;
   width: 100%;
   height: auto;
-  /* zdjęcie nigdy nie jest przycinane — punkty w % zawsze trafiają w to samo miejsce */
 }
 
 .stage__hotspots { position: absolute; inset: 0; line-height: 1; }
@@ -230,12 +233,14 @@ svg { width: 1em; height: 1em; fill: none; stroke: currentColor; stroke-width: 2
 
 
 /* =========================================================
-   Panel produktu
-   Telefon: wysuwany z dołu. Desktop: panel przy prawej krawędzi.
+   Panel produktu — szkło
+   Telefon: wysuwany z dołu ekranu, nad przyciemnionym tłem.
+   Desktop: wjeżdża w kadr zdjęcia, po stronie przeciwnej do
+   klikniętego punktu, żeby nie zasłaniać oglądanego przedmiotu.
    ========================================================= */
 .scrim {
   position: fixed; inset: 0; z-index: 40;
-  background: rgba(80, 70, 55, 0.28);
+  background: rgba(26, 22, 18, 0.5);
   backdrop-filter: blur(3px);
   opacity: 0;
   transition: opacity 0.3s var(--ease);
@@ -243,118 +248,208 @@ svg { width: 1em; height: 1em; fill: none; stroke: currentColor; stroke-width: 2
 .scrim.is-open { opacity: 1; }
 .scrim[hidden] { display: none; }
 
-.sheet {
+.glass {
   position: fixed; z-index: 50;
   left: 0; right: 0; bottom: 0;
-  background: var(--surface);
-  border-radius: var(--r-lg) var(--r-lg) 0 0;
-  box-shadow: var(--shadow-lg);
-  padding: 6px 22px calc(20px + var(--safe-b));
-  max-height: 88vh;
-  max-height: 88dvh;
+  max-height: 86vh;
+  max-height: 86dvh;
   display: flex; flex-direction: column;
+  padding: 4px 20px calc(18px + var(--safe-b));
+  border-radius: var(--r-lg) var(--r-lg) 0 0;
+  line-height: 1.55;
+  text-align: left;
+
+  /* właściwe szkło: przepuszcza i rozmywa to, co pod spodem */
+  background: rgba(28, 25, 22, 0.62);
+  -webkit-backdrop-filter: blur(26px) saturate(1.6);
+  backdrop-filter: blur(26px) saturate(1.6);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-bottom: 0;
+  box-shadow:
+    0 -20px 60px rgba(0, 0, 0, 0.42),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22);
+  color: #f4f1ec;
+
   transform: translateY(100%);
-  transition: transform 0.36s var(--ease);
+  transition: transform 0.38s var(--ease), opacity 0.28s var(--ease);
   touch-action: pan-y;
 }
-.sheet[hidden] { display: none; }
-.sheet.is-open { transform: translateY(0); }
-.sheet.is-dragging { transition: none; }
+.glass[hidden] { display: none; }
+.glass.is-open { transform: translateY(0); }
+.glass.is-dragging { transition: none; }
 
-.sheet__grip {
-  padding: 9px 0 11px;
+/* Gdy przeglądarka nie umie rozmywać tła, szkło musi być gęstsze —
+   inaczej tekst zrobi się nieczytelny na zdjęciu. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass { background: rgba(24, 21, 18, 0.94); }
+}
+
+.glass__grip {
+  padding: 9px 0 12px;
   display: grid; place-items: center;
   cursor: grab; flex: none; touch-action: none;
 }
-.sheet__grip span {
+.glass__grip span {
   display: block; width: 44px; height: 4px; border-radius: 999px;
-  background: #ddd5c8;
+  background: rgba(255, 255, 255, 0.34);
 }
 
-.sheet__close {
-  position: absolute; top: 15px; right: 15px;
-  width: 38px; height: 38px;
+.glass__close {
+  position: absolute; top: 14px; right: 14px; z-index: 2;
+  width: 36px; height: 36px;
   display: grid; place-items: center;
   border-radius: 50%;
-  border: 1px solid var(--line);
-  background: var(--paper);
-  color: var(--ink-mid);
-  font-size: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.1);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  color: #fff;
   cursor: pointer;
+  transition: background 0.16s var(--ease);
 }
-.sheet__close:hover { color: var(--ink); border-color: var(--ink-dim); }
+.glass__close:hover { background: rgba(255, 255, 255, 0.2); }
+.glass__close svg { width: 16px; height: 16px; }
 
-.sheet__body { overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: 8px; }
-
-.sheet__head { padding-right: 46px; }
-.sheet__brand {
-  font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
-  color: var(--accent); font-weight: 700;
+.glass__body {
+  overflow-y: auto; -webkit-overflow-scrolling: touch;
+  padding: 2px 46px 8px 0;
 }
-.sheet__name {
-  margin-top: 8px;
+
+.glass__brand {
+  font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase;
+  color: var(--accent-bright); font-weight: 700;
+}
+.glass__name {
+  margin-top: 9px;
   font-family: var(--font-display);
-  font-size: clamp(24px, 6.4vw, 31px);
-  line-height: 1.18; letter-spacing: -0.012em; font-weight: 400;
+  font-size: clamp(24px, 6vw, 30px);
+  line-height: 1.16; letter-spacing: -0.012em; font-weight: 400;
+  color: #fff;
 }
-.sheet__price {
-  margin-top: 11px;
+.glass__price {
+  margin-top: 10px;
   font-size: 21px; font-weight: 700;
   font-variant-numeric: tabular-nums;
+  color: #fff;
 }
 
-.sheet__why {
-  margin-top: 22px;
-  background: var(--accent-soft);
+.glass__why {
+  margin-top: 20px;
+  padding: 15px 17px;
   border-radius: var(--r-md);
-  padding: 16px 18px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
-.sheet__why-label {
-  font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase;
-  color: var(--accent); font-weight: 700;
+.glass__why-label {
+  font-size: 10.5px; letter-spacing: 0.15em; text-transform: uppercase;
+  color: var(--accent-bright); font-weight: 700;
 }
-.sheet__why-text { margin-top: 8px; color: #4d423a; font-size: 14.5px; }
+.glass__why-text {
+  margin-top: 8px; font-size: 14.5px;
+  color: rgba(244, 241, 236, 0.86);
+}
 
-.sheet__specs {
-  margin-top: 18px;
+.glass__specs {
+  margin-top: 16px;
   display: grid; gap: 1px;
-  background: var(--line-soft);
-  border: 1px solid var(--line-soft);
   border-radius: var(--r-md);
   overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.1);
 }
-.sheet__specs[hidden] { display: none; }
-.sheet__specs li {
+.glass__specs[hidden] { display: none; }
+.glass__specs li {
   display: flex; justify-content: space-between; gap: 14px;
-  background: var(--surface);
-  padding: 12px 15px;
+  padding: 11px 15px;
   font-size: 13.5px;
+  background: rgba(28, 25, 22, 0.5);
 }
-.sheet__specs .k { color: var(--ink-dim); }
-.sheet__specs .v { color: var(--ink); text-align: right; font-weight: 600; }
+.glass__specs .k { color: rgba(244, 241, 236, 0.6); }
+.glass__specs .v { color: #fff; text-align: right; font-weight: 600; }
 
-.sheet__cta { flex: none; padding-top: 18px; }
+.glass__cta { flex: none; padding-top: 16px; }
 
 .btn {
   display: flex; align-items: center; justify-content: center; gap: 9px;
   width: 100%;
   min-height: 54px;
-  background: var(--accent);
-  color: var(--accent-ink);
+  background: var(--accent-bright);
+  color: #fff;
   border-radius: var(--r-md);
   font-weight: 700; font-size: 15.5px;
   text-decoration: none;
   transition: filter 0.18s var(--ease), transform 0.1s var(--ease), box-shadow 0.2s var(--ease);
-  box-shadow: 0 4px 14px rgba(194, 69, 26, 0.28);
+  box-shadow: 0 6px 22px rgba(242, 101, 34, 0.36);
 }
 .btn svg { width: 17px; height: 17px; }
-.btn:hover { filter: brightness(1.07); box-shadow: 0 6px 20px rgba(194, 69, 26, 0.34); }
+.btn:hover { filter: brightness(1.08); box-shadow: 0 8px 28px rgba(242, 101, 34, 0.46); }
 .btn:active { transform: translateY(1px); }
 
-.sheet__note {
-  margin-top: 11px; text-align: center;
-  color: var(--ink-dim); font-size: 12px;
+.glass__note {
+  margin-top: 10px; text-align: center;
+  color: rgba(244, 241, 236, 0.55); font-size: 12px;
 }
+
+/* =========================================================
+   Mniejsza karuzela pod zdjęciem
+   ========================================================= */
+.gal { margin: 0 0 44px; }
+.gal[hidden] { display: none; }
+
+.gal__frame {
+  position: relative;
+  max-width: 860px; margin: 0 auto;
+  border-radius: var(--r-md);
+  overflow: hidden;
+  background: var(--surface);
+  border: 1px solid var(--line-soft);
+  box-shadow: var(--shadow-sm);
+}
+.gal__track { display: flex; transition: transform 0.45s var(--ease); }
+
+.gslide {
+  flex: 0 0 100%;
+  display: grid;
+  grid-template-columns: 1fr;   /* na telefonie zdjęcie nad opisem */
+  align-items: center;
+}
+@media (min-width: 700px) {
+  .gslide { grid-template-columns: 1fr 1fr; }
+}
+.gslide__media { align-self: stretch; min-height: 210px; background: var(--paper-warm); line-height: 0; }
+.gslide__media .img { aspect-ratio: 4 / 3; }
+.gslide__body { padding: 24px 26px; }
+.gslide__title {
+  font-family: var(--font-display);
+  font-size: 21px; line-height: 1.16; font-weight: 400;
+}
+.gslide__text { margin-top: 9px; font-size: 13.5px; color: var(--ink-mid); }
+
+.gal__arrow {
+  position: absolute; top: 50%; transform: translateY(-50%);
+  width: 38px; height: 38px; z-index: 3;
+  display: grid; place-items: center;
+  border: 1px solid var(--line); border-radius: 50%;
+  background: rgba(255, 255, 255, 0.94);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  color: var(--ink); cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: background 0.16s var(--ease);
+}
+.gal__arrow:hover { background: #fff; }
+.gal__arrow svg { width: 16px; height: 16px; }
+.gal__arrow--prev { left: 12px; }
+.gal__arrow--next { right: 12px; }
+
+.gal__dots { display: flex; justify-content: center; gap: 8px; margin-top: 14px; }
+.gal__dots button {
+  width: 8px; height: 8px; padding: 0;
+  border: 0; border-radius: 999px;
+  background: #cfc6b7; cursor: pointer;
+  transition: width 0.24s var(--ease), background 0.24s var(--ease);
+}
+.gal__dots button[aria-selected="true"] { width: 24px; background: var(--accent); }
 
 /* ---------- Statystyki ---------- */
 .stats { max-width: 780px; margin: 0 auto; padding: 38px 22px calc(50px + var(--safe-b)); }
@@ -389,38 +484,44 @@ body.is-picking .hotspot { pointer-events: none; }
 /* =========================================================
    Desktop
    ========================================================= */
-@media (min-width: 860px) {
+@media (min-width: 700px) {
   .list__items { grid-template-columns: repeat(2, 1fr); gap: 14px; }
-
-  .sheet {
-    left: auto; right: 22px;
-    top: 50%; bottom: auto;
-    transform: translate(calc(100% + 34px), -50%);
-    width: 410px;
-    max-height: min(86vh, 740px);
-    border-radius: var(--r-lg);
-    border: 1px solid var(--line-soft);
-    padding: 28px 28px;
-    box-shadow: 0 4px 12px rgba(60, 48, 30, 0.06), 0 26px 70px rgba(60, 48, 30, 0.18);
-  }
-  .sheet.is-open { transform: translate(0, -50%); }
-  .sheet__grip { display: none; }
-  .sheet__close { top: 19px; right: 19px; }
-  .sheet__head { padding-top: 4px; }
 }
 
-/* Zdjęcie obok listy. Ramka dokładnie oblepia obrazek (bez object-fit),
-   więc punkty w % trafiają idealnie niezależnie od szerokości kolumny. */
-@media (min-width: 1080px) {
-  .cat-grid {
-    display: grid;
-    grid-template-columns: minmax(0, 520px) minmax(0, 1fr);
-    gap: 36px;
-    align-items: start;
+@media (min-width: 900px) {
+  /* Duże zdjęcie: rośnie do szerokości strony, ale nie wyżej niż okno,
+     żeby cała scena była widoczna bez przewijania. */
+  .stage__img { max-height: 78vh; width: auto; max-width: 100%; }
+  .stage__hint { justify-content: center; }
+
+  /* Panel wjeżdża w kadr zdjęcia zamiast zasłaniać całą stronę. */
+  .glass {
+    position: absolute; z-index: 20;
+    top: 18px; bottom: 18px; right: 18px; left: auto;
+    width: min(380px, 42%);
+    max-height: none;
+    border-radius: var(--r-md);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    padding: 24px 24px 22px;
+    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.22);
+    transform: translateX(calc(100% + 24px));
+    opacity: 0;
   }
-  .cat-grid .stage { position: sticky; top: 92px; margin-bottom: 0; }
-  .cat-grid .block { margin-top: 0; }
-  .cat-grid .list__items { grid-template-columns: 1fr; }
+  /* Kliknięty przedmiot ma zostać widoczny, więc panel ucieka na drugą stronę. */
+  .glass.glass--left {
+    right: auto; left: 18px;
+    transform: translateX(calc(-100% - 24px));
+  }
+  .glass.is-open { transform: translateX(0); opacity: 1; }
+
+  .glass__grip { display: none; }
+  .glass__body { padding-top: 4px; }
+
+  /* Na desktopie panel jest w kadrze — przyciemnianie całej strony byłoby przesadą. */
+  .scrim { display: none; }
+
+  .gslide__media { min-height: 240px; }
+  .gslide__body { padding: 28px 32px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

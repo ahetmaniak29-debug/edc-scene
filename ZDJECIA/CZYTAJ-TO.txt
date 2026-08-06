@@ -20,6 +20,10 @@ nazywa i gdzie ma trafić — resztę podłączę.
               szerokie i niskie, ok. 1600 x 600 px
 
 
+  _oryginaly/ zdjęcia przed obróbką — zostają na Twoim dysku,
+              nie trafiają na stronę ani do repozytorium
+
+
 NAZYWANIE PLIKÓW
 ----------------
 Bez polskich znaków i bez spacji — inaczej przeglądarka się gubi.
