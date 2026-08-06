@@ -11,14 +11,38 @@ i czy przechodzą do sklepów małych marek.
 ## Co jest w środku
 
 ```
-index.html                      strona
-assets/css/style.css            motyw (jasne papierowe tło, jeden akcent)
-assets/js/app.js                logika sceny i panelu
+ZDJECIA/                        >>> TUTAJ WRZUCASZ ZDJĘCIA <<<
+
+index.html                      strona główna sklepu
+scena.html                      strona kategorii z klikalnym zdjęciem
+
+data/home.json                  cała treść strony głównej
+data/scenes.json                spis scen + ustawienia
+data/scenes/outdoor-edc.json    produkty sceny "EDC"
+
+assets/css/style.css            motyw wspólny (kolory, cienie, panel produktu)
+assets/css/home.css             układ strony głównej
+assets/js/home.js               strona główna: karuzela, menu, sekcje
+assets/js/app.js                scena: punkty i panel produktu
 assets/js/counter.js            licznik kliknięć
 assets/scenes/outdoor-edc.svg   ZDJĘCIE ZASTĘPCZE — podmień na własne
-data/scenes.json                spis scen + ustawienia strony
-data/scenes/outdoor-edc.json    produkty tej sceny
 ```
+
+Dwa rodzaje stron: **strona główna** (witryna sklepu) i **strona kategorii**
+(klikalne zdjęcie). Scen może być wiele — każda pod własnym adresem
+`scena.html?scene=<id>`. Kategoria „EDC" na stronie głównej prowadzi właśnie tam.
+
+### Gdzie co edytujesz
+
+| Chcesz zmienić…                        | Otwórz                        |
+|----------------------------------------|-------------------------------|
+| teksty, przyciski, menu, stopkę        | `data/home.json`              |
+| produkty i punkty na zdjęciu sceny     | `data/scenes/outdoor-edc.json`|
+| kolory i czcionki                      | `assets/css/style.css` (góra) |
+
+W `data/home.json` **puste `"image"` rysuje na stronie szarą ramkę** z podpisem,
+jakie zdjęcie tam wrzucić i w jakim rozmiarze. Wpisz ścieżkę
+(np. `"ZDJECIA/hero/moje-zdjecie.jpg"`), żeby ramkę zastąpić zdjęciem.
 
 Nazwa kategorii **nie jest zaszyta w kodzie ani w brandingu** — siedzi wyłącznie
 w danych (`label` sceny i pole `category` przy produkcie). Dodanie drugiej sceny

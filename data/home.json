@@ -1,0 +1,131 @@
+{
+  "_uwaga": "Cała treść strony głównej siedzi w tym pliku. Puste \"image\" pokazuje na stronie szarą ramkę z podpowiedzią, jakie zdjęcie tam wrzucić. Wpisz ścieżkę, np. \"ZDJECIA/hero/moje-zdjecie.jpg\", żeby podmienić.",
+
+  "brand": "NAZWA SKLEPU",
+
+  "nav": [
+    { "label": "Sklep",      "href": "#", "dropdown": true },
+    { "label": "Kategorie",  "href": "#", "dropdown": true },
+    { "label": "Nowości",    "href": "#" },
+    { "label": "Wyprzedaż",  "href": "#" },
+    { "label": "Marki",      "href": "#" }
+  ],
+
+  "searchPlaceholder": "Szukaj produktów, marek i nie tylko...",
+
+  "hero": [
+    {
+      "badge": "NAGŁÓWEK SEKCJI",
+      "title": "Główne hasło.\nDruga linia.",
+      "text": "Miejsce na jedno–dwa zdania, które tłumaczą, o co chodzi w sklepie.",
+      "primary": { "label": "Przycisk główny", "href": "#" },
+      "secondary": { "label": "Przycisk drugi", "href": "#" },
+      "image": ""
+    },
+    {
+      "badge": "DRUGI SLAJD",
+      "title": "Kolejne hasło\nna drugim slajdzie.",
+      "text": "Tu wchodzi inny komunikat — np. sezonowa kolekcja albo promocja.",
+      "primary": { "label": "Przycisk główny", "href": "#" },
+      "secondary": { "label": "Przycisk drugi", "href": "#" },
+      "image": ""
+    },
+    {
+      "badge": "TRZECI SLAJD",
+      "title": "Trzecie hasło\ndo wypełnienia.",
+      "text": "Ostatni slajd karuzeli. Slajdy dodajesz i usuwasz w tym pliku.",
+      "primary": { "label": "Przycisk główny", "href": "#" },
+      "secondary": { "label": "Przycisk drugi", "href": "#" },
+      "image": ""
+    }
+  ],
+
+  "trust": [
+    { "icon": "truck",  "title": "Darmowa dostawa",     "text": "Przy zamówieniach powyżej X zł" },
+    { "icon": "return", "title": "Łatwe zwroty",        "text": "30 dni na zwrot towaru" },
+    { "icon": "shield", "title": "Bezpieczne płatności","text": "Szyfrowana transakcja" },
+    { "icon": "help",   "title": "Wsparcie 24/7",       "text": "Jesteśmy do dyspozycji" }
+  ],
+
+  "categoriesTitle": "Kategorie",
+  "categories": [
+    { "name": "Nowości",     "href": "#", "badge": "NOWE", "image": "" },
+    { "name": "Kategoria 2", "href": "#", "image": "" },
+    { "name": "Kategoria 3", "href": "#", "image": "" },
+    { "name": "Kategoria 4", "href": "#", "image": "" },
+    { "name": "Kategoria 5", "href": "#", "image": "" },
+    { "name": "Kategoria 6", "href": "#", "image": "" },
+    { "name": "Kategoria 7", "href": "#", "image": "" },
+    { "name": "EDC",         "href": "scena.html?scene=outdoor-edc", "image": "" },
+    { "name": "Kategoria 9", "href": "#", "image": "" }
+  ],
+  "categoriesAllLabel": "Zobacz wszystkie kategorie",
+
+  "tiles": [
+    { "title": "Kafelek pierwszy",  "text": "Jedno zdanie opisu.",     "cta": "Zobacz", "href": "#", "image": "" },
+    { "title": "Kafelek drugi",     "text": "Jedno zdanie opisu.",     "cta": "Zobacz", "href": "#", "image": "" },
+    { "title": "Kafelek trzeci",    "text": "Jedno zdanie opisu.",     "cta": "Zobacz", "href": "#", "image": "" },
+    { "title": "Hasło promocyjne",  "text": "Warunki promocji.", "cta": "Przejdź do promocji", "href": "#", "image": "", "dark": true, "kicker": "OFERTA OGRANICZONA CZASOWO" }
+  ],
+
+  "collectionsTitle": "Wybrane kolekcje",
+  "collectionsAllLabel": "Zobacz wszystkie kolekcje",
+  "collections": {
+    "featured": {
+      "kicker": "PODPIS NAD TYTUŁEM",
+      "title": "Nazwa kolekcji",
+      "text": "Dwa krótkie zdania o tym, co jest w tej kolekcji i dla kogo.",
+      "cta": "Zobacz kolekcję",
+      "href": "#",
+      "image": ""
+    },
+    "side": [
+      { "title": "Kolekcja druga", "text": "Krótki podpis pod tytułem.", "cta": "Zobacz", "href": "#", "image": "" },
+      { "title": "Kolekcja trzecia", "text": "Krótki podpis pod tytułem.", "cta": "Zobacz", "href": "#", "image": "" }
+    ]
+  },
+
+  "productsTitle": "Najczęściej kupowane",
+  "productsAllLabel": "Zobacz wszystkie produkty",
+  "products": [
+    { "name": "Nazwa produktu 1", "price": "0,00 zł", "rating": 0, "reviews": 0, "href": "#", "image": "" },
+    { "name": "Nazwa produktu 2", "price": "0,00 zł", "rating": 0, "reviews": 0, "href": "#", "image": "" },
+    { "name": "Nazwa produktu 3", "price": "0,00 zł", "rating": 0, "reviews": 0, "href": "#", "image": "" },
+    { "name": "Nazwa produktu 4", "price": "0,00 zł", "rating": 0, "reviews": 0, "href": "#", "image": "" },
+    { "name": "Nazwa produktu 5", "price": "0,00 zł", "rating": 0, "reviews": 0, "href": "#", "image": "" },
+    { "name": "Nazwa produktu 6", "price": "0,00 zł", "rating": 0, "reviews": 0, "href": "#", "image": "" }
+  ],
+
+  "about": {
+    "kicker": "O NAS",
+    "title": "Hasło o marce.",
+    "text": "Dwa–trzy zdania o tym, kim jesteście i dlaczego warto u was kupować.",
+    "cta": "Dowiedz się więcej",
+    "href": "#",
+    "image": ""
+  },
+
+  "values": [
+    { "icon": "star",   "title": "Wartość pierwsza",  "text": "Krótkie wyjaśnienie." },
+    { "icon": "tag",    "title": "Wartość druga",     "text": "Krótkie wyjaśnienie." },
+    { "icon": "trend",  "title": "Wartość trzecia",   "text": "Krótkie wyjaśnienie." },
+    { "icon": "people", "title": "Wartość czwarta",   "text": "Krótkie wyjaśnienie." }
+  ],
+
+  "newsletter": {
+    "title": "Tytuł zapisu na newsletter",
+    "text": "Jedno zdanie zachęty.",
+    "placeholder": "Twój adres e-mail",
+    "cta": "Zapisz się"
+  },
+
+  "footer": {
+    "about": "Jedno–dwa zdania o sklepie pod logotypem w stopce.",
+    "columns": [
+      { "title": "Sklep",     "links": ["Odnośnik 1", "Odnośnik 2", "Odnośnik 3", "Odnośnik 4"] },
+      { "title": "Pomoc",     "links": ["Odnośnik 1", "Odnośnik 2", "Odnośnik 3", "Odnośnik 4"] },
+      { "title": "Firma",     "links": ["Odnośnik 1", "Odnośnik 2", "Odnośnik 3", "Odnośnik 4"] }
+    ],
+    "legal": "© NAZWA SKLEPU. Wszystkie prawa zastrzeżone."
+  }
+}

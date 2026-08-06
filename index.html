@@ -3,92 +3,133 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Scena</title>
-  <meta name="description" content="Wyselekcjonowany sprzęt na jednym zdjęciu. Dotknij przedmiotu, żeby zobaczyć szczegóły.">
+  <title>Sklep</title>
+  <meta name="description" content="Strona główna sklepu.">
   <meta name="theme-color" content="#f7f4ee">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="assets/css/home.css">
 </head>
-<body>
-  <a class="skip-link" href="#lista">Przejdź do listy przedmiotów</a>
+<body class="home">
+  <a class="skip-link" href="#tresc">Przejdź do treści</a>
 
-  <header class="topbar">
-    <div class="topbar__inner">
-      <span class="wordmark" data-site-name>Scena</span>
-      <span class="chip" data-scene-label hidden></span>
+  <!-- ================= NAGŁÓWEK ================= -->
+  <header class="hdr">
+    <div class="hdr__inner shell">
+      <a class="hdr__logo" href="index.html" data-brand>&nbsp;</a>
+
+      <nav class="hdr__nav" aria-label="Główne">
+        <ul data-nav></ul>
+      </nav>
+
+      <form class="hdr__search" role="search" onsubmit="return false">
+        <input type="search" data-search aria-label="Szukaj">
+        <button type="submit" aria-label="Szukaj">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        </button>
+      </form>
+
+      <div class="hdr__actions">
+        <a class="hdr__act" href="#">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+          <span>Konto</span>
+        </a>
+        <a class="hdr__act" href="#">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-8-4.9-8-10a4.6 4.6 0 018-3 4.6 4.6 0 018 3c0 5.1-8 10-8 10z"/></svg>
+          <span>Ulubione</span>
+          <em class="hdr__count">0</em>
+        </a>
+        <a class="hdr__act" href="#">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8h12l-1 12H7L6 8z"/><path d="M9 8V6a3 3 0 016 0v2"/></svg>
+          <span>Koszyk</span>
+          <em class="hdr__count">0</em>
+        </a>
+        <button class="hdr__burger" type="button" data-burger aria-label="Menu">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+        </button>
+      </div>
     </div>
   </header>
 
-  <main class="page">
-    <section class="intro">
-      <h1 class="intro__title" data-scene-title>&nbsp;</h1>
-      <p class="intro__sub" data-scene-subtitle></p>
-    </section>
+  <main id="tresc">
+    <div class="shell">
 
-    <!-- Scena: zdjęcie + punkty. Punkty są pozycjonowane w % względem obrazka,
-         więc skalują się razem z nim na każdym ekranie. -->
-    <section class="stage" aria-label="Scena z przedmiotami">
-      <div class="stage__frame" data-stage>
-        <img class="stage__img" data-scene-img alt="" decoding="async">
-        <div class="stage__hotspots" data-hotspots></div>
-        <div class="stage__loading" data-stage-loading>Wczytywanie sceny…</div>
-      </div>
-      <p class="stage__hint" data-stage-hint hidden>
-        <span class="stage__hint-dot" aria-hidden="true"></span>
-        Dotknij numeru, żeby zobaczyć przedmiot
-      </p>
-    </section>
+      <!-- ================= HERO / KARUZELA ================= -->
+      <section class="hero" aria-label="Wyróżnione" aria-roledescription="carousel">
+        <div class="hero__track" data-hero-track></div>
 
-    <!-- Fallback / dostępność: ta sama lista produktów w formie tekstowej.
-         Działa też, gdy ktoś nie trafi w punkt na zdjęciu. -->
-    <section class="list" id="lista">
-      <h2 class="list__title">Wszystko na tym zdjęciu</h2>
-      <ul class="list__items" data-product-list></ul>
-    </section>
+        <button class="hero__arrow hero__arrow--prev" type="button" data-hero-prev aria-label="Poprzedni slajd">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+        </button>
+        <button class="hero__arrow hero__arrow--next" type="button" data-hero-next aria-label="Następny slajd">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+        </button>
 
-    <footer class="foot">
-      <p data-foot-note></p>
-      <p class="foot__meta">
-        <a href="?stats=1">Statystyki kliknięć</a>
-      </p>
-    </footer>
+        <div class="hero__dots" data-hero-dots role="tablist" aria-label="Wybór slajdu"></div>
+      </section>
+
+      <!-- ================= PASEK ZAUFANIA ================= -->
+      <section class="trust" aria-label="Nasze zasady">
+        <ul class="trust__list" data-trust></ul>
+      </section>
+
+      <!-- ================= KATEGORIE ================= -->
+      <section class="cats" aria-labelledby="cats-h">
+        <h2 class="sr-only" id="cats-h">Kategorie</h2>
+        <ul class="cats__list" data-cats></ul>
+      </section>
+
+      <!-- ================= KAFELKI PROMOCYJNE ================= -->
+      <section class="tiles" aria-label="Wyróżnione sekcje">
+        <div class="tiles__grid" data-tiles></div>
+      </section>
+
+      <!-- ================= KOLEKCJE ================= -->
+      <section class="block" aria-labelledby="coll-h">
+        <div class="block__head">
+          <h2 class="block__title" id="coll-h" data-collections-title></h2>
+          <a class="block__more" href="#" data-collections-all></a>
+        </div>
+        <div class="colls" data-collections></div>
+      </section>
+
+      <!-- ================= PRODUKTY ================= -->
+      <section class="block" aria-labelledby="prod-h">
+        <div class="block__head">
+          <h2 class="block__title" id="prod-h" data-products-title></h2>
+          <a class="block__more" href="#" data-products-all></a>
+        </div>
+        <ul class="prods" data-products></ul>
+      </section>
+
+      <!-- ================= O NAS ================= -->
+      <section class="about" data-about></section>
+
+      <!-- ================= WARTOŚCI ================= -->
+      <section class="vals" aria-label="Dlaczego my">
+        <ul class="vals__list" data-values></ul>
+      </section>
+
+      <!-- ================= NEWSLETTER ================= -->
+      <section class="news" data-newsletter></section>
+
+    </div>
   </main>
 
-  <!-- Panel produktu: bottom sheet na telefonie, panel boczny na desktopie -->
-  <div class="scrim" data-scrim hidden></div>
-  <aside class="sheet" data-sheet hidden aria-modal="true" role="dialog" aria-labelledby="sheet-name">
-    <div class="sheet__grip" data-sheet-grip><span></span></div>
-    <button class="sheet__close" data-sheet-close type="button" aria-label="Zamknij">
+  <!-- ================= STOPKA ================= -->
+  <footer class="ftr">
+    <div class="shell ftr__inner" data-footer></div>
+  </footer>
+
+  <!-- Menu mobilne -->
+  <div class="mnav__scrim" data-mnav-scrim hidden></div>
+  <nav class="mnav" data-mnav hidden aria-label="Menu mobilne">
+    <button class="mnav__close" type="button" data-mnav-close aria-label="Zamknij">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
     </button>
+    <ul data-mnav-list></ul>
+  </nav>
 
-    <div class="sheet__body">
-      <div class="sheet__head">
-        <p class="sheet__brand" data-sheet-brand></p>
-        <h2 class="sheet__name" id="sheet-name" data-sheet-name></h2>
-        <p class="sheet__price" data-sheet-price></p>
-      </div>
-
-      <div class="sheet__why">
-        <p class="sheet__why-label">Dlaczego polecamy</p>
-        <p class="sheet__why-text" data-sheet-why></p>
-      </div>
-
-      <ul class="sheet__specs" data-sheet-specs hidden></ul>
-    </div>
-
-    <div class="sheet__cta">
-      <a class="btn" data-sheet-link target="_blank" rel="noopener noreferrer">
-        <span data-sheet-cta>Zobacz u sprzedawcy</span>
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17L17 7M9 7h8v8"/></svg>
-      </a>
-      <p class="sheet__note" data-sheet-note></p>
-    </div>
-  </aside>
-
-  <!-- Widok statystyk (?stats=1) -->
-  <section class="stats" data-stats hidden></section>
-
-  <script src="assets/js/app.js" type="module"></script>
+  <script src="assets/js/home.js" type="module"></script>
 </body>
 </html>
