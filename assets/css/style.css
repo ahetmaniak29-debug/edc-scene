@@ -189,10 +189,50 @@ svg { width: 1em; height: 1em; fill: none; stroke: currentColor; stroke-width: 2
 }
 .stage__hint.is-hidden { opacity: 0; transition: opacity 0.4s var(--ease); }
 
+/* ---------- Zwijana lista ---------- */
+.fold {
+  background: var(--surface);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+.fold__head {
+  display: flex; align-items: center; gap: 12px;
+  padding: 18px 20px;
+  cursor: pointer;
+  list-style: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.16s var(--ease);
+}
+.fold__head::-webkit-details-marker { display: none; }
+.fold__head:hover { background: var(--paper); }
+.fold__title {
+  font-family: var(--font-display);
+  font-size: clamp(19px, 2.2vw, 24px); font-weight: 400; letter-spacing: -0.01em;
+}
+.fold__count {
+  font-size: 12px; font-weight: 700;
+  color: var(--accent); background: var(--accent-soft);
+  border-radius: 999px; padding: 3px 10px;
+}
+.fold__chev {
+  margin-left: auto; flex: none;
+  width: 32px; height: 32px;
+  display: grid; place-items: center;
+  border: 1px solid var(--line); border-radius: 50%;
+  color: var(--ink-mid);
+  transition: transform 0.26s var(--ease), border-color 0.16s var(--ease);
+}
+.fold__chev svg { width: 16px; height: 16px; }
+.fold[open] .fold__chev { transform: rotate(180deg); }
+.fold__head:hover .fold__chev { border-color: var(--accent-bright); color: var(--accent); }
+
 /* ---------- Lista ---------- */
 .list__items {
   display: grid; gap: 12px;
   grid-template-columns: 1fr;
+  padding: 4px 16px 18px;
 }
 .list__btn {
   width: 100%;
@@ -259,16 +299,19 @@ svg { width: 1em; height: 1em; fill: none; stroke: currentColor; stroke-width: 2
   line-height: 1.55;
   text-align: left;
 
-  /* właściwe szkło: przepuszcza i rozmywa to, co pod spodem */
-  background: rgba(28, 25, 22, 0.62);
-  -webkit-backdrop-filter: blur(26px) saturate(1.6);
-  backdrop-filter: blur(26px) saturate(1.6);
-  border: 1px solid rgba(255, 255, 255, 0.16);
+  /* właściwe szkło: przepuszcza i rozmywa to, co pod spodem.
+     Im niższa nieprzezroczystość tła, tym mocniejsze musi być rozmycie —
+     inaczej litery zaczynają się gubić w tym, co prześwituje. */
+  background: rgba(26, 23, 20, 0.38);
+  -webkit-backdrop-filter: blur(34px) saturate(1.7) brightness(0.78);
+  backdrop-filter: blur(34px) saturate(1.7) brightness(0.78);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-bottom: 0;
   box-shadow:
     0 -20px 60px rgba(0, 0, 0, 0.42),
-    inset 0 1px 0 rgba(255, 255, 255, 0.22);
-  color: #f4f1ec;
+    inset 0 1px 0 rgba(255, 255, 255, 0.26);
+  color: #f7f5f2;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.34);
 
   transform: translateY(100%);
   transition: transform 0.38s var(--ease), opacity 0.28s var(--ease);
@@ -281,7 +324,7 @@ svg { width: 1em; height: 1em; fill: none; stroke: currentColor; stroke-width: 2
 /* Gdy przeglądarka nie umie rozmywać tła, szkło musi być gęstsze —
    inaczej tekst zrobi się nieczytelny na zdjęciu. */
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .glass { background: rgba(24, 21, 18, 0.94); }
+  .glass { background: rgba(24, 21, 18, 0.94); text-shadow: none; }
 }
 
 .glass__grip {
@@ -337,8 +380,8 @@ svg { width: 1em; height: 1em; fill: none; stroke: currentColor; stroke-width: 2
   margin-top: 20px;
   padding: 15px 17px;
   border-radius: var(--r-md);
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
 }
 .glass__why-label {
   font-size: 10.5px; letter-spacing: 0.15em; text-transform: uppercase;
@@ -362,7 +405,7 @@ svg { width: 1em; height: 1em; fill: none; stroke: currentColor; stroke-width: 2
   display: flex; justify-content: space-between; gap: 14px;
   padding: 11px 15px;
   font-size: 13.5px;
-  background: rgba(28, 25, 22, 0.5);
+  background: rgba(26, 23, 20, 0.26);
 }
 .glass__specs .k { color: rgba(244, 241, 236, 0.6); }
 .glass__specs .v { color: #fff; text-align: right; font-weight: 600; }
@@ -398,7 +441,7 @@ svg { width: 1em; height: 1em; fill: none; stroke: currentColor; stroke-width: 2
 
 .gal__frame {
   position: relative;
-  max-width: 860px; margin: 0 auto;
+  max-width: 1140px; margin: 0 auto;
   border-radius: var(--r-md);
   overflow: hidden;
   background: var(--surface);
@@ -414,16 +457,17 @@ svg { width: 1em; height: 1em; fill: none; stroke: currentColor; stroke-width: 2
   align-items: center;
 }
 @media (min-width: 700px) {
-  .gslide { grid-template-columns: 1fr 1fr; }
+  /* zdjęcie dostaje więcej miejsca niż opis — to ono jest treścią */
+  .gslide { grid-template-columns: 1.5fr 1fr; }
 }
-.gslide__media { align-self: stretch; min-height: 210px; background: var(--paper-warm); line-height: 0; }
+.gslide__media { align-self: stretch; min-height: 260px; background: var(--paper-warm); line-height: 0; }
 .gslide__media .img { aspect-ratio: 4 / 3; }
-.gslide__body { padding: 24px 26px; }
+.gslide__body { padding: 26px 28px; }
 .gslide__title {
   font-family: var(--font-display);
-  font-size: 21px; line-height: 1.16; font-weight: 400;
+  font-size: 23px; line-height: 1.16; font-weight: 400;
 }
-.gslide__text { margin-top: 9px; font-size: 13.5px; color: var(--ink-mid); }
+.gslide__text { margin-top: 10px; font-size: 14px; color: var(--ink-mid); }
 
 .gal__arrow {
   position: absolute; top: 50%; transform: translateY(-50%);
@@ -491,7 +535,7 @@ body.is-picking .hotspot { pointer-events: none; }
 @media (min-width: 900px) {
   /* Duże zdjęcie: rośnie do szerokości strony, ale nie wyżej niż okno,
      żeby cała scena była widoczna bez przewijania. */
-  .stage__img { max-height: 78vh; width: auto; max-width: 100%; }
+  .stage__img { max-height: 88vh; width: auto; max-width: 100%; }
   .stage__hint { justify-content: center; }
 
   /* Panel wjeżdża w kadr zdjęcia zamiast zasłaniać całą stronę. */
@@ -520,8 +564,8 @@ body.is-picking .hotspot { pointer-events: none; }
   /* Na desktopie panel jest w kadrze — przyciemnianie całej strony byłoby przesadą. */
   .scrim { display: none; }
 
-  .gslide__media { min-height: 240px; }
-  .gslide__body { padding: 28px 32px; }
+  .gslide__media { min-height: 330px; }
+  .gslide__body { padding: 32px 38px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -166,6 +166,9 @@ function renderList(products) {
     li.appendChild(btn);
     ul.appendChild(li);
   });
+
+  const count = $('[data-list-count]');
+  if (count) count.textContent = products.length;
 }
 
 /* ------------------------------------------------------------------ *
@@ -283,6 +286,7 @@ function openProduct(p, { silent = false } = {}) {
 }
 
 function closeSheet() {
+  if (sheet.hidden) return;
   sheet.classList.remove('is-open');
   scrim.classList.remove('is-open');
   document.body.classList.remove('is-locked');
@@ -305,6 +309,15 @@ scrim.addEventListener('click', closeSheet);
 
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape' && !sheet.hidden) closeSheet();
+});
+
+// Kliknięcie gdziekolwiek poza panelem go zamyka.
+// Wyjątkiem są punkty i pozycje listy — one mają przełączać produkt, nie zamykać.
+document.addEventListener('click', e => {
+  if (sheet.hidden || !sheet.classList.contains('is-open')) return;
+  if (e.target.closest('[data-sheet]')) return;
+  if (e.target.closest('.hotspot, .list__btn')) return;
+  closeSheet();
 });
 
 // Kliknięcie do sprzedawcy — najważniejszy sygnał, jaki mierzymy.
