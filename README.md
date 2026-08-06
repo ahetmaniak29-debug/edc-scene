@@ -21,8 +21,9 @@ data/scenes.json                spis scen + ustawienia
 data/scenes/outdoor-edc.json    produkty sceny "EDC"
 
 assets/css/style.css            motyw wspólny (kolory, cienie, panel produktu)
-assets/css/home.css             układ strony głównej
-assets/js/home.js               strona główna: karuzela, menu, sekcje
+assets/css/home.css             układ strony głównej i kategorii
+assets/js/chrome.js             wspólny nagłówek, menu i stopka obu stron
+assets/js/home.js               strona główna: karuzela, sekcje
 assets/js/app.js                scena: punkty i panel produktu
 assets/js/counter.js            licznik kliknięć
 assets/scenes/outdoor-edc.svg   ZDJĘCIE ZASTĘPCZE — podmień na własne

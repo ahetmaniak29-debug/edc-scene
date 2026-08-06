@@ -1,4 +1,5 @@
 import { track, getScene, getAll, reset } from './counter.js';
+import { icon, loadSite, renderChrome } from './chrome.js';
 
 const $  = (sel, root = document) => root.querySelector(sel);
 const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
@@ -23,6 +24,15 @@ async function loadJSON(path) {
 }
 
 async function boot() {
+  // Wspólna oprawa (nagłówek, menu, stopka) — ta sama co na stronie głównej.
+  try {
+    const site = await loadSite();
+    renderChrome(site, 'scena.html');
+    renderTrust(site.trust || []);
+  } catch (err) {
+    console.error(err);   // brak oprawy nie może zablokować samej sceny
+  }
+
   try {
     state.config = await loadJSON('data/scenes.json');
   } catch (err) {
@@ -30,13 +40,7 @@ async function boot() {
   }
 
   state.endpoint = state.config.analytics?.endpoint || '';
-
-  const site = state.config.site || {};
-  if (site.name) {
-    $('[data-site-name]').textContent = site.name;
-    document.title = site.name;
-  }
-  $('[data-foot-note]').textContent = site.footerNote || '';
+  $('[data-foot-note]').textContent = state.config.site?.footerNote || '';
 
   // Która scena? ?scene=<id>, inaczej defaultScene, inaczej pierwsza z listy.
   const wanted = params.get('scene');
@@ -69,16 +73,31 @@ function fail(err) {
  * Scena
  * ------------------------------------------------------------------ */
 
+function renderTrust(items) {
+  const box = $('[data-trust]');
+  if (!box) return;
+  box.innerHTML = items.map(t => `
+    <li>
+      <span class="trust__ico">${icon(t.icon)}</span>
+      <span>
+        <span class="trust__t">${escapeHTML(t.title)}</span>
+        <span class="trust__s">${escapeHTML(t.text)}</span>
+      </span>
+    </li>`).join('');
+}
+
 function renderScene() {
   const s = state.scene;
 
   $('[data-scene-title]').textContent = s.title || '';
   $('[data-scene-subtitle]').textContent = s.subtitle || '';
+  document.title = s.label ? `${s.label} — ${document.title}` : document.title;
 
   // Etykieta kategorii bierze się z danych — nigdzie nie jest zaszyta w kodzie.
   const label = s.label || s.products?.[0]?.category || '';
   const chip = $('[data-scene-label]');
   if (label) { chip.textContent = label; chip.hidden = false; }
+  $('[data-crumb]').textContent = label;
 
   const img = $('[data-scene-img]');
   img.alt = s.imageAlt || '';
@@ -270,8 +289,8 @@ $('[data-sheet-link]').addEventListener('click', () => {
  * ------------------------------------------------------------------ */
 
 function renderStats() {
-  $('.page').hidden = true;
-  $('.topbar').hidden = true;
+  $('#tresc').hidden = true;
+  $('.ftr').hidden = true;
 
   const box = $('[data-stats]');
   const counts = getScene(state.scene.id);

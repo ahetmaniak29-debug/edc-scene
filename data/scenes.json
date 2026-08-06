@@ -2,8 +2,7 @@
   "_komentarz": "Spis scen + ustawienia całej strony. Żeby dodać drugą scenę: wrzuć nowy plik do data/scenes/ i dopisz jego id na listę 'scenes'. Nic w kodzie nie trzeba zmieniać.",
 
   "site": {
-    "name": "Scena",
-    "footerNote": "Wybieramy sprzęt od małych, niezależnych marek. Linki prowadzą bezpośrednio do sprzedawcy.",
+    "footerNote": "Notka pod listą — np. skąd bierzecie produkty i dokąd prowadzą linki.",
     "outboundNote": "Przejdziesz na stronę sprzedawcy"
   },
 

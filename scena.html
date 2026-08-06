@@ -3,56 +3,114 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Scena</title>
+  <title>Kategoria</title>
   <meta name="description" content="Wyselekcjonowany sprzęt na jednym zdjęciu. Dotknij przedmiotu, żeby zobaczyć szczegóły.">
   <meta name="theme-color" content="#f7f4ee">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="assets/css/home.css">
 </head>
-<body>
-  <a class="skip-link" href="#lista">Przejdź do listy przedmiotów</a>
+<body class="home">
+  <a class="skip-link" href="#tresc">Przejdź do treści</a>
 
-  <header class="topbar">
-    <div class="topbar__inner">
-      <a class="wordmark" href="index.html" data-site-name>Scena</a>
-      <span class="chip" data-scene-label hidden></span>
+  <!-- ================= NAGŁÓWEK (wspólny ze stroną główną) ================= -->
+  <header class="hdr">
+    <div class="hdr__inner shell">
+      <a class="hdr__logo" href="index.html" data-brand>&nbsp;</a>
+
+      <nav class="hdr__nav" aria-label="Główne">
+        <ul data-nav></ul>
+      </nav>
+
+      <form class="hdr__search" role="search" onsubmit="return false">
+        <input type="search" data-search aria-label="Szukaj">
+        <button type="submit" aria-label="Szukaj">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        </button>
+      </form>
+
+      <div class="hdr__actions">
+        <a class="hdr__act" href="#">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+          <span>Konto</span>
+        </a>
+        <a class="hdr__act" href="#">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-8-4.9-8-10a4.6 4.6 0 018-3 4.6 4.6 0 018 3c0 5.1-8 10-8 10z"/></svg>
+          <span>Ulubione</span>
+          <em class="hdr__count">0</em>
+        </a>
+        <a class="hdr__act" href="#">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8h12l-1 12H7L6 8z"/><path d="M9 8V6a3 3 0 016 0v2"/></svg>
+          <span>Koszyk</span>
+          <em class="hdr__count">0</em>
+        </a>
+        <button class="hdr__burger" type="button" data-burger aria-label="Menu">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+        </button>
+      </div>
     </div>
   </header>
 
-  <main class="page">
-    <section class="intro">
-      <h1 class="intro__title" data-scene-title>&nbsp;</h1>
-      <p class="intro__sub" data-scene-subtitle></p>
-    </section>
+  <main id="tresc">
+    <div class="shell">
 
-    <!-- Scena: zdjęcie + punkty. Punkty są pozycjonowane w % względem obrazka,
-         więc skalują się razem z nim na każdym ekranie. -->
-    <section class="stage" aria-label="Scena z przedmiotami">
-      <div class="stage__frame" data-stage>
-        <img class="stage__img" data-scene-img alt="" decoding="async">
-        <div class="stage__hotspots" data-hotspots></div>
-        <div class="stage__loading" data-stage-loading>Wczytywanie sceny…</div>
-      </div>
-      <p class="stage__hint" data-stage-hint hidden>
-        <span class="stage__hint-dot" aria-hidden="true"></span>
-        Dotknij numeru, żeby zobaczyć przedmiot
-      </p>
-    </section>
+      <!-- Okruszki -->
+      <nav class="crumbs" aria-label="Ścieżka">
+        <a href="index.html">Strona główna</a>
+        <span aria-hidden="true">/</span>
+        <span data-crumb aria-current="page"></span>
+      </nav>
 
-    <!-- Fallback / dostępność: ta sama lista produktów w formie tekstowej.
-         Działa też, gdy ktoś nie trafi w punkt na zdjęciu. -->
-    <section class="list" id="lista">
-      <h2 class="list__title">Wszystko na tym zdjęciu</h2>
-      <ul class="list__items" data-product-list></ul>
-    </section>
+      <!-- Nagłówek kategorii -->
+      <section class="chead">
+        <p class="chead__kicker" data-scene-label hidden></p>
+        <h1 class="chead__title" data-scene-title>&nbsp;</h1>
+        <p class="chead__sub" data-scene-subtitle></p>
+      </section>
 
-    <footer class="foot">
-      <p data-foot-note></p>
-      <p class="foot__meta">
-        <a href="?stats=1">Statystyki kliknięć</a>
-      </p>
-    </footer>
+      <!-- Na szerokim ekranie zdjęcie i lista stoją obok siebie -->
+      <div class="cat-grid">
+
+      <!-- Scena: zdjęcie + punkty. Punkty są pozycjonowane w % względem obrazka,
+           więc skalują się razem z nim na każdym ekranie. -->
+      <section class="stage" aria-label="Scena z przedmiotami">
+        <div class="stage__frame" data-stage>
+          <img class="stage__img" data-scene-img alt="" decoding="async">
+          <div class="stage__hotspots" data-hotspots></div>
+          <div class="stage__loading" data-stage-loading>Wczytywanie sceny…</div>
+        </div>
+        <p class="stage__hint" data-stage-hint hidden>
+          <span class="stage__hint-dot" aria-hidden="true"></span>
+          Dotknij numeru, żeby zobaczyć przedmiot
+        </p>
+      </section>
+
+      <!-- Lista tekstowa: to samo, co punkty na zdjęciu.
+           Działa też, gdy ktoś nie trafi w punkt. -->
+      <section class="block" id="lista" aria-labelledby="lista-h">
+        <div class="block__head">
+          <h2 class="block__title" id="lista-h">Wszystko na tym zdjęciu</h2>
+          <a class="block__more" href="index.html">Wróć do sklepu</a>
+        </div>
+        <ul class="list__items" data-product-list></ul>
+      </section>
+
+      </div><!-- /.cat-grid -->
+
+      <!-- Pasek zaufania — ten sam co na stronie głównej -->
+      <section class="trust" aria-label="Nasze zasady">
+        <ul class="trust__list" data-trust></ul>
+      </section>
+
+      <p class="stage__note" data-foot-note></p>
+
+    </div>
   </main>
+
+  <!-- ================= STOPKA (wspólna) ================= -->
+  <footer class="ftr">
+    <div class="shell ftr__inner" data-footer></div>
+  </footer>
 
   <!-- Panel produktu: bottom sheet na telefonie, panel boczny na desktopie -->
   <div class="scrim" data-scrim hidden></div>
@@ -88,6 +146,15 @@
 
   <!-- Widok statystyk (?stats=1) -->
   <section class="stats" data-stats hidden></section>
+
+  <!-- Menu mobilne -->
+  <div class="mnav__scrim" data-mnav-scrim hidden></div>
+  <nav class="mnav" data-mnav hidden aria-label="Menu mobilne">
+    <button class="mnav__close" type="button" data-mnav-close aria-label="Zamknij">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+    <ul data-mnav-list></ul>
+  </nav>
 
   <script src="assets/js/app.js" type="module"></script>
 </body>

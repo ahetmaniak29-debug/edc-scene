@@ -1,58 +1,17 @@
 /**
  * Strona główna — cała treść pochodzi z data/home.json.
- * Puste pole "image" rysuje ramkę zastępczą z podpowiedzią,
- * jaki plik i o jakim rozmiarze tam wrzucić.
+ * Nagłówek, menu i stopka siedzą we wspólnym module chrome.js.
  */
+
+import { ICONS, icon, esc, media, loadSite, renderChrome } from './chrome.js';
 
 const $ = (sel, root = document) => root.querySelector(sel);
-
-const ICONS = {
-  chevron: '<path d="M6 9l6 6 6-6"/>',
-  arrow:   '<path d="M5 12h14M13 6l6 6-6 6"/>',
-  truck:   '<path d="M3 7h11v9H3zM14 10h4l3 3v3h-7z"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="18" r="2"/>',
-  return:  '<path d="M4 12a8 8 0 1 0 2.5-5.8"/><path d="M4 4v5h5"/>',
-  shield:  '<path d="M12 3l7 3v6c0 4.4-3 8-7 9-4-1-7-4.6-7-9V6z"/><path d="M9.5 12l1.8 1.8L15 10"/>',
-  help:    '<path d="M4 13a8 8 0 0 1 16 0"/><path d="M4 13v3a2 2 0 0 0 2 2h1v-5H6a2 2 0 0 0-2 2zM20 13v3a2 2 0 0 1-2 2h-1v-5h1a2 2 0 0 1 2 2z"/>',
-  star:    '<path d="M12 3l2.6 5.6 6 .8-4.4 4.2 1.1 6-5.3-3-5.3 3 1.1-6L3.4 9.4l6-.8z"/>',
-  tag:     '<path d="M4 4h7l9 9-7 7-9-9z"/><circle cx="8.5" cy="8.5" r="1.4"/>',
-  trend:   '<path d="M4 17l5-5 3.5 3.5L20 8"/><path d="M15 8h5v5"/>',
-  people:  '<circle cx="9" cy="9" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M16 7.2A3.2 3.2 0 0 1 16 13M17.5 20c0-2.4-1-4.5-2.6-5.6"/>',
-  image:   '<rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="10" r="1.6"/><path d="M21 16l-5-5-6 6"/>',
-  heart:   '<path d="M12 20s-8-4.9-8-10a4.6 4.6 0 018-3 4.6 4.6 0 018 3c0 5.1-8 10-8 10z"/>'
-};
-
-const icon = (name, cls = '') =>
-  `<svg viewBox="0 0 24 24" aria-hidden="true"${cls ? ` class="${cls}"` : ''}>${ICONS[name] || ''}</svg>`;
-
-/**
- * Ramka zastępcza: mówi wprost, jaki plik gdzie wrzucić.
- * variant: '' pełna | 'sm' ciasna | 'bare' sama ikonka (kółka kategorii)
- */
-const ph = (folder, size, variant = '') => `
-  <div class="ph${variant ? ` ph--${variant}` : ''}">
-    <div class="ph__inner">
-      ${icon('image', 'ph__icon')}
-      <div class="ph__path">ZDJECIA/${folder}/</div>
-      <div class="ph__size">${size}</div>
-    </div>
-  </div>`;
-
-/** Zdjęcie albo ramka zastępcza — zależnie od tego, czy w JSON jest ścieżka. */
-const media = (src, alt, folder, size, variant = '') =>
-  src ? `<img class="img" src="${esc(src)}" alt="${esc(alt || '')}" loading="lazy">` : ph(folder, size, variant);
-
-const esc = str => String(str ?? '').replace(/[&<>"']/g,
-  c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-
-/* ------------------------------------------------------------------ */
 
 let data = null;
 
 async function boot() {
   try {
-    const res = await fetch(`data/home.json?v=${Date.now()}`, { cache: 'no-store' });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    data = await res.json();
+    data = await loadSite();
   } catch (err) {
     document.body.innerHTML = `<p style="padding:40px;text-align:center;font:16px system-ui">
       Nie udało się wczytać <code>data/home.json</code>.<br><br>
@@ -62,7 +21,9 @@ async function boot() {
     return;
   }
 
-  header();
+  document.title = data.brand || 'Sklep';
+  renderChrome(data, 'index.html');
+
   hero();
   trust();
   cats();
@@ -72,19 +33,6 @@ async function boot() {
   about();
   values();
   newsletter();
-  footer();
-  mobileNav();
-}
-
-/* ---------- nagłówek ---------- */
-
-function header() {
-  $('[data-brand]').textContent = data.brand || '';
-  document.title = data.brand || 'Sklep';
-  $('[data-search]').placeholder = data.searchPlaceholder || '';
-
-  $('[data-nav]').innerHTML = (data.nav || []).map(n => `
-    <li><a href="${esc(n.href)}">${esc(n.label)}${n.dropdown ? icon('chevron') : ''}</a></li>`).join('');
 }
 
 /* ---------- hero ---------- */
@@ -203,8 +151,7 @@ function tiles() {
 
 function collections() {
   $('[data-collections-title]').textContent = data.collectionsTitle || '';
-  const more = $('[data-collections-all]');
-  more.innerHTML = `${esc(data.collectionsAllLabel || '')}${icon('arrow')}`;
+  $('[data-collections-all]').innerHTML = `${esc(data.collectionsAllLabel || '')}${icon('arrow')}`;
 
   const c = data.collections || {};
   const f = c.featured || {};
@@ -246,7 +193,8 @@ function products() {
   $('[data-products-title]').textContent = data.productsTitle || '';
   $('[data-products-all]').innerHTML = `${esc(data.productsAllLabel || '')}${icon('arrow')}`;
 
-  $('[data-products]').innerHTML = (data.products || []).map(p => `
+  const list = $('[data-products]');
+  list.innerHTML = (data.products || []).map(p => `
     <li class="prod">
       <button class="prod__fav" type="button" aria-pressed="false" aria-label="Dodaj ${esc(p.name)} do ulubionych">
         ${icon('heart')}
@@ -261,7 +209,7 @@ function products() {
       </a>
     </li>`).join('');
 
-  $('[data-products]').addEventListener('click', e => {
+  list.addEventListener('click', e => {
     const btn = e.target.closest('.prod__fav');
     if (!btn) return;
     btn.setAttribute('aria-pressed', btn.getAttribute('aria-pressed') === 'true' ? 'false' : 'true');
@@ -308,54 +256,6 @@ function newsletter() {
       <input type="email" placeholder="${esc(n.placeholder)}" aria-label="${esc(n.placeholder)}">
       <button type="submit">${esc(n.cta)}</button>
     </form>`;
-}
-
-/* ---------- stopka ---------- */
-
-function footer() {
-  const f = data.footer || {};
-  $('[data-footer]').innerHTML = `
-    <div class="ftr__top">
-      <div>
-        <p class="ftr__brand">${esc(data.brand)}</p>
-        <p class="ftr__about">${esc(f.about)}</p>
-      </div>
-      ${(f.columns || []).map(col => `
-        <div class="ftr__col">
-          <h3>${esc(col.title)}</h3>
-          <ul>${(col.links || []).map(l => `<li><a href="#">${esc(l)}</a></li>`).join('')}</ul>
-        </div>`).join('')}
-    </div>
-    <p class="ftr__legal">${esc(f.legal)}</p>`;
-}
-
-/* ---------- menu mobilne ---------- */
-
-function mobileNav() {
-  const nav = $('[data-mnav]');
-  const scrim = $('[data-mnav-scrim]');
-
-  $('[data-mnav-list]').innerHTML = (data.nav || [])
-    .map(n => `<li><a href="${esc(n.href)}">${esc(n.label)}</a></li>`).join('');
-
-  const open = () => {
-    nav.hidden = false; scrim.hidden = false;
-    void nav.offsetHeight;             // reflow, żeby ruszyła animacja
-    nav.classList.add('is-open'); scrim.classList.add('is-open');
-    document.body.style.overflow = 'hidden';
-  };
-  const close = () => {
-    nav.classList.remove('is-open'); scrim.classList.remove('is-open');
-    document.body.style.overflow = '';
-    const done = () => { nav.hidden = true; scrim.hidden = true; };
-    nav.addEventListener('transitionend', done, { once: true });
-    setTimeout(done, 400);
-  };
-
-  $('[data-burger]').addEventListener('click', open);
-  $('[data-mnav-close]').addEventListener('click', close);
-  scrim.addEventListener('click', close);
-  document.addEventListener('keydown', e => { if (e.key === 'Escape' && !nav.hidden) close(); });
 }
 
 boot();

@@ -1,110 +1,104 @@
 {
-  "_uwaga": "DANE DEMO. Marki i adresy są prawdziwe, ale CENY I LINKI DO KONKRETNYCH PRODUKTÓW są przykładowe — zweryfikuj i podmień, zanim pokażesz stronę komukolwiek.",
+  "_uwaga": "Nazwy, marki, ceny i opisy to PUSTE MIEJSCA do wypełnienia. Punkty są już ustawione na przedmiotach ze zdjęcia — sprawdź je i popraw przez ?pick=1, jeśli chcesz wskazać coś innego.",
 
   "id": "outdoor-edc",
-  "label": "Outdoor EDC",
-  "title": "Sześć rzeczy, które nosimy codziennie",
-  "subtitle": "Nic tu nie trafiło przypadkiem — każdą z tych rzeczy nosimy przy sobie na co dzień. Dotknij przedmiotu, żeby zobaczyć, dlaczego akurat ten i gdzie go kupić.",
+  "label": "EDC",
+  "title": "Główne hasło kategorii.",
+  "subtitle": "Dwa–trzy zdania o tym, co jest na zdjęciu i dla kogo. Dotknij numeru, żeby zobaczyć szczegóły przedmiotu.",
 
-  "image": "assets/scenes/outdoor-edc.svg",
-  "imageAlt": "Jasny blat widziany z góry, przedmioty ułożone równo w trzech rzędach: scyzoryk, latarka, multitool, portfel, notes z długopisem i zegarek.",
+  "image": "ZDJECIA/produkty/image-1786014155651.png",
+  "imageAlt": "Ekwipunek ułożony równo z góry wokół czarnego plecaka: latarka, obiektyw, saszetka, kompas, mata i drobne akcesoria.",
 
   "products": [
     {
-      "id": "folder-titan",
-      "name": "Scyzoryk kieszonkowy, ostrze 8 cm",
-      "brand": "Vosteed",
+      "id": "przedmiot-1",
+      "name": "Nazwa produktu 1",
+      "brand": "Nazwa marki",
       "category": "outdoor-edc",
-      "price": "ok. 420 zł",
-      "why": "Zamek na łożysku otwiera się jedną ręką, a przy 78 g nie ciągnie kieszeni w dół. Marka robi krótkie serie i wymienia sprężyny na gwarancji bez dyskusji.",
+      "price": "0,00 zł",
+      "why": "Tu wpisujesz jedno–dwa zdania: dlaczego akurat ten przedmiot trafił na listę i co go wyróżnia.",
       "specs": [
-        { "k": "Waga", "v": "78 g" },
-        { "k": "Stal", "v": "14C28N" },
-        { "k": "Ostrze", "v": "8,0 cm" }
+        { "k": "Parametr", "v": "wartość" },
+        { "k": "Parametr", "v": "wartość" }
       ],
-      "url": "https://vosteed.com/",
+      "url": "#",
       "ctaLabel": "Zobacz u sprzedawcy",
-      "hotspot": { "x": 24.0, "y": 13.5 }
+      "hotspot": { "x": 49, "y": 45 }
     },
     {
-      "id": "latarka-aa",
-      "name": "Latarka na jedno AA, 600 lm",
-      "brand": "ReyLight",
+      "id": "przedmiot-2",
+      "name": "Nazwa produktu 2",
+      "brand": "Nazwa marki",
       "category": "outdoor-edc",
-      "price": "ok. 350 zł",
-      "why": "Jedna paluszkowa bateria, którą kupisz na każdej stacji — zero szukania ładowarki w lesie. Korpus toczony w małej pracowni, każda sztuka numerowana.",
+      "price": "0,00 zł",
+      "why": "Tu wpisujesz jedno–dwa zdania: dlaczego akurat ten przedmiot trafił na listę i co go wyróżnia.",
       "specs": [
-        { "k": "Zasilanie", "v": "1 × AA / 14500" },
-        { "k": "Maks.", "v": "600 lm" },
-        { "k": "Materiał", "v": "mosiądz" }
+        { "k": "Parametr", "v": "wartość" },
+        { "k": "Parametr", "v": "wartość" }
       ],
-      "url": "https://www.reylight.net/",
+      "url": "#",
       "ctaLabel": "Zobacz u sprzedawcy",
-      "hotspot": { "x": 80.5, "y": 9.0 }
+      "hotspot": { "x": 21, "y": 12 }
     },
     {
-      "id": "multitool-plaski",
-      "name": "Płaski multitool do kieszeni",
-      "brand": "Maratac",
+      "id": "przedmiot-3",
+      "name": "Nazwa produktu 3",
+      "brand": "Nazwa marki",
       "category": "outdoor-edc",
-      "price": "ok. 190 zł",
-      "why": "Osiem funkcji w kawałku stali cieńszym niż karta kredytowa. Nie zastąpi kombinerek, ale przez rok nie znaleźliśmy sytuacji, w której zabrakło nam czegoś ważnego.",
+      "price": "0,00 zł",
+      "why": "Tu wpisujesz jedno–dwa zdania: dlaczego akurat ten przedmiot trafił na listę i co go wyróżnia.",
       "specs": [
-        { "k": "Grubość", "v": "3 mm" },
-        { "k": "Funkcje", "v": "8" },
-        { "k": "Waga", "v": "42 g" }
+        { "k": "Parametr", "v": "wartość" },
+        { "k": "Parametr", "v": "wartość" }
       ],
-      "url": "https://countycomm.com/",
+      "url": "#",
       "ctaLabel": "Zobacz u sprzedawcy",
-      "hotspot": { "x": 29.0, "y": 45.5 }
+      "hotspot": { "x": 72, "y": 14 }
     },
     {
-      "id": "portfel-metal",
-      "name": "Portfel metalowy z klipsem",
-      "brand": "Trayvax",
+      "id": "przedmiot-4",
+      "name": "Nazwa produktu 4",
+      "brand": "Nazwa marki",
       "category": "outdoor-edc",
-      "price": "ok. 260 zł",
-      "why": "Mieści 6 kart i kilka banknotów, a przy tym nie puchnie jak skórzany. Przetrwał u nas dwa lata w tylnej kieszeni i wygląda po prostu na używany, nie na zniszczony.",
+      "price": "0,00 zł",
+      "why": "Tu wpisujesz jedno–dwa zdania: dlaczego akurat ten przedmiot trafił na listę i co go wyróżnia.",
       "specs": [
-        { "k": "Pojemność", "v": "do 6 kart" },
-        { "k": "Materiał", "v": "stal + skóra" },
-        { "k": "RFID", "v": "tak" }
+        { "k": "Parametr", "v": "wartość" },
+        { "k": "Parametr", "v": "wartość" }
       ],
-      "url": "https://trayvax.com/",
+      "url": "#",
       "ctaLabel": "Zobacz u sprzedawcy",
-      "hotspot": { "x": 82.0, "y": 42.5 }
+      "hotspot": { "x": 36, "y": 79 }
     },
     {
-      "id": "notes-wodoodporny",
-      "name": "Notes wodoodporny + długopis tytanowy",
-      "brand": "Field Notes / Big Idea Design",
+      "id": "przedmiot-5",
+      "name": "Nazwa produktu 5",
+      "brand": "Nazwa marki",
       "category": "outdoor-edc",
-      "price": "ok. 300 zł za komplet",
-      "why": "Papier, na którym da się pisać w deszczu, i długopis, który przyjmuje standardowe wkłady — więc nie uzależniasz się od jednego sklepu na resztę życia.",
+      "price": "0,00 zł",
+      "why": "Tu wpisujesz jedno–dwa zdania: dlaczego akurat ten przedmiot trafił na listę i co go wyróżnia.",
       "specs": [
-        { "k": "Notes", "v": "3 szt., 48 str." },
-        { "k": "Długopis", "v": "tytan klasy 5" },
-        { "k": "Wkład", "v": "standard D1" }
+        { "k": "Parametr", "v": "wartość" },
+        { "k": "Parametr", "v": "wartość" }
       ],
-      "url": "https://fieldnotesbrand.com/",
+      "url": "#",
       "ctaLabel": "Zobacz u sprzedawcy",
-      "hotspot": { "x": 15.0, "y": 68.0 }
+      "hotspot": { "x": 70, "y": 81 }
     },
     {
-      "id": "zegarek-polowy",
-      "name": "Zegarek polowy, szkło szafirowe",
-      "brand": "Lorier",
+      "id": "przedmiot-6",
+      "name": "Nazwa produktu 6",
+      "brand": "Nazwa marki",
       "category": "outdoor-edc",
-      "price": "ok. 2 100 zł",
-      "why": "Najdroższa rzecz na tej liście i jedyna, która ma szansę przeżyć swojego właściciela. Mechanizm automatyczny, serwisowalny w każdym zakładzie — żadnej elektroniki do wymiany.",
+      "price": "0,00 zł",
+      "why": "Tu wpisujesz jedno–dwa zdania: dlaczego akurat ten przedmiot trafił na listę i co go wyróżnia.",
       "specs": [
-        { "k": "Mechanizm", "v": "automat" },
-        { "k": "Wodoszczelność", "v": "100 m" },
-        { "k": "Średnica", "v": "39 mm" }
+        { "k": "Parametr", "v": "wartość" },
+        { "k": "Parametr", "v": "wartość" }
       ],
-      "url": "https://lorier.co/",
+      "url": "#",
       "ctaLabel": "Zobacz u sprzedawcy",
-      "hotspot": { "x": 82.0, "y": 68.0 }
+      "hotspot": { "x": 88, "y": 79 }
     }
   ]
 }

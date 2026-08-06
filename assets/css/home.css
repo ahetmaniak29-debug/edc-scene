@@ -530,6 +530,41 @@
 .ftr__legal { padding-top: 20px; font-size: 12px; color: #8a8378; }
 
 /* ---------------------------------------------------------
+   STRONA KATEGORII (scena)
+   Ten sam rytm co strona główna: okruszki, nagłówek, sekcje.
+   --------------------------------------------------------- */
+.crumbs {
+  display: flex; align-items: center; gap: 9px;
+  padding: 22px 0 0;
+  font-size: 12.5px; color: var(--ink-dim);
+}
+.crumbs a { text-decoration: none; color: var(--ink-mid); }
+.crumbs a:hover { color: var(--accent); }
+
+.chead { padding: 20px 0 26px; max-width: 660px; }
+.chead__kicker {
+  font-size: 10.5px; font-weight: 700; letter-spacing: 0.16em;
+  text-transform: uppercase; color: var(--accent);
+}
+.chead__kicker[hidden] { display: none; }
+.chead__title {
+  margin-top: 11px;
+  font-family: var(--font-display);
+  font-size: clamp(28px, 4.4vw, 46px);
+  line-height: 1.1; letter-spacing: -0.018em; font-weight: 400;
+}
+.chead__sub {
+  margin-top: 14px; color: var(--ink-mid);
+  font-size: 15.5px; max-width: 52ch;
+}
+
+.stage__note {
+  margin: 30px 0 6px; padding-top: 22px;
+  border-top: 1px solid var(--line);
+  font-size: 12.5px; color: var(--ink-dim);
+}
+
+/* ---------------------------------------------------------
    MENU MOBILNE
    --------------------------------------------------------- */
 .mnav__scrim {
