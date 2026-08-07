@@ -228,6 +228,10 @@ svg { width: 1em; height: 1em; fill: none; stroke: currentColor; stroke-width: 2
 .fold[open] .fold__chev { transform: rotate(180deg); }
 .fold__head:hover .fold__chev { border-color: var(--accent-bright); color: var(--accent); }
 
+/* Wysokość animuje JS (patrz initFold w app.js) — overflow tnie treść
+   w trakcie rozwijania, żeby nie wylewała się poza kartę. */
+.fold__body { overflow: hidden; }
+
 /* ---------- Lista ---------- */
 .list__items {
   display: grid; gap: 12px;

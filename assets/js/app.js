@@ -1,5 +1,5 @@
-import { track, getScene, getAll, reset } from './counter.js';
-import { icon, media, loadSite, renderChrome } from './chrome.js';
+import { track, getScene, getAll, reset } from './counter.js?v=4';
+import { icon, media, loadSite, renderChrome } from './chrome.js?v=4';
 
 /** Od tej szerokości panel wjeżdża w kadr zdjęcia zamiast wysuwać się z dołu. */
 const SZEROKI = 900;
@@ -115,6 +115,7 @@ function renderScene() {
   renderHotspots(s.products || []);
   renderList(s.products || []);
   renderGallery(s.gallery || []);
+  initFold();
 
   if (params.get('pick') !== null) enablePicker();
 
@@ -169,6 +170,58 @@ function renderList(products) {
 
   const count = $('[data-list-count]');
   if (count) count.textContent = products.length;
+}
+
+/* ------------------------------------------------------------------ *
+ * Płynne zwijanie listy
+ *
+ * <details> przełącza się skokowo — przeglądarka po prostu pokazuje albo
+ * chowa treść. Żeby to płynęło, przejmujemy kliknięcie i sami animujemy
+ * wysokość, a stan `open` ustawiamy dopiero na końcu animacji.
+ * ------------------------------------------------------------------ */
+
+function initFold() {
+  const details = $('.fold');
+  if (!details) return;
+
+  const head = $('.fold__head', details);
+  const body = $('.fold__body', details);
+  if (!head || !body) return;
+
+  // Kto prosił o mniej ruchu, dostaje natywne, natychmiastowe przełączanie.
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (!body.animate) return;   // stara przeglądarka — zostaje zachowanie natywne
+
+  let anim = null;
+  let closing = false;         // trwa animacja zamykania
+
+  head.addEventListener('click', e => {
+    e.preventDefault();
+
+    // W trakcie zamykania `details.open` jest jeszcze true, więc sam stan
+    // elementu nie wystarczy do ustalenia, co ma się stać po kliknięciu.
+    const opening = closing || !details.open;
+
+    if (anim) anim.cancel();
+    if (opening) details.open = true;
+    closing = !opening;
+
+    const h = body.scrollHeight;
+    anim = body.animate(
+      {
+        height:  opening ? ['0px', `${h}px`] : [`${h}px`, '0px'],
+        opacity: opening ? [0, 1] : [1, 0]
+      },
+      { duration: 320, easing: 'cubic-bezier(0.22, 0.61, 0.36, 1)' }
+    );
+
+    anim.onfinish = () => {
+      details.open = opening;
+      closing = false;
+      anim = null;
+    };
+    anim.oncancel = () => { anim = null; };
+  });
 }
 
 /* ------------------------------------------------------------------ *
