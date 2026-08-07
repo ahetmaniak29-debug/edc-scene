@@ -139,40 +139,52 @@ Mierzone są dwa zdarzenia na produkt:
 
 Podgląd: dopisz `?stats=1` do adresu.
 
-### Ważne ograniczenie
+Kliknięcia lądują w dwóch miejscach naraz:
 
-Domyślnie liczniki siedzą w `localStorage`, czyli **w przeglądarce jednego
-użytkownika**. Na Twoim telefonie zobaczysz swoje kliknięcia, nie cudze.
-Do prawdziwego testu potrzebujesz zdalnego zbierania.
+1. **`localStorage`** — natychmiast, bez sieci, ale liczy tylko jedno urządzenie.
+2. **Supabase** — prawdziwe dane od wszystkich odwiedzających.
 
-### Zbieranie danych od wszystkich (15 minut roboty)
+### Gdzie zobaczyć wyniki
 
-Najprościej przez Google Apps Script — darmowe, dane lądują w arkuszu:
+Supabase → **SQL Editor**:
 
-1. Nowy arkusz Google → **Rozszerzenia → Apps Script**.
-2. Wklej:
+```sql
+select * from events_summary;
+```
 
-   ```javascript
-   function doPost(e) {
-     const d = JSON.parse(e.postData.contents);
-     SpreadsheetApp.getActiveSpreadsheet().getActiveSheet()
-       .appendRow([new Date(), d.scene, d.category, d.product, d.event, d.w, d.ref]);
-     return ContentService.createTextOutput('ok');
-   }
-   ```
+Dostajesz otwarcia, przejścia do sprzedawcy i konwersję na każdy produkt.
+Schemat i wszystkie zapytania: [`db/schema.sql`](db/schema.sql).
 
-3. **Wdróż → Nowe wdrożenie → Aplikacja internetowa**, dostęp: „Wszyscy".
-4. Skopiuj adres i wklej do `data/scenes.json`:
+### Dlaczego `?stats=1` pokazuje inne liczby
 
-   ```json
-   "analytics": { "endpoint": "https://script.google.com/macros/s/…/exec" }
-   ```
+Strona **nie ma prawa czytać z bazy** — i dobrze. Widok `?stats=1` pokazuje więc
+liczby z Twojej przeglądarki i mówi to wprost. Jeśli chcesz, żeby wyświetlał
+prawdziwe sumy, w `db/schema.sql` na dole jest blok do odkomentowania — ale
+wtedy każdy, kto zna ten adres, zobaczy Twoje wyniki.
 
-Od tego momentu każde kliknięcie dopisuje wiersz w arkuszu. Wyjście do sprzedawcy
-wysyłane jest przez `sendBeacon`, więc nie gubi się przy opuszczaniu strony.
+### Bezpieczeństwo
 
-Alternatywy, jeśli wolisz gotowca: Plausible, Umami albo Formspree — kod wysyła
-zwykły POST z JSON-em, więc pasuje wszędzie.
+Klucz w `data/scenes.json` jest **publikowalny** — z założenia siedzi jawnie
+w kodzie strony i każdy go odczyta z podglądu źródła. Całą ochronę robi RLS
+po stronie bazy. Sprawdzone na żywo:
+
+| Operacja | Wynik |
+|---|---|
+| dopisanie zdarzenia | ✅ działa |
+| odczyt cudzych wierszy | ❌ zablokowany |
+| zmiana wiersza | ❌ zablokowana |
+| skasowanie wiersza | ❌ zablokowane |
+| zdarzenie spoza `open`/`outbound` | ❌ odrzucone przez bazę |
+
+Nie wklejaj tu klucza `service_role` — ten ma pełne prawa i musi zostać
+na serwerze.
+
+### Uwaga o `sendBeacon`
+
+Kliknięcie „do sprzedawcy" leci przez `fetch` z `keepalive: true`, a nie
+`sendBeacon`, bo ten drugi nie umie ustawić nagłówka `apikey`, którego wymaga
+Supabase. Efekt jest ten sam: żądanie dochodzi nawet wtedy, gdy użytkownik
+natychmiast opuszcza stronę.
 
 ---
 

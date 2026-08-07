@@ -1,16 +1,23 @@
 /**
  * Licznik kliknięć.
  *
- * Zapisuje dwa zdarzenia na produkt:
+ * Mierzymy dwa zdarzenia na produkt:
  *   open     — ktoś otworzył panel produktu (zainteresowanie)
  *   outbound — ktoś kliknął przycisk do sprzedawcy (zamiar zakupu)
  *
- * Zapis lokalny (localStorage) działa zawsze i bez konfiguracji, ale liczy
- * tylko na jednym urządzeniu. Żeby zbierać dane od wszystkich odwiedzających,
- * ustaw analytics.endpoint w data/scenes.json — patrz README.
+ * Zapis idzie w dwa miejsca naraz:
+ *   1. localStorage — natychmiast, bez sieci, ale liczy jedno urządzenie.
+ *   2. Supabase     — prawdziwe dane od wszystkich odwiedzających.
+ *
+ * Konfiguracja siedzi w data/scenes.json → analytics.
+ * Schemat bazy i uprawnienia: db/schema.sql.
  */
 
 const KEY = 'scena:clicks:v1';
+
+/* ------------------------------------------------------------------ *
+ * Zapis lokalny
+ * ------------------------------------------------------------------ */
 
 function read() {
   try {
@@ -24,7 +31,7 @@ function write(data) {
   try {
     localStorage.setItem(KEY, JSON.stringify(data));
   } catch {
-    /* tryb prywatny / brak miejsca — trudno, licznik jest opcjonalny */
+    /* tryb prywatny / brak miejsca — trudno, licznik lokalny jest tylko podglądem */
   }
 }
 
@@ -40,15 +47,35 @@ export function reset() {
   try { localStorage.removeItem(KEY); } catch {}
 }
 
+/* ------------------------------------------------------------------ *
+ * Supabase
+ * ------------------------------------------------------------------ */
+
+const cfg = a => ({
+  url:     (a?.supabaseUrl || '').replace(/\/+$/, ''),
+  key:     a?.supabaseKey || '',
+  table:   a?.table || 'events',
+  summary: a?.summaryView || 'events_summary'
+});
+
+const gotowe = c => Boolean(c.url && c.key);
+
+const naglowki = key => ({
+  apikey: key,
+  Authorization: `Bearer ${key}`,
+  'Content-Type': 'application/json'
+});
+
 /**
  * @param {object} opts
  * @param {string} opts.sceneId
  * @param {string} opts.productId
  * @param {'open'|'outbound'} opts.event
  * @param {string} [opts.category]
- * @param {string} [opts.endpoint] adres zdalnego zbierania (opcjonalny)
+ * @param {object} [opts.analytics] blok analytics z data/scenes.json
  */
-export function track({ sceneId, productId, event, category, endpoint }) {
+export function track({ sceneId, productId, event, category, analytics }) {
+  // 1. lokalnie — zawsze i natychmiast
   const data = read();
   const scene = (data[sceneId] ||= {});
   const item = (scene[productId] ||= { open: 0, outbound: 0 });
@@ -56,34 +83,52 @@ export function track({ sceneId, productId, event, category, endpoint }) {
   item.last = new Date().toISOString();
   write(data);
 
-  if (!endpoint) return;
+  // 2. do bazy
+  const c = cfg(analytics);
+  if (!gotowe(c)) return;
 
-  const payload = JSON.stringify({
+  const row = {
     scene: sceneId,
     product: productId,
     category: category || null,
     event,
-    ts: new Date().toISOString(),
-    ref: document.referrer || null,
-    w: window.innerWidth
-  });
+    viewport: window.innerWidth,
+    referrer: document.referrer || null
+  };
 
-  // sendBeacon przeżywa zamknięcie karty — kluczowe przy 'outbound',
-  // bo użytkownik zaraz wychodzi na stronę sprzedawcy.
+  // keepalive pozwala żądaniu dokończyć się po zamknięciu karty — bez tego
+  // gubilibyśmy najważniejsze zdarzenie, bo przy 'outbound' użytkownik
+  // natychmiast wychodzi na stronę sprzedawcy.
+  // (sendBeacon by tu nie zadziałał — nie umie ustawić nagłówka apikey.)
   try {
-    if (navigator.sendBeacon) {
-      navigator.sendBeacon(endpoint, new Blob([payload], { type: 'text/plain;charset=UTF-8' }));
-      return;
-    }
-  } catch {}
-
-  try {
-    fetch(endpoint, {
+    fetch(`${c.url}/rest/v1/${c.table}`, {
       method: 'POST',
-      mode: 'no-cors',
+      headers: { ...naglowki(c.key), Prefer: 'return=minimal' },
+      body: JSON.stringify(row),
       keepalive: true,
-      headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
-      body: payload
-    }).catch(() => {});
+      mode: 'cors'
+    }).catch(() => {});   // zliczanie nigdy nie może popsuć strony
   } catch {}
+}
+
+/**
+ * Próbuje pobrać zsumowane liczby z bazy.
+ * Zwraca null, gdy widok nie jest udostępniony na zewnątrz (domyślnie nie jest)
+ * albo gdy sieć nie odpowiada — wtedy strona pokazuje dane lokalne.
+ */
+export async function fetchSummary(sceneId, analytics) {
+  const c = cfg(analytics);
+  if (!gotowe(c)) return null;
+
+  try {
+    const res = await fetch(
+      `${c.url}/rest/v1/${c.summary}?scene=eq.${encodeURIComponent(sceneId)}&select=*`,
+      { headers: naglowki(c.key) }
+    );
+    if (!res.ok) return null;          // najczęściej 401: brak grantu na widok
+    const rows = await res.json();
+    return Array.isArray(rows) ? rows : null;
+  } catch {
+    return null;
+  }
 }

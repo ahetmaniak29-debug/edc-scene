@@ -13,7 +13,10 @@
   ],
 
   "analytics": {
-    "_komentarz": "Puste = liczniki tylko lokalnie w przeglądarce (localStorage), widoczne pod ?stats=1. Wpisz tu adres endpointu (np. Formspree, Google Apps Script, własna funkcja), żeby zbierać kliknięcia od wszystkich odwiedzających. Szczegóły w README.",
-    "endpoint": ""
+    "_komentarz": "Zbieranie kliknięć w Supabase. Klucz jest publikowalny — ma prawo TYLKO dopisywać zdarzenia, nic nie odczyta ani nie skasuje (patrz db/schema.sql). Zostaw puste url, żeby liczyć wyłącznie lokalnie w przeglądarce.",
+    "supabaseUrl": "https://sfajnuvpvvprjocqqbpe.supabase.co",
+    "supabaseKey": "sb_publishable_pfveoMb6s0OWtf1uxw6Spg_uGtxAMCG",
+    "table": "events",
+    "summaryView": "events_summary"
   }
 }

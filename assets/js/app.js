@@ -1,5 +1,5 @@
-import { track, getScene, getAll, reset } from './counter.js?v=4';
-import { icon, media, loadSite, renderChrome } from './chrome.js?v=4';
+import { track, getScene, getAll, reset, fetchSummary } from './counter.js?v=5';
+import { icon, media, loadSite, renderChrome } from './chrome.js?v=5';
 
 /** Od tej szerokości panel wjeżdża w kadr zdjęcia zamiast wysuwać się z dołu. */
 const SZEROKI = 900;
@@ -14,7 +14,7 @@ const state = {
   config: null,
   scene: null,
   current: null,   // aktualnie otwarty produkt
-  endpoint: ''
+  analytics: null
 };
 
 /* ------------------------------------------------------------------ *
@@ -43,7 +43,7 @@ async function boot() {
     return fail(err);
   }
 
-  state.endpoint = state.config.analytics?.endpoint || '';
+  state.analytics = state.config.analytics || null;
   $('[data-foot-note]').textContent = state.config.site?.footerNote || '';
 
   // Która scena? ?scene=<id>, inaczej defaultScene, inaczej pierwsza z listy.
@@ -334,7 +334,7 @@ function openProduct(p, { silent = false } = {}) {
   $('[data-sheet-close]').focus({ preventScroll: true });
 
   if (!silent) {
-    track({ sceneId: state.scene.id, productId: p.id, event: 'open', category: p.category, endpoint: state.endpoint });
+    track({ sceneId: state.scene.id, productId: p.id, event: 'open', category: p.category, analytics: state.analytics });
   }
 }
 
@@ -377,7 +377,7 @@ document.addEventListener('click', e => {
 $('[data-sheet-link]').addEventListener('click', () => {
   const p = state.current;
   if (!p) return;
-  track({ sceneId: state.scene.id, productId: p.id, event: 'outbound', category: p.category, endpoint: state.endpoint });
+  track({ sceneId: state.scene.id, productId: p.id, event: 'outbound', category: p.category, analytics: state.analytics });
 });
 
 /* ---- przeciąganie panelu w dół (telefon) ---- */
@@ -417,30 +417,53 @@ $('[data-sheet-link]').addEventListener('click', () => {
  * Statystyki (?stats=1)
  * ------------------------------------------------------------------ */
 
-function renderStats() {
+async function renderStats() {
   $('#tresc').hidden = true;
   $('.ftr').hidden = true;
 
   const box = $('[data-stats]');
-  const counts = getScene(state.scene.id);
   const products = state.scene.products || [];
 
-  const rows = products
-    .map(p => ({ p, open: counts[p.id]?.open || 0, out: counts[p.id]?.outbound || 0 }))
-    .sort((a, b) => (b.open + b.out * 3) - (a.open + a.out * 3));
+  // Najpierw próbujemy prawdziwych, zsumowanych danych z bazy. Widok jest
+  // domyślnie zamknięty na zewnątrz, więc zwykle wracamy do liczb lokalnych.
+  const zdalne = await fetchSummary(state.scene.id, state.analytics);
+  const zBazy = Boolean(zdalne);
+
+  let rows;
+  if (zBazy) {
+    const wg = Object.fromEntries(zdalne.map(r => [r.product, r]));
+    rows = products.map(p => ({
+      p,
+      open: Number(wg[p.id]?.otwarcia) || 0,
+      out:  Number(wg[p.id]?.do_sklepu) || 0
+    }));
+  } else {
+    const counts = getScene(state.scene.id);
+    rows = products.map(p => ({
+      p,
+      open: counts[p.id]?.open || 0,
+      out:  counts[p.id]?.outbound || 0
+    }));
+  }
+
+  rows.sort((a, b) => (b.open + b.out * 3) - (a.open + a.out * 3));
 
   const max = Math.max(1, ...rows.map(r => r.open));
   const totalOpen = rows.reduce((s, r) => s + r.open, 0);
   const totalOut  = rows.reduce((s, r) => s + r.out, 0);
+
+  const podlaczone = Boolean(state.analytics?.supabaseUrl && state.analytics?.supabaseKey);
 
   box.hidden = false;
   box.innerHTML = `
     <h2>Statystyki — ${escapeHTML(state.scene.label || state.scene.id)}</h2>
     <p>
       Otwarcia panelu: <strong>${totalOpen}</strong> · przejścia do sprzedawcy: <strong>${totalOut}</strong>.
-      ${state.endpoint
-        ? 'Zdalne zbieranie danych jest włączone — pełne liczby znajdziesz w swoim narzędziu.'
-        : 'Uwaga: to liczby <strong>tylko z tej przeglądarki</strong>. Żeby zbierać dane od wszystkich odwiedzających, ustaw <code>analytics.endpoint</code> w <code>data/scenes.json</code>.'}
+      ${zBazy
+        ? 'Liczby <strong>od wszystkich odwiedzających</strong>, prosto z bazy.'
+        : podlaczone
+          ? 'Kliknięcia <strong>trafiają do bazy</strong>, ale ta strona nie ma prawa ich odczytać — poniżej widzisz liczby <strong>tylko z tej przeglądarki</strong>. Pełne dane znajdziesz w Supabase → SQL Editor: <code>select * from events_summary;</code>'
+          : 'Uwaga: to liczby <strong>tylko z tej przeglądarki</strong>. Podłącz Supabase w <code>data/scenes.json</code>, żeby zbierać dane od wszystkich odwiedzających.'}
     </p>
     <table>
       <thead>
@@ -459,15 +482,18 @@ function renderStats() {
     <div class="stats__actions">
       <a href="${location.pathname}">← Wróć do sceny</a>
       <button type="button" data-copy>Skopiuj dane (JSON)</button>
-      <button type="button" data-reset>Wyczyść liczniki</button>
+      ${zBazy ? '' : '<button type="button" data-reset>Wyczyść liczniki tej przeglądarki</button>'}
     </div>`;
 
   $('[data-copy]', box).addEventListener('click', async e => {
-    await navigator.clipboard.writeText(JSON.stringify(getAll(), null, 2));
+    await navigator.clipboard.writeText(JSON.stringify(zBazy ? zdalne : getAll(), null, 2));
     e.target.textContent = 'Skopiowano ✓';
   });
-  $('[data-reset]', box).addEventListener('click', () => {
-    if (confirm('Wyczyścić liczniki w tej przeglądarce?')) { reset(); location.reload(); }
+  $('[data-reset]', box)?.addEventListener('click', () => {
+    if (confirm('Wyczyścić liczniki w tej przeglądarce? Dane w bazie zostaną nietknięte.')) {
+      reset();
+      location.reload();
+    }
   });
 }
 
