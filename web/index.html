@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Droga — tekstowa gra-symulacja życia</title>
+<link rel="stylesheet" href="/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='13' font-size='13'>🌾</text></svg>">
+</head>
+<body>
+
+<div id="start" class="modal">
+  <form class="card" id="start-form">
+    <h1>Droga</h1>
+    <p class="sub">Wiosna, siedemnaście lat. Wieś, gospodarstwo rodziców i decyzja, której nie da się dłużej odkładać.</p>
+    <label>Imię postaci
+      <input id="imie" value="Ola" maxlength="40" autocomplete="off">
+    </label>
+    <label>Płeć
+      <select id="plec">
+        <option value="kobieta">kobieta</option>
+        <option value="mezczyzna">mężczyzna</option>
+      </select>
+    </label>
+    <button type="submit">Zacznij</button>
+    <p class="note" id="tryb"></p>
+  </form>
+</div>
+
+<main id="gra" hidden>
+  <section class="story">
+    <header class="bar">
+      <span id="pasek"></span>
+      <span class="tools">
+        <button type="button" id="btn-panel" class="ghost" title="Stan postaci">stan</button>
+        <button type="button" id="btn-nowa" class="ghost">nowa gra</button>
+      </span>
+    </header>
+
+    <div id="tekst" class="tekst"></div>
+
+    <div id="wybory" class="wybory"></div>
+
+    <form id="akcja-form" class="akcja">
+      <input id="akcja" placeholder="…albo napisz, co robisz" maxlength="500" autocomplete="off">
+      <button type="submit" id="wyslij">Zrób to</button>
+    </form>
+  </section>
+
+  <aside id="panel" class="panel">
+    <div class="grupa">
+      <h2>Postać</h2>
+      <dl id="p-postac"></dl>
+    </div>
+    <div class="grupa">
+      <h2>Stan</h2>
+      <div id="p-staty"></div>
+    </div>
+    <div class="grupa">
+      <h2>Ludzie</h2>
+      <ul id="p-relacje"></ul>
+    </div>
+    <div class="grupa">
+      <h2>Umiejętności</h2>
+      <ul id="p-umiejetnosci"></ul>
+    </div>
+    <div class="grupa">
+      <h2>Cele</h2>
+      <ul id="p-cele"></ul>
+    </div>
+    <div class="grupa">
+      <h2>Pamięć gry</h2>
+      <ul id="p-lore"></ul>
+    </div>
+  </aside>
+</main>
+
+<script type="module" src="/app.js"></script>
+</body>
+</html>
