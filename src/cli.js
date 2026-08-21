@@ -9,7 +9,7 @@ loadEnv();
 import { takeTurn, SCENARIO, startState } from "./engine.js";
 import { statusLine } from "./state.js";
 import { saveGame, loadGame } from "./save.js";
-import { hasApiKey, MODEL } from "./ai.js";
+import { hasApiKey, opisModelu } from "./ai.js";
 
 const dim = (s) => `\x1b[2m${s}\x1b[0m`;
 const bold = (s) => `\x1b[1m${s}\x1b[0m`;
@@ -75,7 +75,9 @@ async function main() {
 
   console.log(bold(`\n  ${SCENARIO.tytul.toUpperCase()}`));
   console.log(dim(`  tekstowa gra-symulacja życia\n`));
-  console.log(dim(hasApiKey() ? `  model: ${MODEL}` : "  brak ANTHROPIC_API_KEY — tryb offline (atrapa narratora)"));
+  console.log(
+    dim(hasApiKey() ? `  model: ${opisModelu()}` : "  brak klucza API — tryb offline (atrapa narratora)")
+  );
   console.log(dim(HELP));
 
   let state = loadGame("gra");

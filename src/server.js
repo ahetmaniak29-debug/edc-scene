@@ -14,7 +14,7 @@ import { loadEnv } from "./env.js";
 loadEnv();
 
 import { takeTurn, SCENARIO, startState } from "./engine.js";
-import { hasApiKey, MODEL } from "./ai.js";
+import { hasApiKey, opisModelu } from "./ai.js";
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "web");
 const PORT = Number(process.env.PORT || 3000);
@@ -67,7 +67,7 @@ const server = http.createServer(async (req, res) => {
     if (req.method === "GET" && req.url === "/api/info") {
       return send(res, 200, {
         scenariusz: { tytul: SCENARIO.tytul, otwarcie: SCENARIO.otwarcie },
-        model: hasApiKey() ? MODEL : null,
+        model: opisModelu(),
         offline: !hasApiKey(),
       });
     }
@@ -99,5 +99,5 @@ const server = http.createServer(async (req, res) => {
 
 server.listen(PORT, () => {
   console.log(`Droga: http://localhost:${PORT}`);
-  if (!hasApiKey()) console.log("Uwaga: brak ANTHROPIC_API_KEY — tryb offline (atrapa narratora).");
+  if (!hasApiKey()) console.log("Uwaga: brak klucza API — tryb offline (atrapa narratora).");
 });

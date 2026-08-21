@@ -4,6 +4,8 @@ Tekstowa gra-symulacja życia napędzana AI. Zamiast sztywnego drzewa wyborów
 model generuje sytuację **i** ustrukturyzowaną zmianę stanu postaci — dzięki
 temu można wpisać własną akcję, a gra i tak wie, co się zmieniło.
 
+Działa na **Gemini** albo na **Claude** — do wyboru, ten sam silnik.
+
 MVP to jeden wycinek życia: siedemnaście lat, wieś, wiosna i decyzja o tym,
 co dalej.
 
@@ -23,7 +25,7 @@ Matka nie przerywa obierania. Papier jest cienki, pieczątka rozmazana...
 ```bash
 git clone <adres-repo> && cd droga-zycia
 npm install
-cp .env.example .env       # wklej swój ANTHROPIC_API_KEY
+cp .env.example .env       # wklej klucz: GEMINI_API_KEY albo ANTHROPIC_API_KEY
 ```
 
 **W terminalu:**
@@ -117,7 +119,8 @@ src/
   state.js      stan postaci + applyDelta() (cała mechanika, bez AI)
   schema.js     schemat odpowiedzi modelu — narracja + delta + propozycje
   prompt.js     instrukcja systemowa i budowa zapytania o turę
-  ai.js         wywołanie Claude API + tryb offline
+  ai.js         wybór dostawcy, parsowanie odpowiedzi, tryb offline
+  providers/    gemini.js (REST) i claude.js (SDK) — wymienne
   engine.js     pętla tury — jedyne miejsce, gdzie stan się zmienia
   scenario.js   MVP: wieś, 17 lat (tu robisz własny scenariusz)
   cli.js        gra w terminalu
@@ -126,8 +129,9 @@ web/            interfejs przeglądarkowy (bez frameworków)
 test/           testy applyDelta, schematu i pętli tury
 ```
 
-`state.js` nie wie nic o AI, `ai.js` nie wie nic o mechanice. Testy chodzą
-w trybie offline, więc nie kosztują ani grosza.
+`state.js` nie wie nic o AI, `ai.js` nie wie nic o mechanice, a gra nie wie,
+który dostawca ją pisze. Testy chodzą w trybie offline, więc nie kosztują
+ani grosza.
 
 ```bash
 npm test
@@ -153,18 +157,38 @@ fabuła nie będzie dopracowana — grafika zamraża to, co jeszcze się zmienia
 
 ---
 
-## Model
+## Dostawcy i modele
 
-Domyślnie `claude-opus-5` z `effort: "low"` (krótsza tura = szybsza gra).
-Do zmiany w `.env`:
+Dostawca wybiera się sam: bierze tego, do którego jest klucz (przy dwóch
+kluczach wygrywa Claude). Można wymusić:
 
 ```bash
-DROGA_MODEL=claude-opus-5
+DROGA_PROVIDER=gemini      # gemini | claude
+DROGA_MODEL=gemini-3.5-flash
 DROGA_EFFORT=medium        # low | medium | high
 ```
 
-Instrukcja systemowa jest stała przez całą rozgrywkę i oznaczona
-`cache_control`, więc powtarzany prefiks nie kosztuje pełnej stawki.
+| | domyślny model | jak wymusza JSON |
+|---|---|---|
+| Gemini | `gemini-3.5-flash` | `responseSchema` + `responseMimeType` (REST, bez SDK) |
+| Claude | `claude-opus-5` | `output_config.format` (`@anthropic-ai/sdk`) |
+
+Schemat tury jest **jeden** (`src/schema.js`); `src/providers/gemini.js`
+tłumaczy go na dialekt Google (typy wielkimi literami, bez
+`additionalProperties`, z `propertyOrdering`).
+
+Zmierzone na tym scenariuszu (pełna tura, od ruchu gracza do nowego stanu):
+
+| model | tura | uwagi |
+|---|---|---|
+| `gemini-3.5-flash` | ~4 s | domyślny — najlepszy stosunek czasu do jakości |
+| `gemini-2.5-flash` | ~7 s | nie przyjmuje `thinkingLevel`, kod to obsługuje |
+| `gemini-3.6-flash` | 6-16 s | działa, wolniejszy |
+| `gemini-3.7-flash` | ~38 s | często odbija 503 przy dłuższym schemacie |
+
+Na 429/503 dostawca Gemini ponawia trzy razy z rosnącym odstępem.
+U Claude instrukcja systemowa jest oznaczona `cache_control`, więc
+powtarzany prefiks nie kosztuje pełnej stawki.
 
 ---
 

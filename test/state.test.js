@@ -5,6 +5,8 @@ import { applyDelta, emptyState, LIMITS } from "../src/state.js";
 import { startState, SCENARIO } from "../src/scenario.js";
 import { TURN_SCHEMA } from "../src/schema.js";
 import { takeTurn } from "../src/engine.js";
+import { dostawca, hasApiKey } from "../src/ai.js";
+import { naSchematGemini } from "../src/providers/gemini.js";
 
 const pustaDelta = () => ({
   wiek_delta: 0,
@@ -151,4 +153,45 @@ test("pętla tury działa w trybie offline (bez API)", async () => {
 test("tura po zakończeniu jest odrzucana", async () => {
   const s = applyDelta(startState(), { ...pustaDelta(), zakonczenie: { typ: "dobre", tekst: "." } });
   await assert.rejects(() => takeTurn(s, "cokolwiek", { offline: true }), /skończyła/);
+});
+
+test("schemat dla Gemini zachowuje strukturę i wymagane pola", () => {
+  const g = naSchematGemini(TURN_SCHEMA);
+  assert.equal(g.type, "OBJECT");
+  assert.deepEqual([...g.required].sort(), Object.keys(TURN_SCHEMA.properties).sort());
+  assert.deepEqual(g.propertyOrdering, Object.keys(TURN_SCHEMA.properties));
+  assert.equal(g.properties.narracja.type, "STRING");
+  assert.equal(g.properties.delta.properties.pieniadze.type, "INTEGER");
+  assert.equal(g.properties.propozycje.type, "ARRAY");
+  assert.equal(g.properties.propozycje.items.type, "STRING");
+  assert.equal(g.properties.delta.properties.relacje.items.properties.usun.type, "BOOLEAN");
+
+  // Gemini nie rozumie additionalProperties - nie może zostać nigdzie w drzewie.
+  assert.equal(JSON.stringify(g).includes("additionalProperties"), false);
+});
+
+test("dostawcę wybiera zmienna DROGA_PROVIDER, potem obecny klucz", () => {
+  const kopia = { ...process.env };
+  try {
+    delete process.env.DROGA_PROVIDER;
+    delete process.env.ANTHROPIC_API_KEY;
+    delete process.env.ANTHROPIC_AUTH_TOKEN;
+    delete process.env.GEMINI_API_KEY;
+    delete process.env.GOOGLE_API_KEY;
+
+    assert.equal(dostawca(), null);
+    assert.equal(hasApiKey(), false);
+
+    process.env.GEMINI_API_KEY = "test";
+    assert.equal(dostawca().NAZWA, "gemini");
+
+    process.env.ANTHROPIC_API_KEY = "test";
+    assert.equal(dostawca().NAZWA, "claude", "klucz Claude ma pierwszeństwo");
+
+    process.env.DROGA_PROVIDER = "gemini";
+    assert.equal(dostawca().NAZWA, "gemini", "jawny wybór wygrywa");
+  } finally {
+    for (const key of Object.keys(process.env)) if (!(key in kopia)) delete process.env[key];
+    Object.assign(process.env, kopia);
+  }
 });

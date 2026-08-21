@@ -204,7 +204,7 @@ $("btn-panel").onclick = () => el.panel.classList.toggle("widoczny");
   try {
     const info = await api("/api/info");
     el.tryb.textContent = info.offline
-      ? "tryb offline — ustaw ANTHROPIC_API_KEY, żeby narrację pisał model"
+      ? "tryb offline — ustaw GEMINI_API_KEY albo ANTHROPIC_API_KEY w .env"
       : `model: ${info.model}`;
   } catch {
     el.tryb.textContent = "serwer nie odpowiada";

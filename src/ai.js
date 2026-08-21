@@ -3,49 +3,55 @@
  *
  * Model zwraca narrację i deltę stanu naraz, wymuszone schematem
  * (structured outputs), więc nie ma parsowania wolnego tekstu na siłę.
+ *
+ * Dostawca jest wymienny: Claude albo Gemini. Reszta gry o tym nie wie.
  */
 
-import Anthropic from "@anthropic-ai/sdk";
-import { TURN_SCHEMA } from "./schema.js";
+import * as claude from "./providers/claude.js";
+import * as gemini from "./providers/gemini.js";
 import { systemPrompt, turnMessage } from "./prompt.js";
 
-export const MODEL = process.env.DROGA_MODEL || "claude-opus-5";
-export const EFFORT = process.env.DROGA_EFFORT || "low";
+const DOSTAWCY = { claude, gemini };
 
-let client = null;
-
-export function hasApiKey() {
-  return Boolean(process.env.ANTHROPIC_API_KEY || process.env.ANTHROPIC_AUTH_TOKEN);
+/** Wybór dostawcy: DROGA_PROVIDER, a jak nie ma — ten, do którego jest klucz. */
+export function dostawca() {
+  const wybrany = (process.env.DROGA_PROVIDER || "").toLowerCase();
+  if (DOSTAWCY[wybrany]) return DOSTAWCY[wybrany];
+  if (claude.maKlucz()) return claude;
+  if (gemini.maKlucz()) return gemini;
+  return null;
 }
 
-function getClient() {
-  if (!client) client = new Anthropic();
-  return client;
+export function hasApiKey() {
+  const d = dostawca();
+  return Boolean(d && d.maKlucz());
+}
+
+/** Nazwa modelu do pokazania w interfejsie. */
+export function opisModelu() {
+  const d = dostawca();
+  if (!d || !d.maKlucz()) return null;
+  return `${d.NAZWA} / ${model(d)}`;
+}
+
+function model(d) {
+  return process.env.DROGA_MODEL || d.domyslnyModel();
 }
 
 /**
- * Wykonuje ture w modelu.
+ * Wykonuje turę w modelu.
  * @returns {Promise<{narracja:string, uplyw_czasu:string, delta:object, propozycje:string[], zakonczenie:object}>}
  */
 export async function generateTurn({ state, action, scenario, opening = false }) {
-  const response = await getClient().messages.create({
-    model: MODEL,
-    max_tokens: 16000,
-    // Stały prefiks — dobrze się cache'uje między turami.
-    system: [{ type: "text", text: systemPrompt(scenario), cache_control: { type: "ephemeral" } }],
-    output_config: {
-      effort: EFFORT,
-      format: { type: "json_schema", schema: TURN_SCHEMA },
-    },
-    messages: [{ role: "user", content: turnMessage(state, action, { opening }) }],
+  const d = dostawca();
+  if (!d) throw new Error("Brak klucza API (ANTHROPIC_API_KEY albo GEMINI_API_KEY).");
+
+  const text = await d.generujTure({
+    system: systemPrompt(scenario),
+    wiadomosc: turnMessage(state, action, { opening }),
+    model: model(d),
+    effort: process.env.DROGA_EFFORT || "low",
   });
-
-  if (response.stop_reason === "refusal") {
-    throw new Error("Model odmówił wygenerowania tej tury. Spróbuj innej akcji.");
-  }
-
-  const text = response.content.find((block) => block.type === "text")?.text;
-  if (!text) throw new Error("Pusta odpowiedź modelu.");
 
   let turn;
   try {
@@ -65,7 +71,7 @@ export async function generateTurn({ state, action, scenario, opening = false })
 export function mockTurn({ state, action, scenario, opening = false }) {
   const kto = state.relacje[0]?.kto ?? "ktoś z domowników";
   const narracja = opening
-    ? `${scenario.otwarcie}\n\n[tryb offline — ustaw ANTHROPIC_API_KEY, żeby narrację pisał model]`
+    ? `${scenario.otwarcie}\n\n[tryb offline — ustaw klucz API, żeby narrację pisał model]`
     : `Robisz to: ${action}. Dzień schodzi na tym szybciej, niż myślałeś. ` +
       `${kto} patrzy na ciebie dłużej niż zwykle i nic nie mówi. Wieczorem w kuchni ` +
       `zostaje pytanie, które i tak trzeba będzie domknąć.\n\n[tryb offline — bez modelu]`;
