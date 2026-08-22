@@ -266,6 +266,46 @@ details[open] > .pane__summary { border-bottom: 1px solid var(--line-soft); }
 }
 .spec__del:hover { color: #a12d1c; border-color: #d9705c; }
 
+/* ---------- Zdjęcia produktu ---------- */
+.pimgs {
+  display: flex; flex-wrap: wrap; gap: 9px;
+}
+.pimgs:empty { display: none; }
+.pimg {
+  position: relative;
+  width: 78px; height: 78px;
+  border-radius: var(--r-sm);
+  overflow: hidden;
+  background: var(--paper-warm);
+  border: 1px solid var(--line);
+}
+.pimg img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.pimg__nr {
+  position: absolute; left: 4px; top: 4px;
+  min-width: 17px; height: 17px; padding: 0 5px;
+  display: grid; place-items: center;
+  border-radius: 999px;
+  background: rgba(20, 18, 16, 0.72);
+  color: #fff; font-size: 10px; font-weight: 700;
+}
+.pimg__akcje {
+  position: absolute; inset: auto 0 0 0;
+  display: flex; justify-content: center; gap: 2px;
+  padding: 3px;
+  background: rgba(20, 18, 16, 0.72);
+  opacity: 0; transition: opacity 0.16s var(--ease);
+}
+.pimg:hover .pimg__akcje, .pimg:focus-within .pimg__akcje { opacity: 1; }
+.pimg__akcje button {
+  width: 22px; height: 20px;
+  border: 0; border-radius: 4px;
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff; font-size: 11px; line-height: 1;
+  cursor: pointer;
+}
+.pimg__akcje button:hover { background: rgba(255, 255, 255, 0.34); }
+.pimg__akcje button[disabled] { opacity: 0.3; cursor: default; }
+
 /* ---------- Karuzela ---------- */
 .glist { display: grid; gap: 14px; }
 .gitem {

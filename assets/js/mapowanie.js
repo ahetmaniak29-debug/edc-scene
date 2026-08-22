@@ -39,8 +39,16 @@ export const adresObrazka = s => s || '';
  * @param {object} scena  wiersz z tabeli scenes
  * @param {object[]} produkty wiersze z tabeli products
  * @param {object[]} zdjecia  wiersze z tabeli scene_images
+ * @param {object[]} zdjeciaProduktow wiersze z tabeli product_images
  */
-export function zBazy(scena, produkty = [], zdjecia = []) {
+export function zBazy(scena, produkty = [], zdjecia = [], zdjeciaProduktow = []) {
+  // Zdjęcia pogrupowane po produkcie — jeden przebieg zamiast filtrowania w pętli.
+  const wgProduktu = new Map();
+  for (const z of zdjeciaProduktow) {
+    if (!wgProduktu.has(z.product_id)) wgProduktu.set(z.product_id, []);
+    wgProduktu.get(z.product_id).push({ src: adresObrazka(z.image), alt: z.alt || '' });
+  }
+
   return {
     id: scena.id,
     label: scena.label || '',
@@ -59,6 +67,7 @@ export function zBazy(scena, produkty = [], zdjecia = []) {
       specs: Array.isArray(p.specs) ? p.specs : [],
       url: p.url || '#',
       ctaLabel: p.cta_label || 'Zobacz u sprzedawcy',
+      images: wgProduktu.get(p.id) || [],
       hotspot: {
         x: p.hotspot_x === null || p.hotspot_x === undefined ? 50 : Number(p.hotspot_x),
         y: p.hotspot_y === null || p.hotspot_y === undefined ? 50 : Number(p.hotspot_y)

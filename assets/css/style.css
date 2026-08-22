@@ -277,144 +277,237 @@ svg { width: 1em; height: 1em; fill: none; stroke: currentColor; stroke-width: 2
 
 
 /* =========================================================
-   Panel produktu — szkło
-   Telefon: wysuwany z dołu ekranu, nad przyciemnionym tłem.
-   Desktop: wjeżdża w kadr zdjęcia, po stronie przeciwnej do
-   klikniętego punktu, żeby nie zasłaniać oglądanego przedmiotu.
+   Galeria produktu
+   Otwiera się po kliknięciu punktu na zdjęciu sceny.
+   Szkło zostaje z poprzedniej wersji panelu, ale zamiast wąskiego
+   paska w kadrze mamy pełny widok z dużymi zdjęciami.
    ========================================================= */
-.scrim {
-  position: fixed; inset: 0; z-index: 40;
-  background: rgba(26, 22, 18, 0.5);
-  backdrop-filter: blur(3px);
-  opacity: 0;
-  transition: opacity 0.3s var(--ease);
+
+.lb {
+  position: fixed; inset: 0; z-index: 90;
+  display: grid; place-items: center;
+  padding: 24px;
 }
+.lb[hidden] { display: none; }
+
+.lb__scrim,
+.scrim {
+  position: absolute; inset: 0;
+  background: rgba(22, 19, 16, 0.62);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  opacity: 0;
+  transition: opacity 0.34s var(--ease);
+}
+.lb.is-open .lb__scrim,
 .scrim.is-open { opacity: 1; }
 .scrim[hidden] { display: none; }
 
-.glass {
-  position: fixed; z-index: 50;
-  left: 0; right: 0; bottom: 0;
-  max-height: 86vh;
-  max-height: 86dvh;
-  display: flex; flex-direction: column;
-  padding: 4px 20px calc(18px + var(--safe-b));
-  border-radius: var(--r-lg) var(--r-lg) 0 0;
-  line-height: 1.55;
-  text-align: left;
-
-  /* właściwe szkło: przepuszcza i rozmywa to, co pod spodem.
-     Im niższa nieprzezroczystość tła, tym mocniejsze musi być rozmycie —
-     inaczej litery zaczynają się gubić w tym, co prześwituje. */
-  background: rgba(26, 23, 20, 0.38);
-  -webkit-backdrop-filter: blur(34px) saturate(1.7) brightness(0.78);
-  backdrop-filter: blur(34px) saturate(1.7) brightness(0.78);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-bottom: 0;
-  box-shadow:
-    0 -20px 60px rgba(0, 0, 0, 0.42),
-    inset 0 1px 0 rgba(255, 255, 255, 0.26);
+/* ---------- karta ---------- */
+.lb__card {
+  position: relative;
+  width: min(1120px, 100%);
+  max-height: calc(100vh - 48px);
+  max-height: calc(100dvh - 48px);
+  display: grid;
+  grid-template-columns: 1fr;
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  background: rgba(26, 23, 20, 0.52);
+  -webkit-backdrop-filter: blur(34px) saturate(1.7) brightness(0.8);
+  backdrop-filter: blur(34px) saturate(1.7) brightness(0.8);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.24);
   color: #f7f5f2;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.34);
 
-  transform: translateY(100%);
-  transition: transform 0.38s var(--ease), opacity 0.28s var(--ease);
-  touch-action: pan-y;
+  opacity: 0;
+  transform: translateY(14px) scale(0.975);
+  transition: opacity 0.36s var(--ease), transform 0.36s var(--ease);
 }
-.glass[hidden] { display: none; }
-.glass.is-open { transform: translateY(0); }
-.glass.is-dragging { transition: none; }
+.lb.is-open .lb__card { opacity: 1; transform: none; }
 
-/* Gdy przeglądarka nie umie rozmywać tła, szkło musi być gęstsze —
-   inaczej tekst zrobi się nieczytelny na zdjęciu. */
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .glass { background: rgba(24, 21, 18, 0.94); text-shadow: none; }
+  .lb__card { background: rgba(24, 21, 18, 0.96); }
 }
 
-.glass__grip {
-  padding: 9px 0 12px;
+.lb__close {
+  position: absolute; top: 14px; right: 14px; z-index: 5;
+  width: 38px; height: 38px;
   display: grid; place-items: center;
-  cursor: grab; flex: none; touch-action: none;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: rgba(20, 18, 16, 0.5);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  color: #fff; cursor: pointer;
+  transition: background 0.16s var(--ease);
 }
-.glass__grip span {
-  display: block; width: 44px; height: 4px; border-radius: 999px;
-  background: rgba(255, 255, 255, 0.34);
-}
+.lb__close:hover { background: rgba(255, 255, 255, 0.22); }
+.lb__close svg { width: 17px; height: 17px; }
 
-.glass__close {
-  position: absolute; top: 14px; right: 14px; z-index: 2;
-  width: 36px; height: 36px;
+/* ---------- zdjęcia ---------- */
+.lb__gal { display: grid; align-content: start; min-width: 0; }
+
+.lb__stage {
+  position: relative;
+  background: rgba(0, 0, 0, 0.26);
+  aspect-ratio: 4 / 3;
+  display: grid; place-items: center;
+  overflow: hidden;
+}
+.lb__img {
+  display: block;
+  width: 100%; height: 100%;
+  object-fit: contain;
+  opacity: 0;
+  transition: opacity 0.3s var(--ease);
+}
+.lb__img.is-widoczne { opacity: 1; }
+
+.lb__pusto {
+  position: absolute; inset: 0;
+  display: grid; place-content: center; justify-items: center; gap: 4px;
+  color: rgba(247, 245, 242, 0.5);
+  font-size: 13.5px; text-align: center; padding: 20px;
+}
+.lb__pusto[hidden] { display: none; }
+.lb__pusto svg {
+  width: 30px; height: 30px; margin-bottom: 6px;
+  fill: none; stroke: currentColor; stroke-width: 1.4; opacity: 0.7;
+}
+.lb__pusto-sub { font-size: 12px; opacity: 0.7; }
+
+.lb__arrow {
+  position: absolute; top: 50%; transform: translateY(-50%);
+  width: 42px; height: 42px; z-index: 3;
   display: grid; place-items: center;
   border-radius: 50%;
   border: 1px solid rgba(255, 255, 255, 0.2);
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(20, 18, 16, 0.46);
   -webkit-backdrop-filter: blur(8px);
   backdrop-filter: blur(8px);
-  color: #fff;
-  cursor: pointer;
-  transition: background 0.16s var(--ease);
+  color: #fff; cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.2s var(--ease), background 0.16s var(--ease);
 }
-.glass__close:hover { background: rgba(255, 255, 255, 0.2); }
-.glass__close svg { width: 16px; height: 16px; }
+.lb__stage:hover .lb__arrow,
+.lb__arrow:focus-visible { opacity: 1; }
+.lb__arrow:hover { background: rgba(255, 255, 255, 0.24); }
+.lb__arrow[hidden] { display: none; }
+.lb__arrow svg { width: 18px; height: 18px; }
+.lb__arrow--prev { left: 12px; }
+.lb__arrow--next { right: 12px; }
 
-.glass__body {
-  overflow-y: auto; -webkit-overflow-scrolling: touch;
-  padding: 2px 46px 8px 0;
+.lb__licznik {
+  position: absolute; right: 14px; bottom: 14px; z-index: 3;
+  padding: 4px 10px; border-radius: 999px;
+  background: rgba(20, 18, 16, 0.55);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  font-size: 11.5px; font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: rgba(255, 255, 255, 0.86);
+}
+.lb__licznik[hidden] { display: none; }
+
+.lb__thumbs {
+  display: flex; gap: 8px;
+  padding: 12px 14px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.lb__thumbs::-webkit-scrollbar { display: none; }
+.lb__thumbs:empty { display: none; }
+.lb__thumb {
+  flex: none;
+  width: 62px; height: 62px;
+  padding: 0; border-radius: var(--r-sm);
+  overflow: hidden; cursor: pointer;
+  border: 2px solid transparent;
+  background: rgba(0, 0, 0, 0.3);
+  opacity: 0.55;
+  transition: opacity 0.18s var(--ease), border-color 0.18s var(--ease);
+}
+.lb__thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.lb__thumb:hover { opacity: 0.85; }
+.lb__thumb[aria-selected="true"] { opacity: 1; border-color: var(--accent-bright); }
+
+/* ---------- opis ---------- */
+.lb__info {
+  padding: 22px 24px 26px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  min-width: 0;
 }
 
-.glass__brand {
+/* Wejście treści: każdy blok chwilę po poprzednim.
+   Delikatnie — ma być miło, nie widowiskowo. */
+.lb.is-open .lb__info > * {
+  animation: lbWjazd 0.42s var(--ease) both;
+}
+.lb.is-open .lb__info > *:nth-child(1) { animation-delay: 0.10s; }
+.lb.is-open .lb__info > *:nth-child(2) { animation-delay: 0.15s; }
+.lb.is-open .lb__info > *:nth-child(3) { animation-delay: 0.20s; }
+.lb.is-open .lb__info > *:nth-child(4) { animation-delay: 0.25s; }
+.lb.is-open .lb__info > *:nth-child(5) { animation-delay: 0.30s; }
+.lb.is-open .lb__info > *:nth-child(6) { animation-delay: 0.35s; }
+
+@keyframes lbWjazd {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: none; }
+}
+
+.lb__brand {
   font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase;
   color: var(--accent-bright); font-weight: 700;
 }
-.glass__name {
+.lb__name {
   margin-top: 9px;
   font-family: var(--font-display);
-  font-size: clamp(24px, 6vw, 30px);
-  line-height: 1.16; letter-spacing: -0.012em; font-weight: 400;
+  font-size: clamp(25px, 3vw, 34px);
+  line-height: 1.14; letter-spacing: -0.015em; font-weight: 400;
   color: #fff;
+  padding-right: 44px;
 }
-.glass__price {
-  margin-top: 10px;
-  font-size: 21px; font-weight: 700;
+.lb__price {
+  margin-top: 11px;
+  font-size: 23px; font-weight: 700;
   font-variant-numeric: tabular-nums;
   color: #fff;
 }
 
-.glass__why {
+.lb__why {
   margin-top: 20px;
   padding: 15px 17px;
   border-radius: var(--r-md);
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.07);
   border: 1px solid rgba(255, 255, 255, 0.12);
 }
-.glass__why-label {
+.lb__why-label {
   font-size: 10.5px; letter-spacing: 0.15em; text-transform: uppercase;
   color: var(--accent-bright); font-weight: 700;
 }
-.glass__why-text {
-  margin-top: 8px; font-size: 14.5px;
-  color: rgba(244, 241, 236, 0.86);
-}
+.lb__why-text { margin-top: 8px; font-size: 14.5px; color: rgba(247, 245, 242, 0.88); }
 
-.glass__specs {
+.lb__specs {
   margin-top: 16px;
   display: grid; gap: 1px;
   border-radius: var(--r-md);
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.12);
 }
-.glass__specs[hidden] { display: none; }
-.glass__specs li {
+.lb__specs[hidden] { display: none; }
+.lb__specs li {
   display: flex; justify-content: space-between; gap: 14px;
   padding: 11px 15px;
   font-size: 13.5px;
-  background: rgba(26, 23, 20, 0.26);
+  background: rgba(26, 23, 20, 0.42);
 }
-.glass__specs .k { color: rgba(244, 241, 236, 0.6); }
-.glass__specs .v { color: #fff; text-align: right; font-weight: 600; }
+.lb__specs .k { color: rgba(247, 245, 242, 0.62); }
+.lb__specs .v { color: #fff; text-align: right; font-weight: 600; }
 
-.glass__cta { flex: none; padding-top: 16px; }
+.lb__cta { margin-top: 20px; }
 
 .btn {
   display: flex; align-items: center; justify-content: center; gap: 9px;
@@ -432,9 +525,35 @@ svg { width: 1em; height: 1em; fill: none; stroke: currentColor; stroke-width: 2
 .btn:hover { filter: brightness(1.08); box-shadow: 0 8px 28px rgba(242, 101, 34, 0.46); }
 .btn:active { transform: translateY(1px); }
 
-.glass__note {
+.lb__note {
   margin-top: 10px; text-align: center;
-  color: rgba(244, 241, 236, 0.55); font-size: 12px;
+  color: rgba(247, 245, 242, 0.55); font-size: 12px;
+}
+
+/* ---------- telefon ---------- */
+@media (max-width: 899px) {
+  .lb { padding: 0; align-items: end; }
+  .lb__card {
+    width: 100%;
+    max-height: 94dvh;
+    border-radius: var(--r-lg) var(--r-lg) 0 0;
+    border-bottom: 0;
+    grid-template-rows: auto 1fr;
+    transform: translateY(28px);
+  }
+  .lb__stage { aspect-ratio: 1 / 1; }
+  .lb__arrow { opacity: 1; width: 38px; height: 38px; }
+  .lb__thumbs { padding: 10px 12px; }
+  .lb__thumb { width: 52px; height: 52px; }
+  .lb__info { padding: 18px 20px calc(24px + var(--safe-b)); }
+}
+
+/* ---------- duży ekran: zdjęcia obok opisu ---------- */
+@media (min-width: 900px) {
+  .lb__card { grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); }
+  .lb__gal { border-right: 1px solid rgba(255, 255, 255, 0.1); }
+  .lb__stage { aspect-ratio: auto; height: min(62vh, 560px); }
+  .lb__info { max-height: calc(100vh - 48px); padding: 30px 32px 34px; }
 }
 
 /* =========================================================
@@ -541,32 +660,6 @@ body.is-picking .hotspot { pointer-events: none; }
      żeby cała scena była widoczna bez przewijania. */
   .stage__img { max-height: 88vh; width: auto; max-width: 100%; }
   .stage__hint { justify-content: center; }
-
-  /* Panel wjeżdża w kadr zdjęcia zamiast zasłaniać całą stronę. */
-  .glass {
-    position: absolute; z-index: 20;
-    top: 18px; bottom: 18px; right: 18px; left: auto;
-    width: min(380px, 42%);
-    max-height: none;
-    border-radius: var(--r-md);
-    border: 1px solid rgba(255, 255, 255, 0.16);
-    padding: 24px 24px 22px;
-    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.22);
-    transform: translateX(calc(100% + 24px));
-    opacity: 0;
-  }
-  /* Kliknięty przedmiot ma zostać widoczny, więc panel ucieka na drugą stronę. */
-  .glass.glass--left {
-    right: auto; left: 18px;
-    transform: translateX(calc(-100% - 24px));
-  }
-  .glass.is-open { transform: translateX(0); opacity: 1; }
-
-  .glass__grip { display: none; }
-  .glass__body { padding-top: 4px; }
-
-  /* Na desktopie panel jest w kadrze — przyciemnianie całej strony byłoby przesadą. */
-  .scrim { display: none; }
 
   .gslide__media { min-height: 330px; }
   .gslide__body { padding: 32px 38px; }

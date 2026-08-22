@@ -1,14 +1,11 @@
 {
   "_uwaga": "Nazwy, marki, ceny i opisy to PUSTE MIEJSCA do wypełnienia. Punkty są już ustawione na przedmiotach ze zdjęcia — sprawdź je i popraw przez ?pick=1, jeśli chcesz wskazać coś innego.",
-
   "id": "outdoor-edc",
   "label": "EDC",
   "title": "Główne hasło kategorii.",
   "subtitle": "Dwa–trzy zdania o tym, co jest na zdjęciu i dla kogo. Dotknij numeru, żeby zobaczyć szczegóły przedmiotu.",
-
   "image": "ZDJECIA/kolekcje/edc-scena-duza.jpg",
   "imageAlt": "Ekwipunek ułożony równo z góry wokół czarnego plecaka: latarka, aparat, termos, saszetka, kompas i drobne akcesoria.",
-
   "_galeria": "Mniejsza karuzela pod zdjęciem. Dodajesz i usuwasz slajdy tutaj — kolejność jak w tablicy.",
   "gallery": [
     {
@@ -27,7 +24,6 @@
       "text": "Trzeci slajd. Możesz zostawić dwa albo dorzucić dziesięć."
     }
   ],
-
   "products": [
     {
       "id": "przedmiot-1",
@@ -37,12 +33,31 @@
       "price": "0,00 zł",
       "why": "Tu wpisujesz jedno–dwa zdania: dlaczego akurat ten przedmiot trafił na listę i co go wyróżnia.",
       "specs": [
-        { "k": "Parametr", "v": "wartość" },
-        { "k": "Parametr", "v": "wartość" }
+        {
+          "k": "Parametr",
+          "v": "wartość"
+        },
+        {
+          "k": "Parametr",
+          "v": "wartość"
+        }
       ],
       "url": "#",
       "ctaLabel": "Zobacz u sprzedawcy",
-      "hotspot": { "x": 50.0, "y": 52.0 }
+      "hotspot": {
+        "x": 50.0,
+        "y": 52.0
+      },
+      "images": [
+        {
+          "src": "ZDJECIA/kolekcje/edc-scena-duza.jpg",
+          "alt": "Nazwa produktu 1"
+        },
+        {
+          "src": "ZDJECIA/produkty/image-1786014155651.png",
+          "alt": "Nazwa produktu 1"
+        }
+      ]
     },
     {
       "id": "przedmiot-2",
@@ -52,12 +67,27 @@
       "price": "0,00 zł",
       "why": "Tu wpisujesz jedno–dwa zdania: dlaczego akurat ten przedmiot trafił na listę i co go wyróżnia.",
       "specs": [
-        { "k": "Parametr", "v": "wartość" },
-        { "k": "Parametr", "v": "wartość" }
+        {
+          "k": "Parametr",
+          "v": "wartość"
+        },
+        {
+          "k": "Parametr",
+          "v": "wartość"
+        }
       ],
       "url": "#",
       "ctaLabel": "Zobacz u sprzedawcy",
-      "hotspot": { "x": 24.0, "y": 10.0 }
+      "hotspot": {
+        "x": 24.0,
+        "y": 10.0
+      },
+      "images": [
+        {
+          "src": "ZDJECIA/produkty/image-1786014155651.png",
+          "alt": "Nazwa produktu 2"
+        }
+      ]
     },
     {
       "id": "przedmiot-3",
@@ -67,12 +97,22 @@
       "price": "0,00 zł",
       "why": "Tu wpisujesz jedno–dwa zdania: dlaczego akurat ten przedmiot trafił na listę i co go wyróżnia.",
       "specs": [
-        { "k": "Parametr", "v": "wartość" },
-        { "k": "Parametr", "v": "wartość" }
+        {
+          "k": "Parametr",
+          "v": "wartość"
+        },
+        {
+          "k": "Parametr",
+          "v": "wartość"
+        }
       ],
       "url": "#",
       "ctaLabel": "Zobacz u sprzedawcy",
-      "hotspot": { "x": 72.0, "y": 16.0 }
+      "hotspot": {
+        "x": 72.0,
+        "y": 16.0
+      },
+      "images": []
     },
     {
       "id": "przedmiot-4",
@@ -82,12 +122,22 @@
       "price": "0,00 zł",
       "why": "Tu wpisujesz jedno–dwa zdania: dlaczego akurat ten przedmiot trafił na listę i co go wyróżnia.",
       "specs": [
-        { "k": "Parametr", "v": "wartość" },
-        { "k": "Parametr", "v": "wartość" }
+        {
+          "k": "Parametr",
+          "v": "wartość"
+        },
+        {
+          "k": "Parametr",
+          "v": "wartość"
+        }
       ],
       "url": "#",
       "ctaLabel": "Zobacz u sprzedawcy",
-      "hotspot": { "x": 10.5, "y": 33.5 }
+      "hotspot": {
+        "x": 10.5,
+        "y": 33.5
+      },
+      "images": []
     },
     {
       "id": "przedmiot-5",
@@ -97,12 +147,22 @@
       "price": "0,00 zł",
       "why": "Tu wpisujesz jedno–dwa zdania: dlaczego akurat ten przedmiot trafił na listę i co go wyróżnia.",
       "specs": [
-        { "k": "Parametr", "v": "wartość" },
-        { "k": "Parametr", "v": "wartość" }
+        {
+          "k": "Parametr",
+          "v": "wartość"
+        },
+        {
+          "k": "Parametr",
+          "v": "wartość"
+        }
       ],
       "url": "#",
       "ctaLabel": "Zobacz u sprzedawcy",
-      "hotspot": { "x": 38.0, "y": 85.0 }
+      "hotspot": {
+        "x": 38.0,
+        "y": 85.0
+      },
+      "images": []
     },
     {
       "id": "przedmiot-6",
@@ -112,12 +172,23 @@
       "price": "0,00 zł",
       "why": "Tu wpisujesz jedno–dwa zdania: dlaczego akurat ten przedmiot trafił na listę i co go wyróżnia.",
       "specs": [
-        { "k": "Parametr", "v": "wartość" },
-        { "k": "Parametr", "v": "wartość" }
+        {
+          "k": "Parametr",
+          "v": "wartość"
+        },
+        {
+          "k": "Parametr",
+          "v": "wartość"
+        }
       ],
       "url": "#",
       "ctaLabel": "Zobacz u sprzedawcy",
-      "hotspot": { "x": 83.0, "y": 83.0 }
+      "hotspot": {
+        "x": 83.0,
+        "y": 83.0
+      },
+      "images": []
     }
-  ]
+  ],
+  "_zdjecia_produktow": "Awaryjna kopia galerii. Normalnie zdjecia produktow pochodza z tabeli product_images i dodaje sie je w panelu."
 }

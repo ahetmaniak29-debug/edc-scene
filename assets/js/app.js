@@ -1,11 +1,7 @@
-import { track, getScene, getAll, reset, fetchSummary } from './counter.js?v=6';
-import { icon, media, loadSite, renderChrome } from './chrome.js?v=6';
-import { initDb, dbGotowa, select } from './db.js?v=6';
-import { zBazy, formatujCene } from './mapowanie.js?v=6';
-
-/** Od tej szerokości panel wjeżdża w kadr zdjęcia zamiast wysuwać się z dołu. */
-const SZEROKI = 900;
-const naSzerokim = () => window.innerWidth >= SZEROKI;
+import { track, getScene, getAll, reset, fetchSummary } from './counter.js?v=7';
+import { icon, media, loadSite, renderChrome } from './chrome.js?v=7';
+import { initDb, dbGotowa, select } from './db.js?v=7';
+import { zBazy, formatujCene } from './mapowanie.js?v=7';
 
 const $  = (sel, root = document) => root.querySelector(sel);
 const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
@@ -17,7 +13,9 @@ const state = {
   scene: null,
   current: null,   // aktualnie otwarty produkt
   analytics: null,
-  supabase: null
+  supabase: null,
+  zdjecia: [],      // zdjęcia otwartego produktu
+  zdjecieNr: 0
 };
 
 /* ------------------------------------------------------------------ *
@@ -94,7 +92,22 @@ async function zBazyDanych(wanted) {
       select('scene_images', `select=*&scene_id=eq.${encodeURIComponent(scena.id)}&order=position.asc`)
     ]);
 
-    return zBazy(scena, produkty || [], zdjecia || []);
+    // Zdjęcia produktów jednym zapytaniem dla całej sceny.
+    // Tabela bywa jeszcze nieutworzona — wtedy galeria po prostu jest pusta.
+    let zdjeciaProduktow = [];
+    const ids = (produkty || []).map(p => p.id);
+    if (ids.length) {
+      try {
+        zdjeciaProduktow = await select(
+          'product_images',
+          `select=*&product_id=in.(${ids.map(encodeURIComponent).join(',')})&order=position.asc`
+        ) || [];
+      } catch (err) {
+        console.warn('Brak zdjęć produktów:', err.message);
+      }
+    }
+
+    return zBazy(scena, produkty || [], zdjecia || [], zdjeciaProduktow);
   } catch (err) {
     console.warn('Nie udało się wczytać sceny z bazy:', err.message);
     return null;
@@ -352,18 +365,12 @@ function openProduct(p, { silent = false } = {}) {
   $('[data-sheet-note]').textContent = [note, hostOf(p.url)].filter(Boolean).join(' · ');
 
   markActive(p.id);
-
-  // Panel ucieka na stronę przeciwną do klikniętego punktu, żeby go nie zasłonić.
-  const hx = p.hotspot?.x ?? 50;
-  sheet.classList.toggle('glass--left', hx > 55);
+  pokazGalerie(p);
 
   lastFocus = document.activeElement;
   sheet.hidden = false;
-  scrim.hidden = false;
-  // Blokada przewijania ma sens tylko przy panelu wysuwanym z dołu ekranu.
-  document.body.classList.toggle('is-locked', !naSzerokim());
-  sheet.style.transform = '';
-  void sheet.offsetHeight; // wymuszony reflow — bez tego przeglądarka scala oba stany w jeden i animacja nie rusza
+  document.body.classList.add('is-locked');
+  void sheet.offsetHeight; // wymuszony reflow — bez tego przeglądarka scala oba stany i animacja nie rusza
   sheet.classList.add('is-open');
   scrim.classList.add('is-open');
 
@@ -382,10 +389,11 @@ function closeSheet() {
   document.body.classList.remove('is-locked');
   markActive(null);
   state.current = null;
+  state.zdjecia = [];
 
-  const done = () => { sheet.hidden = true; scrim.hidden = true; sheet.style.transform = ''; };
+  const done = () => { sheet.hidden = true; };
   sheet.addEventListener('transitionend', done, { once: true });
-  setTimeout(done, 420); // zabezpieczenie, gdyby transitionend nie przyszedł
+  setTimeout(done, 460); // zabezpieczenie, gdyby transitionend nie przyszedł
 
   lastFocus?.focus?.({ preventScroll: true });
 }
@@ -394,18 +402,96 @@ function markActive(id) {
   $$('.hotspot, .list__btn').forEach(el => el.classList.toggle('is-active', !!id && el.dataset.id === id));
 }
 
+/* ------------------------------------------------------------------ *
+ * Galeria zdjęć produktu
+ * ------------------------------------------------------------------ */
+
+function pokazGalerie(p) {
+  state.zdjecia = Array.isArray(p.images) ? p.images : [];
+  state.zdjecieNr = 0;
+
+  const thumbs = $('[data-lb-thumbs]');
+  const pusto = $('[data-lb-pusto]');
+  const jest = state.zdjecia.length > 0;
+
+  pusto.hidden = jest;
+  $('[data-lb-img]').hidden = !jest;
+
+  // Strzałki i licznik mają sens dopiero od drugiego zdjęcia.
+  const wiele = state.zdjecia.length > 1;
+  $('[data-lb-prev]').hidden = !wiele;
+  $('[data-lb-next]').hidden = !wiele;
+  $('[data-lb-licznik]').hidden = !wiele;
+
+  thumbs.innerHTML = wiele
+    ? state.zdjecia.map((z, i) => `
+        <button class="lb__thumb" type="button" role="tab"
+                aria-selected="${i === 0}" aria-label="Zdjęcie ${i + 1}">
+          <img src="${escapeHTML(z.src)}" alt="" loading="lazy">
+        </button>`).join('')
+    : '';
+
+  $$('.lb__thumb', thumbs).forEach((b, i) =>
+    b.addEventListener('click', () => pokazZdjecie(i)));
+
+  if (jest) pokazZdjecie(0);
+}
+
+function pokazZdjecie(i) {
+  const zdjecia = state.zdjecia;
+  if (!zdjecia.length) return;
+
+  state.zdjecieNr = (i + zdjecia.length) % zdjecia.length;
+  const z = zdjecia[state.zdjecieNr];
+  const img = $('[data-lb-img]');
+
+  // Przenikanie: gasimy, podmieniamy plik, zapalamy dopiero po wczytaniu.
+  img.classList.remove('is-widoczne');
+  const zapal = () => img.classList.add('is-widoczne');
+  img.addEventListener('load', zapal, { once: true });
+  img.addEventListener('error', zapal, { once: true });
+  img.src = z.src;
+  img.alt = z.alt || '';
+
+  $('[data-lb-licznik]').textContent = `${state.zdjecieNr + 1} / ${zdjecia.length}`;
+  $$('.lb__thumb').forEach((b, k) => b.setAttribute('aria-selected', String(k === state.zdjecieNr)));
+}
+
+$('[data-lb-prev]').addEventListener('click', e => { e.stopPropagation(); pokazZdjecie(state.zdjecieNr - 1); });
+$('[data-lb-next]').addEventListener('click', e => { e.stopPropagation(); pokazZdjecie(state.zdjecieNr + 1); });
+
+// Przesuwanie palcem po zdjęciu
+(() => {
+  let x0 = null;
+  const stage = $('[data-lb-stage]');
+  stage.addEventListener('touchstart', e => { x0 = e.touches[0].clientX; }, { passive: true });
+  stage.addEventListener('touchend', e => {
+    if (x0 === null || state.zdjecia.length < 2) { x0 = null; return; }
+    const dx = e.changedTouches[0].clientX - x0;
+    if (Math.abs(dx) > 45) pokazZdjecie(state.zdjecieNr + (dx < 0 ? 1 : -1));
+    x0 = null;
+  });
+})();
+
+/* ------------------------------------------------------------------ */
+
 $('[data-sheet-close]').addEventListener('click', closeSheet);
 scrim.addEventListener('click', closeSheet);
 
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape' && !sheet.hidden) closeSheet();
+  if (sheet.hidden) return;
+  if (e.key === 'Escape') return closeSheet();
+  if (state.zdjecia.length > 1) {
+    if (e.key === 'ArrowLeft')  pokazZdjecie(state.zdjecieNr - 1);
+    if (e.key === 'ArrowRight') pokazZdjecie(state.zdjecieNr + 1);
+  }
 });
 
-// Kliknięcie gdziekolwiek poza panelem go zamyka.
-// Wyjątkiem są punkty i pozycje listy — one mają przełączać produkt, nie zamykać.
+// Kliknięcie poza kartą zamyka. Punkty i pozycje listy mają przełączać
+// produkt, a nie zamykać, więc są wyjęte spod tej reguły.
 document.addEventListener('click', e => {
   if (sheet.hidden || !sheet.classList.contains('is-open')) return;
-  if (e.target.closest('[data-sheet]')) return;
+  if (e.target.closest('.lb__card')) return;
   if (e.target.closest('.hotspot, .list__btn')) return;
   closeSheet();
 });
@@ -416,39 +502,6 @@ $('[data-sheet-link]').addEventListener('click', () => {
   if (!p) return;
   track({ sceneId: state.scene.id, productId: p.id, event: 'outbound', category: p.category, analytics: state.analytics, supabase: state.supabase });
 });
-
-/* ---- przeciąganie panelu w dół (telefon) ---- */
-(() => {
-  let startY = 0, dy = 0, dragging = false;
-  const grip = $('[data-sheet-grip]');
-
-  const start = e => {
-    if (naSzerokim()) return;   // w kadrze zdjęcia nie ma czego ściągać w dół
-    dragging = true; dy = 0;
-    startY = (e.touches ? e.touches[0].clientY : e.clientY);
-    sheet.classList.add('is-dragging');
-  };
-  const move = e => {
-    if (!dragging) return;
-    const y = (e.touches ? e.touches[0].clientY : e.clientY);
-    dy = Math.max(0, y - startY);
-    sheet.style.transform = `translateY(${dy}px)`;
-  };
-  const end = () => {
-    if (!dragging) return;
-    dragging = false;
-    sheet.classList.remove('is-dragging');
-    if (dy > 110) { sheet.style.transform = ''; closeSheet(); }
-    else sheet.style.transform = '';
-  };
-
-  grip.addEventListener('touchstart', start, { passive: true });
-  grip.addEventListener('touchmove', move, { passive: true });
-  grip.addEventListener('touchend', end);
-  grip.addEventListener('mousedown', start);
-  window.addEventListener('mousemove', move);
-  window.addEventListener('mouseup', end);
-})();
 
 /* ------------------------------------------------------------------ *
  * Statystyki (?stats=1)

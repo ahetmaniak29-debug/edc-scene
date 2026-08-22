@@ -77,34 +77,6 @@
           <div class="stage__hotspots" data-hotspots></div>
           <div class="stage__loading" data-stage-loading>Wczytywanie sceny…</div>
 
-          <!-- Panel produktu — szkło -->
-          <aside class="glass" data-sheet hidden aria-modal="true" role="dialog" aria-labelledby="sheet-name">
-            <div class="glass__grip" data-sheet-grip><span></span></div>
-            <button class="glass__close" data-sheet-close type="button" aria-label="Zamknij">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
-            </button>
-
-            <div class="glass__body">
-              <p class="glass__brand" data-sheet-brand></p>
-              <h2 class="glass__name" id="sheet-name" data-sheet-name></h2>
-              <p class="glass__price" data-sheet-price></p>
-
-              <div class="glass__why">
-                <p class="glass__why-label">Dlaczego polecamy</p>
-                <p class="glass__why-text" data-sheet-why></p>
-              </div>
-
-              <ul class="glass__specs" data-sheet-specs hidden></ul>
-            </div>
-
-            <div class="glass__cta">
-              <a class="btn" data-sheet-link target="_blank" rel="noopener noreferrer">
-                <span data-sheet-cta>Zobacz u sprzedawcy</span>
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17L17 7M9 7h8v8"/></svg>
-              </a>
-              <p class="glass__note" data-sheet-note></p>
-            </div>
-          </aside>
         </div>
 
         <p class="stage__hint" data-stage-hint hidden>
@@ -158,8 +130,66 @@
     <div class="shell ftr__inner" data-footer></div>
   </footer>
 
-  <!-- Przyciemnienie tła — tylko na telefonie, gdzie panel jest wysuwany z dołu -->
-  <div class="scrim" data-scrim hidden></div>
+  <!-- ================= GALERIA PRODUKTU ================= -->
+  <!-- Otwiera się po kliknięciu punktu na zdjęciu. Duże zdjęcia po lewej,
+       opis po prawej; na telefonie jedno pod drugim. -->
+  <div class="lb" data-sheet hidden role="dialog" aria-modal="true" aria-labelledby="lb-name">
+    <div class="lb__scrim" data-scrim></div>
+
+    <article class="lb__card">
+      <button class="lb__close" data-sheet-close type="button" aria-label="Zamknij">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+
+      <!-- ---------- zdjęcia ---------- -->
+      <div class="lb__gal">
+        <div class="lb__stage" data-lb-stage>
+          <img class="lb__img" data-lb-img alt="">
+          <div class="lb__pusto" data-lb-pusto hidden>
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <rect x="3" y="5" width="18" height="14" rx="2"/>
+              <circle cx="8.5" cy="10" r="1.6"/><path d="M21 16l-5-5-6 6"/>
+            </svg>
+            <p>Ten produkt nie ma jeszcze zdjęć</p>
+            <p class="lb__pusto-sub">Dodasz je w panelu</p>
+          </div>
+
+          <button class="lb__arrow lb__arrow--prev" type="button" data-lb-prev aria-label="Poprzednie zdjęcie">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+          </button>
+          <button class="lb__arrow lb__arrow--next" type="button" data-lb-next aria-label="Następne zdjęcie">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+          </button>
+
+          <span class="lb__licznik" data-lb-licznik hidden></span>
+        </div>
+
+        <div class="lb__thumbs" data-lb-thumbs></div>
+      </div>
+
+      <!-- ---------- opis ---------- -->
+      <div class="lb__info" data-lb-info>
+        <p class="lb__brand" data-sheet-brand></p>
+        <h2 class="lb__name" id="lb-name" data-sheet-name></h2>
+        <p class="lb__price" data-sheet-price></p>
+
+        <div class="lb__why">
+          <p class="lb__why-label">Dlaczego polecamy</p>
+          <p class="lb__why-text" data-sheet-why></p>
+        </div>
+
+        <ul class="lb__specs" data-sheet-specs hidden></ul>
+
+        <div class="lb__cta">
+          <a class="btn" data-sheet-link target="_blank" rel="noopener noreferrer">
+            <span data-sheet-cta>Zobacz u sprzedawcy</span>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17L17 7M9 7h8v8"/></svg>
+          </a>
+          <p class="lb__note" data-sheet-note></p>
+        </div>
+      </div>
+    </article>
+  </div>
 
   <!-- Widok statystyk (?stats=1) -->
   <section class="stats" data-stats hidden></section>
@@ -173,6 +203,6 @@
     <ul data-mnav-list></ul>
   </nav>
 
-  <script src="assets/js/app.js?v=6" type="module"></script>
+  <script src="assets/js/app.js?v=7" type="module"></script>
 </body>
 </html>

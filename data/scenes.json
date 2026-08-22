@@ -1,24 +1,19 @@
 {
   "_uwaga": "Sceny i produkty siedzą teraz w bazie (Supabase), a nie w plikach. Ten plik trzyma tylko połączenie do bazy, teksty wspólne dla strony i awaryjną listę scen, gdyby baza nie odpowiedziała.",
-
   "supabase": {
     "_komentarz": "Klucz publikowalny — z założenia jawny w kodzie strony. Cała ochrona jest po stronie bazy (RLS): anon czyta wyłącznie opublikowane wiersze i dopisuje zdarzenia, zapisywać może tylko zalogowany. Nigdy nie wklejaj tu klucza service_role.",
     "url": "https://sfajnuvpvvprjocqqbpe.supabase.co",
     "anonKey": "sb_publishable_pfveoMb6s0OWtf1uxw6Spg_uGtxAMCG"
   },
-
   "site": {
     "footerNote": "Notka pod listą — np. skąd bierzecie produkty i dokąd prowadzą linki.",
     "outboundNote": "Przejdziesz na stronę sprzedawcy"
   },
-
   "defaultScene": "outdoor-edc",
-
   "_scenesAwaryjne": "Używane tylko wtedy, gdy baza nie odpowie. Normalnie lista scen pochodzi z tabeli scenes.",
   "scenes": [
     "outdoor-edc"
   ],
-
   "analytics": {
     "_komentarz": "Zliczanie kliknięć. Schemat i uprawnienia: db/schema.sql.",
     "table": "events",

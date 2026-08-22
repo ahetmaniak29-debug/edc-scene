@@ -187,6 +187,17 @@
             </div>
 
             <div class="fld">
+              <span class="fld__label">Zdjęcia produktu <span class="licznik" data-pi-count>0</span></span>
+              <p class="fld__hint">Pokazują się w galerii po kliknięciu punktu na zdjęciu sceny. Pierwsze jest okładką.</p>
+              <ul class="pimgs" data-pi-list></ul>
+              <label class="upload" data-pi-upload hidden>
+                <input type="file" accept="image/*" multiple hidden data-pi-file>
+                <span class="mini">+ Wgraj zdjęcia</span>
+              </label>
+              <span class="upload__stan" data-pi-stan></span>
+            </div>
+
+            <div class="fld">
               <span class="fld__label">Parametry</span>
               <div class="specs" data-p-specs></div>
               <button class="mini" type="button" data-spec-add>+ Dodaj parametr</button>
@@ -230,6 +241,6 @@
     </main>
   </div>
 
-  <script src="assets/js/admin.js?v=6" type="module"></script>
+  <script src="assets/js/admin.js?v=7" type="module"></script>
 </body>
 </html>

@@ -10,8 +10,8 @@ import {
   initDb, dbGotowa, konfiguracja,
   zaloguj, wyloguj, zalogowany, ktoZalogowany,
   select, upsert, usun, wgrajZdjecie
-} from './db.js?v=6';
-import { formatujCene, naGrosze } from './mapowanie.js?v=6';
+} from './db.js?v=7';
+import { formatujCene, naGrosze } from './mapowanie.js?v=7';
 
 const $  = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
@@ -22,6 +22,7 @@ const stan = {
   produkty: [],
   galeria: [],
   wybrany: null,        // id edytowanego produktu, '' = nowy
+  zdjeciaProduktu: [],  // wiersze product_images dla wybranego produktu
   brudne: false
 };
 
@@ -394,6 +395,7 @@ function otworzProdukt(id) {
   $('[data-p-published]').checked = Boolean(p.published);
 
   rysujParametry(Array.isArray(p.specs) ? p.specs : []);
+  wczytajZdjeciaProduktu(nowy ? null : p.id);
   rysujListe();
   rysujPunkty();
 
@@ -500,7 +502,7 @@ $('[data-prod-save]').addEventListener('click', async () => {
     toast(nowy ? 'Produkt dodany.' : 'Produkt zapisany.');
     const wrocDo = id;
     await wybierzScene(stan.scena.id);
-    otworzProdukt(wrocDo);
+    otworzProdukt(wrocDo);   // po zapisie produkt ma już wiersz, więc wgrywanie zdjęć się odblokowuje
   } catch (err) {
     toast(`Nie udało się zapisać: ${err.message}`, true);
   }
@@ -519,6 +521,109 @@ $('[data-prod-delete]').addEventListener('click', async () => {
     await wybierzScene(stan.scena.id);
   } catch (err) {
     toast(`Nie udało się usunąć: ${err.message}`, true);
+  }
+});
+
+/* ------------------------------------------------------------------ *
+ * Zdjęcia produktu (galeria pokazywana po kliknięciu punktu)
+ * ------------------------------------------------------------------ */
+
+async function wczytajZdjeciaProduktu(id) {
+  // Nowy produkt nie ma jeszcze wiersza w bazie, więc nie ma do czego
+  // podpiąć zdjęć — wgrywanie odblokowuje się po pierwszym zapisie.
+  $('[data-pi-upload]').hidden = !id;
+  stan.zdjeciaProduktu = [];
+
+  if (id) {
+    try {
+      stan.zdjeciaProduktu = await select(
+        'product_images',
+        `select=*&product_id=eq.${encodeURIComponent(id)}&order=position.asc`,
+        { zAutoryzacja: true }
+      ) || [];
+    } catch (err) {
+      toast(`Zdjęcia produktu: ${err.message}`, true);
+    }
+  }
+  rysujZdjeciaProduktu();
+}
+
+function rysujZdjeciaProduktu() {
+  const ul = $('[data-pi-list]');
+  const lista = stan.zdjeciaProduktu;
+  $('[data-pi-count]').textContent = lista.length;
+
+  ul.innerHTML = lista.map((z, i) => `
+    <li class="pimg">
+      <img src="${escapeHTML(z.image)}" alt="">
+      <span class="pimg__nr">${i + 1}</span>
+      <span class="pimg__akcje">
+        <button type="button" title="W lewo" data-pi-lewo="${z.id}" ${i === 0 ? 'disabled' : ''}>←</button>
+        <button type="button" title="W prawo" data-pi-prawo="${z.id}" ${i === lista.length - 1 ? 'disabled' : ''}>→</button>
+        <button type="button" title="Usuń" data-pi-del="${z.id}">×</button>
+      </span>
+    </li>`).join('');
+
+  $$('[data-pi-lewo]', ul).forEach(b => b.addEventListener('click', () => przesun(Number(b.dataset.piLewo), -1)));
+  $$('[data-pi-prawo]', ul).forEach(b => b.addEventListener('click', () => przesun(Number(b.dataset.piPrawo), +1)));
+  $$('[data-pi-del]', ul).forEach(b => b.addEventListener('click', () => skasujZdjecie(Number(b.dataset.piDel))));
+}
+
+/** Zamienia zdjęcie miejscami z sąsiadem i zapisuje obie pozycje. */
+async function przesun(id, kierunek) {
+  const lista = stan.zdjeciaProduktu;
+  const i = lista.findIndex(z => z.id === id);
+  const j = i + kierunek;
+  if (i < 0 || j < 0 || j >= lista.length) return;
+
+  try {
+    await upsert('product_images', [
+      { id: lista[i].id, product_id: lista[i].product_id, image: lista[i].image, position: j + 1 },
+      { id: lista[j].id, product_id: lista[j].product_id, image: lista[j].image, position: i + 1 }
+    ]);
+    await wczytajZdjeciaProduktu(stan.wybrany);
+  } catch (err) {
+    toast(`Nie udało się przestawić: ${err.message}`, true);
+  }
+}
+
+async function skasujZdjecie(id) {
+  if (!confirm('Usunąć to zdjęcie z galerii produktu?')) return;
+  try {
+    await usun('product_images', `id=eq.${id}`);
+    await wczytajZdjeciaProduktu(stan.wybrany);
+    toast('Zdjęcie usunięte.');
+  } catch (err) {
+    toast(`Nie udało się usunąć: ${err.message}`, true);
+  }
+}
+
+$('[data-pi-file]').addEventListener('change', async e => {
+  const pliki = [...(e.target.files || [])];
+  if (!pliki.length || !stan.wybrany) return;
+
+  const stanEl = $('[data-pi-stan]');
+  let nr = stan.zdjeciaProduktu.length;
+
+  try {
+    for (const [i, plik] of pliki.entries()) {
+      stanEl.textContent = `Wgrywanie ${i + 1} z ${pliki.length}…`;
+      const adres = await wgrajZdjecie(plik, `produkty/${stan.wybrany}`);
+      await upsert('product_images', {
+        product_id: stan.wybrany,
+        image: adres,
+        alt: $('[data-p-name]').value.trim() || null,
+        position: ++nr
+      });
+    }
+    stanEl.textContent = '';
+    toast(pliki.length > 1 ? `Wgrano ${pliki.length} zdjęć.` : 'Zdjęcie wgrane.');
+    await wczytajZdjeciaProduktu(stan.wybrany);
+  } catch (err) {
+    stanEl.textContent = '';
+    toast(err.message, true);
+  } finally {
+    e.target.value = '';
   }
 });
 
