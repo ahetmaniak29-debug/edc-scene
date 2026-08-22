@@ -44,7 +44,11 @@ export const ph = (folder, size, variant = '') => `
 export const media = (src, alt, folder, size, variant = '') =>
   src ? `<img class="img" src="${esc(src)}" alt="${esc(alt || '')}" loading="lazy">` : ph(folder, size, variant);
 
-const $ = (sel, root = document) => root.querySelector(sel);
+import { naZmiane, pobierz, ustawIlosc, ile as ileWKoszyku, suma } from './koszyk.js?v=10';
+import { formatujCene } from './mapowanie.js?v=10';
+
+const $  = (sel, root = document) => root.querySelector(sel);
+const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
 
 /** Wczytuje wspólną konfigurację strony. */
 export async function loadSite() {
@@ -62,6 +66,7 @@ export function renderChrome(data, activePath = '') {
   header(data, activePath);
   footer(data);
   mobileNav(data, activePath);
+  koszyk();
 }
 
 function header(data, activePath) {
@@ -125,6 +130,114 @@ function mobileNav(data, activePath) {
   $('[data-mnav-close]').addEventListener('click', close);
   scrim.addEventListener('click', close);
   document.addEventListener('keydown', e => { if (e.key === 'Escape' && !nav.hidden) close(); });
+}
+
+
+/* ------------------------------------------------------------------ *
+ * Koszyk — licznik w nagłówku i wysuwana szuflada
+ * Wspólny dla wszystkich stron, bo koszyk nie należy do żadnej z nich.
+ * ------------------------------------------------------------------ */
+
+function koszyk() {
+  const przycisk = $('[data-cart-open]');
+  if (!przycisk) return;
+
+  // Szufladę wstrzykujemy z kodu, żeby nie powielać jej w czterech plikach HTML.
+  if (!$('[data-cart]')) {
+    document.body.insertAdjacentHTML('beforeend', `
+      <div class="kszscrim" data-cart-scrim hidden></div>
+      <aside class="ksz" data-cart hidden aria-label="Koszyk">
+        <div class="ksz__head">
+          <h2 class="ksz__title">Koszyk</h2>
+          <button class="ksz__close" type="button" data-cart-close aria-label="Zamknij">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+          </button>
+        </div>
+        <div class="ksz__body" data-cart-body></div>
+        <div class="ksz__foot" data-cart-foot hidden>
+          <p class="ksz__suma"><span>Razem</span><strong data-cart-total></strong></p>
+          <button class="btn" type="button" disabled>Przejdź do płatności</button>
+          <p class="ksz__note">Płatności jeszcze nie podłączyliśmy — koszyk zapamiętuje wybór na tym urządzeniu.</p>
+        </div>
+      </aside>`);
+  }
+
+  const szuflada = $('[data-cart]');
+  const scrim = $('[data-cart-scrim]');
+
+  const otworz = () => {
+    szuflada.hidden = false; scrim.hidden = false;
+    void szuflada.offsetHeight;
+    szuflada.classList.add('is-open'); scrim.classList.add('is-open');
+    document.body.style.overflow = 'hidden';
+  };
+  const zamknij = () => {
+    szuflada.classList.remove('is-open'); scrim.classList.remove('is-open');
+    document.body.style.overflow = '';
+    const koniec = () => { szuflada.hidden = true; scrim.hidden = true; };
+    szuflada.addEventListener('transitionend', koniec, { once: true });
+    setTimeout(koniec, 420);
+  };
+
+  przycisk.addEventListener('click', e => { e.preventDefault(); otworz(); });
+  $('[data-cart-close]').addEventListener('click', zamknij);
+  scrim.addEventListener('click', zamknij);
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && !szuflada.hidden) zamknij();
+  });
+
+  naZmiane(rysujKoszyk);
+}
+
+function rysujKoszyk() {
+  const pozycje = pobierz();
+
+  // licznik przy ikonie
+  const licznik = $('[data-cart-count]');
+  if (licznik) {
+    const n = ileWKoszyku();
+    licznik.textContent = n;
+    licznik.classList.toggle('is-pusty', n === 0);
+  }
+
+  const body = $('[data-cart-body]');
+  if (!body) return;
+
+  const stopka = $('[data-cart-foot]');
+  stopka.hidden = pozycje.length === 0;
+
+  if (!pozycje.length) {
+    body.innerHTML = '<p class="ksz__pusto">Koszyk jest pusty.</p>';
+    return;
+  }
+
+  body.innerHTML = pozycje.map(p => `
+    <div class="kszp" data-id="${esc(p.id)}">
+      <div class="kszp__foto">${p.zdjecie
+        ? `<img src="${esc(p.zdjecie)}" alt="" loading="lazy">`
+        : ''}</div>
+      <div class="kszp__opis">
+        <a class="kszp__nazwa" href="produkt.html?id=${encodeURIComponent(p.id)}">${esc(p.nazwa)}</a>
+        <p class="kszp__marka">${esc(p.marka || '')}</p>
+        <p class="kszp__cena">${esc(formatujCene(p.groszy, p.waluta))}</p>
+      </div>
+      <div class="kszp__ile">
+        <button type="button" data-mniej aria-label="Mniej">−</button>
+        <span>${p.ile}</span>
+        <button type="button" data-wiecej aria-label="Więcej">+</button>
+        <button type="button" data-usun aria-label="Usuń z koszyka">✕</button>
+      </div>
+    </div>`).join('');
+
+  $('[data-cart-total]').textContent = formatujCene(suma(), pozycje[0].waluta);
+
+  $$('.kszp', body).forEach(el => {
+    const id = el.dataset.id;
+    const p = pozycje.find(q => q.id === id);
+    $('[data-mniej]', el).addEventListener('click', () => ustawIlosc(id, p.ile - 1));
+    $('[data-wiecej]', el).addEventListener('click', () => ustawIlosc(id, p.ile + 1));
+    $('[data-usun]', el).addEventListener('click', () => ustawIlosc(id, 0));
+  });
 }
 
 const isActive = (href, activePath) =>

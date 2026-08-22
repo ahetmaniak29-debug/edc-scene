@@ -63,6 +63,8 @@ export function zBazy(scena, produkty = [], zdjecia = [], zdjeciaProduktow = [])
       brand: p.brand || '',
       category: p.category || '',
       price: formatujCene(p.price_cents, p.currency || 'PLN'),
+      priceCents: p.price_cents ?? null,      // liczba dla koszyka, tekst dla oka
+      currency: p.currency || 'PLN',
       why: p.why || '',
       specs: Array.isArray(p.specs) ? p.specs : [],
       url: p.url || '#',

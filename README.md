@@ -130,6 +130,18 @@ wskoczy do schowka. Wklej go do produktu w JSON-ie.
 
 ---
 
+## Koszyk i płatności
+
+Przycisk „Dodaj do koszyka" zapisuje wybór w przeglądarce (localStorage)
+i podbija licznik przy ikonie koszyka. Szuflada koszyka pozwala zmienić
+ilość i usunąć pozycję.
+
+**Płatności jeszcze nie ma** — przycisk „Przejdź do płatności" jest celowo
+nieaktywny i mówi to wprost. Gdy podłączysz bramkę, `assets/js/koszyk.js`
+jest miejscem, z którego pójdzie zamówienie.
+
+---
+
 ## Licznik kliknięć
 
 Mierzone są dwa zdarzenia na produkt:

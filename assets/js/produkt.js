@@ -8,10 +8,11 @@
  * dokładnie tak samo jak strona kategorii.
  */
 
-import { track } from './counter.js?v=8';
-import { icon, esc, loadSite, renderChrome } from './chrome.js?v=8';
-import { initDb, dbGotowa, select } from './db.js?v=8';
-import { zBazy } from './mapowanie.js?v=8';
+import { track } from './counter.js?v=10';
+import { icon, esc, loadSite, renderChrome } from './chrome.js?v=10';
+import { initDb, dbGotowa, select } from './db.js?v=10';
+import { zBazy, naGrosze } from './mapowanie.js?v=10';
+import { dodaj as doKoszyka } from './koszyk.js?v=10';
 
 const $  = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
@@ -140,38 +141,88 @@ function rysuj() {
   $('[data-pr-price]').textContent = p.price || '';
   $('[data-pr-why]').textContent = p.why || '';
 
-  const specs = $('[data-pr-specs]');
-  if (Array.isArray(p.specs) && p.specs.length) {
-    specs.innerHTML = p.specs.map(({ k, v }) =>
+  // Kafel z parametrami znika, gdy produkt ich nie ma — mozaika sama się domyka.
+  const maSpecs = Array.isArray(p.specs) && p.specs.length > 0;
+  $('[data-bt-specs]').hidden = !maSpecs;
+  if (maSpecs) {
+    $('[data-pr-specs]').innerHTML = p.specs.map(({ k, v }) =>
       `<li><span class="k">${esc(k)}</span><span class="v">${esc(v)}</span></li>`).join('');
-    specs.hidden = false;
-  } else {
-    specs.hidden = true;
   }
 
-  const link = $('[data-pr-link]');
-  link.href = p.url || '#';
-  $('[data-pr-cta]').textContent = p.ctaLabel || 'Zobacz u sprzedawcy';
-  const note = stan.config.site?.outboundNote || '';
-  $('[data-pr-note]').textContent = [note, hostOf(p.url)].filter(Boolean).join(' · ');
+  $('[data-pr-note]').textContent = 'Wysyłka i zwroty na zasadach sklepu';
 
-  // Wracamy dokładnie do tego produktu na zdjęciu sceny.
   $('[data-pr-back]').href = `${adresSceny}#${encodeURIComponent(p.id)}`;
   $('[data-pr-back-label]').textContent = `Wróć do: ${s.label || 'scena'}`;
 
   rysujGalerie(p);
+  rysujNawigacje();
   rysujInne(adresSceny);
+  podepnijKoszyk(p, s);
+}
 
-  // Wyjście do sprzedawcy — to jest sygnał, na którym nam zależy.
-  link.addEventListener('click', () => {
+/* ------------------------------------------------------------------ *
+ * Koszyk
+ * ------------------------------------------------------------------ */
+
+function podepnijKoszyk(p, s) {
+  const btn = $('[data-do-koszyka]');
+  const napis = btn.querySelector('span');
+
+  btn.addEventListener('click', () => {
+    doKoszyka({
+      id: p.id,
+      name: p.name,
+      brand: p.brand,
+      // W trybie awaryjnym z pliku mamy tylko sformatowany tekst ceny,
+      // więc odzyskujemy z niego liczbę.
+      priceCents: p.priceCents ?? naGrosze(p.price),
+      currency: p.currency || 'PLN',
+      image: p.images?.[0]?.src || ''
+    });
+
+    btn.classList.add('is-dodane');
+    napis.textContent = 'Dodano do koszyka';
+    setTimeout(() => {
+      btn.classList.remove('is-dodane');
+      napis.textContent = 'Dodaj do koszyka';
+    }, 1800);
+
+    // Najmocniejszy sygnał zamiaru, jaki mamy. Zapis do bazy wymaga
+    // rozszerzenia ograniczenia (db/events_cart.sql) — do tego czasu
+    // zdarzenie liczy się tylko lokalnie.
     track({
-      sceneId: s.id, productId: p.id, event: 'outbound',
+      sceneId: s.id, productId: p.id, event: 'cart',
       category: p.category, analytics: stan.config.analytics, supabase: stan.config.supabase
     });
   });
 }
 
-/* ---------- galeria ---------- */
+/* ------------------------------------------------------------------ *
+ * Nawigacja między produktami sceny
+ * ------------------------------------------------------------------ */
+
+function rysujNawigacje() {
+  const lista = stan.scena.products;
+  const i = lista.findIndex(q => q.id === stan.produkt.id);
+
+  const poprz = $('[data-nav-prev]');
+  const nast = $('[data-nav-next]');
+
+  if (lista.length < 2) {
+    poprz.hidden = true;
+    nast.hidden = true;
+    return;
+  }
+
+  const p = lista[(i - 1 + lista.length) % lista.length];
+  const n = lista[(i + 1) % lista.length];
+  poprz.href = `produkt.html?id=${encodeURIComponent(p.id)}`;
+  nast.href = `produkt.html?id=${encodeURIComponent(n.id)}`;
+}
+
+/* ------------------------------------------------------------------ *
+ * Galeria
+ * ------------------------------------------------------------------ */
 
 function rysujGalerie(p) {
   stan.zdjecia = Array.isArray(p.images) ? p.images : [];
@@ -186,18 +237,57 @@ function rysujGalerie(p) {
   $('[data-pr-next]').hidden = !wiele;
   $('[data-pr-licznik]').hidden = !wiele;
 
+  // Drugie i trzecie zdjęcie dostają własne kafle w mozaice.
+  // Wszystkie razem są dostępne w pasku miniatur.
+  [1, 2].forEach(nr => {
+    const kafel = $(`[data-bt-foto-${nr}]`);
+    const z = stan.zdjecia[nr];
+    if (!z) { kafel.hidden = true; return; }
+
+    const img = $('img', kafel);
+    img.addEventListener('load', () => img.classList.add('is-widoczne'), { once: true });
+    img.src = z.src;
+    img.alt = z.alt || p.name || '';
+    kafel.hidden = false;
+    kafel.style.cursor = 'pointer';
+    kafel.addEventListener('click', () => pokaz(nr));
+  });
+
   const thumbs = $('[data-pr-thumbs]');
   thumbs.innerHTML = wiele
     ? stan.zdjecia.map((z, i) => `
-        <button class="pr__thumb" type="button" role="tab"
+        <button class="bt__thumb" type="button" role="tab"
                 aria-selected="${i === 0}" aria-label="Zdjęcie ${i + 1}">
           <img src="${esc(z.src)}" alt="" loading="lazy">
         </button>`).join('')
     : '';
 
-  $$('.pr__thumb', thumbs).forEach((b, i) => b.addEventListener('click', () => pokaz(i)));
+  $$('.bt__thumb', thumbs).forEach((b, i) => b.addEventListener('click', () => pokaz(i)));
+
+  ustawUklad();
 
   if (jest) pokaz(0);
+}
+
+/**
+ * Wybiera wariant mozaiki. Kafle mają stałe rozmiary, więc to, ile ich
+ * jest, decyduje o tym, czy siatka domknie się bez pustego rogu.
+ *   a — dwa dodatkowe zdjęcia i parametry
+ *   b — jedno dodatkowe zdjęcie
+ *   c — bez dodatkowych zdjęć, są parametry
+ *   d — bez zdjęć i bez parametrów
+ */
+function ustawUklad() {
+  const dodatkowe = Math.min(Math.max(stan.zdjecia.length - 1, 0), 2);
+  const maSpecs = !$('[data-bt-specs]').hidden;
+
+  let uklad;
+  if (dodatkowe >= 2 && maSpecs) uklad = 'a';
+  else if (dodatkowe >= 1)       uklad = 'b';
+  else if (maSpecs)              uklad = 'c';
+  else                           uklad = 'd';
+
+  $('[data-produkt]').dataset.uklad = uklad;
 }
 
 function pokaz(i) {
@@ -216,11 +306,11 @@ function pokaz(i) {
   img.alt = z.alt || stan.produkt.name || '';
 
   $('[data-pr-licznik]').textContent = `${stan.nr + 1} / ${stan.zdjecia.length}`;
-  $$('.pr__thumb').forEach((b, k) => b.setAttribute('aria-selected', String(k === stan.nr)));
+  $$('.bt__thumb').forEach((b, k) => b.setAttribute('aria-selected', String(k === stan.nr)));
 }
 
-$('[data-pr-prev]').addEventListener('click', () => pokaz(stan.nr - 1));
-$('[data-pr-next]').addEventListener('click', () => pokaz(stan.nr + 1));
+$('[data-pr-prev]').addEventListener('click', e => { e.stopPropagation(); pokaz(stan.nr - 1); });
+$('[data-pr-next]').addEventListener('click', e => { e.stopPropagation(); pokaz(stan.nr + 1); });
 
 document.addEventListener('keydown', e => {
   if (stan.zdjecia.length < 2) return;
@@ -230,9 +320,9 @@ document.addEventListener('keydown', e => {
 
 (() => {
   let x0 = null;
-  const stage = $('[data-pr-stage]');
-  stage.addEventListener('touchstart', e => { x0 = e.touches[0].clientX; }, { passive: true });
-  stage.addEventListener('touchend', e => {
+  const hero = $('[data-bt-hero]');
+  hero.addEventListener('touchstart', e => { x0 = e.touches[0].clientX; }, { passive: true });
+  hero.addEventListener('touchend', e => {
     if (x0 === null || stan.zdjecia.length < 2) { x0 = null; return; }
     const dx = e.changedTouches[0].clientX - x0;
     if (Math.abs(dx) > 45) pokaz(stan.nr + (dx < 0 ? 1 : -1));

@@ -7,8 +7,9 @@
   <meta name="description" content="Wyselekcjonowany sprzęt na jednym zdjęciu. Dotknij przedmiotu, żeby zobaczyć szczegóły.">
   <meta name="theme-color" content="#f7f4ee">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="assets/css/style.css?v=8">
-  <link rel="stylesheet" href="assets/css/home.css?v=8">
+  <link rel="stylesheet" href="assets/css/style.css?v=10">
+  <link rel="stylesheet" href="assets/css/home.css?v=10">
+  <link rel="stylesheet" href="assets/css/produkt.css?v=12">
 </head>
 <body class="home">
   <a class="skip-link" href="#tresc">Przejdź do treści</a>
@@ -39,11 +40,11 @@
           <span>Ulubione</span>
           <em class="hdr__count">0</em>
         </a>
-        <a class="hdr__act" href="#">
+        <button class="hdr__act" type="button" data-cart-open>
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8h12l-1 12H7L6 8z"/><path d="M9 8V6a3 3 0 016 0v2"/></svg>
           <span>Koszyk</span>
-          <em class="hdr__count">0</em>
-        </a>
+          <em class="hdr__count is-pusty" data-cart-count>0</em>
+        </button>
         <button class="hdr__burger" type="button" data-burger aria-label="Menu">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
         </button>
@@ -203,6 +204,6 @@
     <ul data-mnav-list></ul>
   </nav>
 
-  <script src="assets/js/app.js?v=8" type="module"></script>
+  <script src="assets/js/app.js?v=10" type="module"></script>
 </body>
 </html>
