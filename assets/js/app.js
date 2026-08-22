@@ -1,5 +1,7 @@
-import { track, getScene, getAll, reset, fetchSummary } from './counter.js?v=5';
-import { icon, media, loadSite, renderChrome } from './chrome.js?v=5';
+import { track, getScene, getAll, reset, fetchSummary } from './counter.js?v=6';
+import { icon, media, loadSite, renderChrome } from './chrome.js?v=6';
+import { initDb, dbGotowa, select } from './db.js?v=6';
+import { zBazy, formatujCene } from './mapowanie.js?v=6';
 
 /** Od tej szerokości panel wjeżdża w kadr zdjęcia zamiast wysuwać się z dołu. */
 const SZEROKI = 900;
@@ -14,7 +16,8 @@ const state = {
   config: null,
   scene: null,
   current: null,   // aktualnie otwarty produkt
-  analytics: null
+  analytics: null,
+  supabase: null
 };
 
 /* ------------------------------------------------------------------ *
@@ -44,24 +47,58 @@ async function boot() {
   }
 
   state.analytics = state.config.analytics || null;
+  state.supabase = state.config.supabase || null;
   $('[data-foot-note]').textContent = state.config.site?.footerNote || '';
 
-  // Która scena? ?scene=<id>, inaczej defaultScene, inaczej pierwsza z listy.
   const wanted = params.get('scene');
-  const known = state.config.scenes || [];
-  const sceneId = known.includes(wanted) ? wanted : (state.config.defaultScene || known[0]);
 
-  if (!sceneId) return fail(new Error('Brak scen w data/scenes.json'));
+  // Źródłem prawdy jest baza. Pliki JSON zostają jako koło ratunkowe —
+  // gdy baza nie odpowie, strona pokaże ostatnią wersję z repozytorium
+  // zamiast pustego miejsca.
+  state.scene = await zBazyDanych(wanted);
 
-  try {
-    state.scene = await loadJSON(`data/scenes/${sceneId}.json`);
-  } catch (err) {
-    return fail(err);
+  if (!state.scene) {
+    const known = state.config.scenes || [];
+    const sceneId = known.includes(wanted) ? wanted : (state.config.defaultScene || known[0]);
+    if (!sceneId) return fail(new Error('Brak scen w bazie i w data/scenes.json'));
+    try {
+      state.scene = await loadJSON(`data/scenes/${sceneId}.json`);
+      console.warn('Baza nie odpowiedziała — scena wczytana z pliku w repozytorium.');
+    } catch (err) {
+      return fail(err);
+    }
   }
 
   if (params.get('stats') !== null) return renderStats();
 
   renderScene();
+}
+
+/** Zwraca scenę z bazy albo null, gdy się nie udało. */
+async function zBazyDanych(wanted) {
+  try {
+    await initDb();
+    if (!dbGotowa()) return null;
+
+    // Bez ?scene= bierzemy pierwszą opublikowaną scenę wg kolejności.
+    const filtr = wanted
+      ? `id=eq.${encodeURIComponent(wanted)}`
+      : 'order=position.asc&limit=1';
+
+    const sceny = await select('scenes', `select=*&${filtr}`);
+    const scena = sceny?.[0];
+    if (!scena) return null;
+
+    const [produkty, zdjecia] = await Promise.all([
+      select('products', `select=*&scene_id=eq.${encodeURIComponent(scena.id)}&order=position.asc`),
+      select('scene_images', `select=*&scene_id=eq.${encodeURIComponent(scena.id)}&order=position.asc`)
+    ]);
+
+    return zBazy(scena, produkty || [], zdjecia || []);
+  } catch (err) {
+    console.warn('Nie udało się wczytać sceny z bazy:', err.message);
+    return null;
+  }
 }
 
 function fail(err) {
@@ -334,7 +371,7 @@ function openProduct(p, { silent = false } = {}) {
   $('[data-sheet-close]').focus({ preventScroll: true });
 
   if (!silent) {
-    track({ sceneId: state.scene.id, productId: p.id, event: 'open', category: p.category, analytics: state.analytics });
+    track({ sceneId: state.scene.id, productId: p.id, event: 'open', category: p.category, analytics: state.analytics, supabase: state.supabase });
   }
 }
 
@@ -377,7 +414,7 @@ document.addEventListener('click', e => {
 $('[data-sheet-link]').addEventListener('click', () => {
   const p = state.current;
   if (!p) return;
-  track({ sceneId: state.scene.id, productId: p.id, event: 'outbound', category: p.category, analytics: state.analytics });
+  track({ sceneId: state.scene.id, productId: p.id, event: 'outbound', category: p.category, analytics: state.analytics, supabase: state.supabase });
 });
 
 /* ---- przeciąganie panelu w dół (telefon) ---- */
@@ -426,7 +463,7 @@ async function renderStats() {
 
   // Najpierw próbujemy prawdziwych, zsumowanych danych z bazy. Widok jest
   // domyślnie zamknięty na zewnątrz, więc zwykle wracamy do liczb lokalnych.
-  const zdalne = await fetchSummary(state.scene.id, state.analytics);
+  const zdalne = await fetchSummary(state.scene.id, state.analytics, state.supabase);
   const zBazy = Boolean(zdalne);
 
   let rows;
@@ -452,7 +489,7 @@ async function renderStats() {
   const totalOpen = rows.reduce((s, r) => s + r.open, 0);
   const totalOut  = rows.reduce((s, r) => s + r.out, 0);
 
-  const podlaczone = Boolean(state.analytics?.supabaseUrl && state.analytics?.supabaseKey);
+  const podlaczone = Boolean(state.supabase?.url && state.supabase?.anonKey);
 
   box.hidden = false;
   box.innerHTML = `

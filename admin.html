@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Panel — produkty</title>
+  <meta name="theme-color" content="#f7f4ee">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="assets/css/admin.css">
+</head>
+<body class="adm">
+
+  <!-- ================= LOGOWANIE ================= -->
+  <div class="log" data-login hidden>
+    <form class="log__box" data-login-form>
+      <h1 class="log__title">Panel produktów</h1>
+      <p class="log__sub">Zaloguj się kontem założonym w Supabase.</p>
+
+      <label class="fld">
+        <span class="fld__label">E-mail</span>
+        <input type="email" name="email" autocomplete="username" required>
+      </label>
+
+      <label class="fld">
+        <span class="fld__label">Hasło</span>
+        <input type="password" name="haslo" autocomplete="current-password" required>
+      </label>
+
+      <p class="log__err" data-login-err hidden></p>
+
+      <button class="btn-solid log__btn" type="submit">Zaloguj</button>
+
+      <p class="log__hint">
+        Nie masz konta? Supabase → <strong>Authentication → Users → Add user</strong>,
+        zaznacz „Auto Confirm User".
+      </p>
+    </form>
+  </div>
+
+  <!-- ================= PANEL ================= -->
+  <div data-panel hidden>
+
+    <header class="adm__bar">
+      <div class="adm__bar-in">
+        <span class="adm__logo">Panel produktów</span>
+
+        <div class="adm__scene">
+          <label class="sr-only" for="wybor-sceny">Scena</label>
+          <select id="wybor-sceny" data-scene-select></select>
+          <button class="mini" type="button" data-scene-new>+ Nowa scena</button>
+        </div>
+
+        <div class="adm__right">
+          <a class="mini" data-preview target="_blank" rel="noopener">Podgląd ↗</a>
+          <span class="adm__user" data-user></span>
+          <button class="mini" type="button" data-logout>Wyloguj</button>
+        </div>
+      </div>
+      <p class="adm__toast" data-toast hidden></p>
+    </header>
+
+    <main class="adm__main">
+
+      <!-- ---------- LEWA: zdjęcie z punktami ---------- -->
+      <section class="adm__col adm__col--foto">
+        <div class="pane">
+          <div class="pane__head">
+            <h2>Zdjęcie sceny</h2>
+            <span class="pane__hint" data-pick-hint>Wybierz produkt, potem kliknij w zdjęcie, żeby ustawić punkt</span>
+          </div>
+
+          <div class="foto" data-foto>
+            <img data-foto-img alt="">
+            <div class="foto__spots" data-foto-spots></div>
+            <p class="foto__empty" data-foto-empty>Brak zdjęcia sceny</p>
+          </div>
+
+          <div class="pane__foot">
+            <label class="upload">
+              <input type="file" accept="image/*" data-scene-image-file hidden>
+              <span class="mini">Wgraj nowe zdjęcie sceny</span>
+            </label>
+            <span class="upload__stan" data-scene-image-stan></span>
+          </div>
+        </div>
+
+        <!-- ustawienia sceny -->
+        <details class="pane" data-scene-pane>
+          <summary class="pane__summary">Ustawienia sceny</summary>
+          <div class="pane__body">
+            <label class="fld">
+              <span class="fld__label">Identyfikator (w adresie)</span>
+              <input data-scene-id readonly>
+              <span class="fld__hint">Nie zmieniamy — po nim liczą się kliknięcia.</span>
+            </label>
+            <label class="fld">
+              <span class="fld__label">Nazwa kategorii</span>
+              <input data-scene-label placeholder="np. EDC">
+            </label>
+            <label class="fld">
+              <span class="fld__label">Nagłówek</span>
+              <input data-scene-title>
+            </label>
+            <label class="fld">
+              <span class="fld__label">Opis pod nagłówkiem</span>
+              <textarea rows="3" data-scene-subtitle></textarea>
+            </label>
+            <label class="fld">
+              <span class="fld__label">Opis zdjęcia (dla czytników ekranu)</span>
+              <input data-scene-alt>
+            </label>
+            <label class="chk">
+              <input type="checkbox" data-scene-published>
+              <span>Opublikowana — widoczna na stronie</span>
+            </label>
+
+            <div class="pane__actions">
+              <button class="btn-solid" type="button" data-scene-save>Zapisz scenę</button>
+              <button class="mini mini--danger" type="button" data-scene-delete>Usuń scenę</button>
+            </div>
+          </div>
+        </details>
+      </section>
+
+      <!-- ---------- PRAWA: produkty ---------- -->
+      <section class="adm__col adm__col--produkty">
+        <div class="pane">
+          <div class="pane__head">
+            <h2>Produkty <span class="licznik" data-prod-count>0</span></h2>
+            <button class="mini" type="button" data-prod-new>+ Dodaj produkt</button>
+          </div>
+          <ul class="plist" data-prod-list></ul>
+        </div>
+
+        <div class="pane" data-prod-form hidden>
+          <div class="pane__head">
+            <h2 data-prod-form-title>Produkt</h2>
+            <span class="pane__hint" data-dirty hidden>niezapisane zmiany</span>
+          </div>
+
+          <div class="pane__body">
+            <label class="fld">
+              <span class="fld__label">Identyfikator</span>
+              <input data-p-id>
+              <span class="fld__hint" data-p-id-hint>Bez polskich znaków i spacji. Po utworzeniu nie zmieniaj — po nim liczą się kliknięcia.</span>
+            </label>
+
+            <div class="fld-row">
+              <label class="fld">
+                <span class="fld__label">Nazwa</span>
+                <input data-p-name>
+              </label>
+              <label class="fld">
+                <span class="fld__label">Marka</span>
+                <input data-p-brand>
+              </label>
+            </div>
+
+            <div class="fld-row">
+              <label class="fld">
+                <span class="fld__label">Cena</span>
+                <input data-p-price inputmode="decimal" placeholder="np. 349,90">
+                <span class="fld__hint">Sama liczba. Walutę dokleja strona.</span>
+              </label>
+              <label class="fld">
+                <span class="fld__label">Kolejność</span>
+                <input data-p-position type="number" min="0" step="1">
+              </label>
+            </div>
+
+            <label class="fld">
+              <span class="fld__label">Dlaczego polecamy</span>
+              <textarea rows="4" data-p-why></textarea>
+            </label>
+
+            <div class="fld-row">
+              <label class="fld">
+                <span class="fld__label">Adres u sprzedawcy</span>
+                <input data-p-url placeholder="https://...">
+              </label>
+              <label class="fld">
+                <span class="fld__label">Napis na przycisku</span>
+                <input data-p-cta placeholder="Zobacz u sprzedawcy">
+              </label>
+            </div>
+
+            <div class="fld">
+              <span class="fld__label">Parametry</span>
+              <div class="specs" data-p-specs></div>
+              <button class="mini" type="button" data-spec-add>+ Dodaj parametr</button>
+            </div>
+
+            <div class="fld-row">
+              <label class="fld">
+                <span class="fld__label">Punkt — poziomo (%)</span>
+                <input data-p-x type="number" step="0.1" min="0" max="100">
+              </label>
+              <label class="fld">
+                <span class="fld__label">Punkt — pionowo (%)</span>
+                <input data-p-y type="number" step="0.1" min="0" max="100">
+              </label>
+            </div>
+            <p class="fld__hint fld__hint--wide">Łatwiej: kliknij w zdjęcie obok, punkt ustawi się sam.</p>
+
+            <label class="chk">
+              <input type="checkbox" data-p-published>
+              <span>Opublikowany — widoczny na stronie</span>
+            </label>
+
+            <div class="pane__actions">
+              <button class="btn-solid" type="button" data-prod-save>Zapisz produkt</button>
+              <button class="mini" type="button" data-prod-cancel>Zamknij</button>
+              <button class="mini mini--danger" type="button" data-prod-delete>Usuń produkt</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ---------- karuzela ---------- -->
+        <details class="pane" data-gal-pane>
+          <summary class="pane__summary">Karuzela pod zdjęciem <span class="licznik" data-gal-count>0</span></summary>
+          <div class="pane__body">
+            <ul class="glist" data-gal-list></ul>
+            <button class="mini" type="button" data-gal-new>+ Dodaj ujęcie</button>
+          </div>
+        </details>
+      </section>
+
+    </main>
+  </div>
+
+  <script src="assets/js/admin.js?v=6" type="module"></script>
+</body>
+</html>

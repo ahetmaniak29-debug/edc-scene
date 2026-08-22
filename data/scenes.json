@@ -1,5 +1,11 @@
 {
-  "_komentarz": "Spis scen + ustawienia całej strony. Żeby dodać drugą scenę: wrzuć nowy plik do data/scenes/ i dopisz jego id na listę 'scenes'. Nic w kodzie nie trzeba zmieniać.",
+  "_uwaga": "Sceny i produkty siedzą teraz w bazie (Supabase), a nie w plikach. Ten plik trzyma tylko połączenie do bazy, teksty wspólne dla strony i awaryjną listę scen, gdyby baza nie odpowiedziała.",
+
+  "supabase": {
+    "_komentarz": "Klucz publikowalny — z założenia jawny w kodzie strony. Cała ochrona jest po stronie bazy (RLS): anon czyta wyłącznie opublikowane wiersze i dopisuje zdarzenia, zapisywać może tylko zalogowany. Nigdy nie wklejaj tu klucza service_role.",
+    "url": "https://sfajnuvpvvprjocqqbpe.supabase.co",
+    "anonKey": "sb_publishable_pfveoMb6s0OWtf1uxw6Spg_uGtxAMCG"
+  },
 
   "site": {
     "footerNote": "Notka pod listą — np. skąd bierzecie produkty i dokąd prowadzą linki.",
@@ -8,14 +14,13 @@
 
   "defaultScene": "outdoor-edc",
 
+  "_scenesAwaryjne": "Używane tylko wtedy, gdy baza nie odpowie. Normalnie lista scen pochodzi z tabeli scenes.",
   "scenes": [
     "outdoor-edc"
   ],
 
   "analytics": {
-    "_komentarz": "Zbieranie kliknięć w Supabase. Klucz jest publikowalny — ma prawo TYLKO dopisywać zdarzenia, nic nie odczyta ani nie skasuje (patrz db/schema.sql). Zostaw puste url, żeby liczyć wyłącznie lokalnie w przeglądarce.",
-    "supabaseUrl": "https://sfajnuvpvvprjocqqbpe.supabase.co",
-    "supabaseKey": "sb_publishable_pfveoMb6s0OWtf1uxw6Spg_uGtxAMCG",
+    "_komentarz": "Zliczanie kliknięć. Schemat i uprawnienia: db/schema.sql.",
     "table": "events",
     "summaryView": "events_summary"
   }

@@ -51,9 +51,9 @@ export function reset() {
  * Supabase
  * ------------------------------------------------------------------ */
 
-const cfg = a => ({
-  url:     (a?.supabaseUrl || '').replace(/\/+$/, ''),
-  key:     a?.supabaseKey || '',
+const cfg = (a, sb) => ({
+  url:     (sb?.url || '').replace(/\/+$/, ''),
+  key:     sb?.anonKey || '',
   table:   a?.table || 'events',
   summary: a?.summaryView || 'events_summary'
 });
@@ -73,8 +73,9 @@ const naglowki = key => ({
  * @param {'open'|'outbound'} opts.event
  * @param {string} [opts.category]
  * @param {object} [opts.analytics] blok analytics z data/scenes.json
+ * @param {object} [opts.supabase] blok supabase z data/scenes.json
  */
-export function track({ sceneId, productId, event, category, analytics }) {
+export function track({ sceneId, productId, event, category, analytics, supabase }) {
   // 1. lokalnie — zawsze i natychmiast
   const data = read();
   const scene = (data[sceneId] ||= {});
@@ -84,7 +85,7 @@ export function track({ sceneId, productId, event, category, analytics }) {
   write(data);
 
   // 2. do bazy
-  const c = cfg(analytics);
+  const c = cfg(analytics, supabase);
   if (!gotowe(c)) return;
 
   const row = {
@@ -116,8 +117,8 @@ export function track({ sceneId, productId, event, category, analytics }) {
  * Zwraca null, gdy widok nie jest udostępniony na zewnątrz (domyślnie nie jest)
  * albo gdy sieć nie odpowiada — wtedy strona pokazuje dane lokalne.
  */
-export async function fetchSummary(sceneId, analytics) {
-  const c = cfg(analytics);
+export async function fetchSummary(sceneId, analytics, supabase) {
+  const c = cfg(analytics, supabase);
   if (!gotowe(c)) return null;
 
   try {

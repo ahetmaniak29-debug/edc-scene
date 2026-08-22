@@ -3,7 +3,7 @@
  * Nagłówek, menu i stopka siedzą we wspólnym module chrome.js.
  */
 
-import { ICONS, icon, esc, media, loadSite, renderChrome } from './chrome.js?v=5';
+import { ICONS, icon, esc, media, loadSite, renderChrome } from './chrome.js?v=6';
 
 const $ = (sel, root = document) => root.querySelector(sel);
 
