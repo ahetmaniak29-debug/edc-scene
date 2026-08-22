@@ -1,7 +1,7 @@
-import { track, getScene, getAll, reset, fetchSummary } from './counter.js?v=7';
-import { icon, media, loadSite, renderChrome } from './chrome.js?v=7';
-import { initDb, dbGotowa, select } from './db.js?v=7';
-import { zBazy, formatujCene } from './mapowanie.js?v=7';
+import { track, getScene, getAll, reset, fetchSummary } from './counter.js?v=8';
+import { icon, media, loadSite, renderChrome } from './chrome.js?v=8';
+import { initDb, dbGotowa, select } from './db.js?v=8';
+import { zBazy, formatujCene } from './mapowanie.js?v=8';
 
 const $  = (sel, root = document) => root.querySelector(sel);
 const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
@@ -356,13 +356,12 @@ function openProduct(p, { silent = false } = {}) {
     specs.hidden = true;
   }
 
+  // Podgląd w galerii jest szybkim zerknięciem; pełne dane i wyjście do
+  // sprzedawcy są na stronie produktu.
   const link = $('[data-sheet-link]');
-  link.href = p.url || '#';
-  $('[data-sheet-cta]').textContent = p.ctaLabel || 'Zobacz u sprzedawcy';
-
-  // Pokazujemy domenę sprzedawcy — widać, dokąd prowadzi przycisk, zanim się w niego kliknie.
-  const note = state.config.site?.outboundNote || '';
-  $('[data-sheet-note]').textContent = [note, hostOf(p.url)].filter(Boolean).join(' · ');
+  link.href = `produkt.html?id=${encodeURIComponent(p.id)}`;
+  $('[data-sheet-cta]').textContent = 'Zobacz produkt';
+  $('[data-sheet-note]').textContent = 'Pełny opis, zdjęcia i link do sprzedawcy';
 
   markActive(p.id);
   pokazGalerie(p);
@@ -494,13 +493,6 @@ document.addEventListener('click', e => {
   if (e.target.closest('.lb__card')) return;
   if (e.target.closest('.hotspot, .list__btn')) return;
   closeSheet();
-});
-
-// Kliknięcie do sprzedawcy — najważniejszy sygnał, jaki mierzymy.
-$('[data-sheet-link]').addEventListener('click', () => {
-  const p = state.current;
-  if (!p) return;
-  track({ sceneId: state.scene.id, productId: p.id, event: 'outbound', category: p.category, analytics: state.analytics, supabase: state.supabase });
 });
 
 /* ------------------------------------------------------------------ *

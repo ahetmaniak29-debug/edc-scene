@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Produkt</title>
+  <meta name="theme-color" content="#f7f4ee">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/css/style.css?v=8">
+  <link rel="stylesheet" href="assets/css/home.css?v=8">
+</head>
+<body class="home">
+  <a class="skip-link" href="#tresc">Przejdź do treści</a>
+
+  <!-- ================= NAGŁÓWEK (wspólny) ================= -->
+  <header class="hdr">
+    <div class="hdr__inner shell">
+      <a class="hdr__logo" href="index.html" data-brand>&nbsp;</a>
+
+      <nav class="hdr__nav" aria-label="Główne">
+        <ul data-nav></ul>
+      </nav>
+
+      <form class="hdr__search" role="search" onsubmit="return false">
+        <input type="search" data-search aria-label="Szukaj">
+        <button type="submit" aria-label="Szukaj">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        </button>
+      </form>
+
+      <div class="hdr__actions">
+        <a class="hdr__act" href="#">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+          <span>Konto</span>
+        </a>
+        <a class="hdr__act" href="#">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-8-4.9-8-10a4.6 4.6 0 018-3 4.6 4.6 0 018 3c0 5.1-8 10-8 10z"/></svg>
+          <span>Ulubione</span>
+          <em class="hdr__count">0</em>
+        </a>
+        <a class="hdr__act" href="#">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8h12l-1 12H7L6 8z"/><path d="M9 8V6a3 3 0 016 0v2"/></svg>
+          <span>Koszyk</span>
+          <em class="hdr__count">0</em>
+        </a>
+        <button class="hdr__burger" type="button" data-burger aria-label="Menu">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main id="tresc">
+    <div class="shell">
+
+      <nav class="crumbs" aria-label="Ścieżka">
+        <a href="index.html">Strona główna</a>
+        <span aria-hidden="true">/</span>
+        <a data-crumb-scene href="#"></a>
+        <span aria-hidden="true">/</span>
+        <span data-crumb-product aria-current="page"></span>
+      </nav>
+
+      <p class="pr__ladowanie" data-loading>Wczytywanie produktu…</p>
+
+      <!-- ================= PRODUKT ================= -->
+      <article class="pr" data-produkt hidden>
+
+        <!-- ---------- zdjęcia ---------- -->
+        <div class="pr__gal">
+          <div class="pr__stage" data-pr-stage>
+            <img class="pr__img" data-pr-img alt="">
+            <div class="pr__pusto" data-pr-pusto hidden>
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <rect x="3" y="5" width="18" height="14" rx="2"/>
+                <circle cx="8.5" cy="10" r="1.6"/><path d="M21 16l-5-5-6 6"/>
+              </svg>
+              <p>Ten produkt nie ma jeszcze zdjęć</p>
+              <p class="pr__pusto-sub">Dodasz je w panelu</p>
+            </div>
+
+            <button class="pr__arrow pr__arrow--prev" type="button" data-pr-prev aria-label="Poprzednie zdjęcie">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+            </button>
+            <button class="pr__arrow pr__arrow--next" type="button" data-pr-next aria-label="Następne zdjęcie">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+            </button>
+
+            <span class="pr__licznik" data-pr-licznik hidden></span>
+          </div>
+
+          <div class="pr__thumbs" data-pr-thumbs></div>
+        </div>
+
+        <!-- ---------- opis ---------- -->
+        <div class="pr__info">
+          <p class="pr__brand" data-pr-brand></p>
+          <h1 class="pr__name" data-pr-name></h1>
+          <p class="pr__price" data-pr-price></p>
+
+          <div class="pr__why">
+            <p class="pr__why-label">Dlaczego polecamy</p>
+            <p class="pr__why-text" data-pr-why></p>
+          </div>
+
+          <ul class="pr__specs" data-pr-specs hidden></ul>
+
+          <div class="pr__cta">
+            <a class="btn btn--sklep" data-pr-link target="_blank" rel="noopener noreferrer">
+              <span data-pr-cta>Zobacz u sprzedawcy</span>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17L17 7M9 7h8v8"/></svg>
+            </a>
+            <p class="pr__note" data-pr-note></p>
+          </div>
+
+          <a class="pr__powrot" data-pr-back href="#">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+            <span data-pr-back-label>Wróć do zdjęcia</span>
+          </a>
+        </div>
+      </article>
+
+      <!-- ================= POZOSTAŁE Z TEJ SCENY ================= -->
+      <section class="block" data-inne hidden>
+        <div class="block__head">
+          <h2 class="block__title">Reszta z tego zdjęcia</h2>
+          <a class="block__more" data-inne-all href="#">Zobacz całą scenę</a>
+        </div>
+        <ul class="prods" data-inne-list></ul>
+      </section>
+
+    </div>
+  </main>
+
+  <footer class="ftr">
+    <div class="shell ftr__inner" data-footer></div>
+  </footer>
+
+  <!-- Menu mobilne -->
+  <div class="mnav__scrim" data-mnav-scrim hidden></div>
+  <nav class="mnav" data-mnav hidden aria-label="Menu mobilne">
+    <button class="mnav__close" type="button" data-mnav-close aria-label="Zamknij">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+    <ul data-mnav-list></ul>
+  </nav>
+
+  <script src="assets/js/produkt.js?v=8" type="module"></script>
+</body>
+</html>
