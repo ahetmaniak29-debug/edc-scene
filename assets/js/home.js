@@ -3,11 +3,14 @@
  * Nagłówek, menu i stopka siedzą we wspólnym module chrome.js.
  */
 
-import { ICONS, icon, esc, media, loadSite, renderChrome } from './chrome.js?v=10';
+import { icon, esc, media, loadSite, loadScenes, renderChrome } from './chrome.js?v=11';
+import { initDb, dbGotowa, select } from './db.js?v=11';
+import { zBazy } from './mapowanie.js?v=11';
 
 const $ = (sel, root = document) => root.querySelector(sel);
 
 let data = null;
+let sceny = [];
 
 async function boot() {
   try {
@@ -23,6 +26,10 @@ async function boot() {
 
   document.title = data.brand || 'Sklep';
   renderChrome(data, 'index.html');
+
+  // Kategorie to opublikowane sceny — dodanie sceny w panelu od razu
+  // pokazuje ją tutaj, bez dotykania jakiegokolwiek pliku.
+  sceny = (await loadScenes()).filter(s => s.published);
 
   hero();
   trust();
@@ -110,7 +117,20 @@ function trust() {
 /* ---------- kategorie ---------- */
 
 function cats() {
-  const items = (data.categories || []).map(c => `
+  const box = $('[data-cats]');
+
+  // Brak scen w bazie = pokazujemy to, co siedzi w konfiguracji,
+  // żeby świeżo postawiona strona nie miała pustej sekcji.
+  const zrodlo = sceny.length
+    ? sceny.map(s => ({
+        name: s.label || s.id,
+        href: `scena.html?scene=${encodeURIComponent(s.id)}`,
+        image: s.thumb || s.image || '',
+        badge: s.badge || ''
+      }))
+    : (data.categories || []);
+
+  const items = zrodlo.map(c => `
     <li>
       <a class="cat" href="${esc(c.href)}">
         <span class="cat__circle">
@@ -123,13 +143,13 @@ function cats() {
 
   const all = `
     <li>
-      <a class="cat cat--all" href="#">
+      <a class="cat cat--all" href="scena.html">
         <span class="cat__circle">${esc(data.categoriesAllLabel || '')}${icon('arrow')}</span>
         <span class="cat__name">&nbsp;</span>
       </a>
     </li>`;
 
-  $('[data-cats]').innerHTML = items + all;
+  box.innerHTML = items + all;
 }
 
 /* ---------- kafelki ---------- */
@@ -181,30 +201,31 @@ function collections() {
 
 /* ---------- produkty ---------- */
 
-function stars(rating = 0) {
-  const full = Math.round(Number(rating) || 0);
-  return `<span class="prod__stars">${
-    Array.from({ length: 5 }, (_, i) =>
-      `<svg viewBox="0 0 24 24"${i < full ? '' : ' class="is-empty"'} aria-hidden="true">${ICONS.star}</svg>`).join('')
-  }</span>`;
-}
-
-function products() {
+async function products() {
   $('[data-products-title]').textContent = data.productsTitle || '';
   $('[data-products-all]').innerHTML = `${esc(data.productsAllLabel || '')}${icon('arrow')}`;
 
   const list = $('[data-products]');
-  list.innerHTML = (data.products || []).map(p => `
+  const wybrane = await wczytajWyroznione();
+
+  if (!wybrane.length) {
+    list.innerHTML = `<li class="prods__pusto">Nie wybrano jeszcze produktów do tej sekcji.
+      Zrobisz to w panelu, w zakładce „Strona główna".</li>`;
+    return;
+  }
+
+  list.innerHTML = wybrane.map(p => `
     <li class="prod">
       <button class="prod__fav" type="button" aria-pressed="false" aria-label="Dodaj ${esc(p.name)} do ulubionych">
         ${icon('heart')}
       </button>
-      <a class="prod__link" href="${esc(p.href)}">
-        <div class="prod__media">${media(p.image, p.name, 'produkty', '800 × 800 px', 'sm')}</div>
+      <a class="prod__link" href="produkt.html?id=${encodeURIComponent(p.id)}">
+        <div class="prod__media">${p.images?.[0]
+          ? `<img class="img" src="${esc(p.images[0].src)}" alt="" loading="lazy">`
+          : media('', p.name, 'produkty', '800 × 800 px', 'sm')}</div>
         <div class="prod__body">
           <p class="prod__name">${esc(p.name)}</p>
-          <p class="prod__price">${esc(p.price)}</p>
-          <p class="prod__rate">${stars(p.rating)}<span class="prod__revs">(${esc(p.reviews ?? 0)})</span></p>
+          <p class="prod__price">${esc(p.price || '')}</p>
         </div>
       </a>
     </li>`).join('');
@@ -214,6 +235,36 @@ function products() {
     if (!btn) return;
     btn.setAttribute('aria-pressed', btn.getAttribute('aria-pressed') === 'true' ? 'false' : 'true');
   });
+}
+
+/**
+ * Produkty wybrane do sekcji na stronie głównej.
+ * Kolejność bierze się z listy identyfikatorów, a nie z bazy — to Ty
+ * decydujesz, co stoi pierwsze.
+ */
+async function wczytajWyroznione() {
+  const ids = Array.isArray(data.featuredIds) ? data.featuredIds : [];
+  if (!ids.length) return [];
+
+  try {
+    await initDb();
+    if (!dbGotowa()) return [];
+
+    const lista = ids.map(encodeURIComponent).join(',');
+    const produkty = await select('products', `select=*&id=in.(${lista})`) || [];
+
+    let zdjecia = [];
+    try {
+      zdjecia = await select('product_images', `select=*&product_id=in.(${lista})&order=position.asc`) || [];
+    } catch { /* tabela zdjęć może jeszcze nie istnieć */ }
+
+    const gotowe = zBazy({ id: 'home' }, produkty, [], zdjecia).products;
+    // przywracamy kolejność z listy identyfikatorów
+    return ids.map(id => gotowe.find(p => p.id === id)).filter(Boolean);
+  } catch (err) {
+    console.warn('Nie udało się wczytać wyróżnionych produktów:', err.message);
+    return [];
+  }
 }
 
 /* ---------- o nas ---------- */

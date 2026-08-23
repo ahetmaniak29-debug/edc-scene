@@ -44,17 +44,47 @@ export const ph = (folder, size, variant = '') => `
 export const media = (src, alt, folder, size, variant = '') =>
   src ? `<img class="img" src="${esc(src)}" alt="${esc(alt || '')}" loading="lazy">` : ph(folder, size, variant);
 
-import { naZmiane, pobierz, ustawIlosc, ile as ileWKoszyku, suma } from './koszyk.js?v=10';
-import { formatujCene } from './mapowanie.js?v=10';
+import { naZmiane, pobierz, ustawIlosc, ile as ileWKoszyku, suma } from './koszyk.js?v=11';
+import { initDb, dbGotowa, select } from './db.js?v=11';
+import { formatujCene } from './mapowanie.js?v=11';
 
 const $  = (sel, root = document) => root.querySelector(sel);
 const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
 
-/** Wczytuje wspólną konfigurację strony. */
+/**
+ * Wspólna konfiguracja strony.
+ *
+ * Źródłem prawdy jest tabela `site` (klucz 'home') — dzięki temu treść
+ * zmienia się w panelu, a nie przez commit. Plik data/home.json zostaje
+ * jako koło ratunkowe, gdy baza nie odpowie albo nie ma jeszcze wiersza.
+ */
 export async function loadSite() {
+  try {
+    await initDb();
+    if (dbGotowa()) {
+      const wiersze = await select('site', 'select=value&key=eq.home');
+      const zBazy = wiersze?.[0]?.value;
+      if (zBazy && Object.keys(zBazy).length) return zBazy;
+    }
+  } catch (err) {
+    console.warn('Ustawienia strony z bazy niedostepne:', err.message);
+  }
+
   const res = await fetch(`data/home.json?v=${Date.now()}`, { cache: 'no-store' });
   if (!res.ok) throw new Error(`data/home.json → HTTP ${res.status}`);
   return res.json();
+}
+
+/** Opublikowane sceny — sluza za kategorie na stronie glownej. */
+export async function loadScenes() {
+  try {
+    await initDb();
+    if (!dbGotowa()) return [];
+    return await select('scenes', 'select=*&order=position.asc') || [];
+  } catch (err) {
+    console.warn('Nie udalo sie wczytac kategorii:', err.message);
+    return [];
+  }
 }
 
 /**

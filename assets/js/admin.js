@@ -10,13 +10,16 @@ import {
   initDb, dbGotowa, konfiguracja,
   zaloguj, wyloguj, zalogowany, ktoZalogowany,
   select, upsert, usun, wgrajZdjecie
-} from './db.js?v=10';
-import { formatujCene, naGrosze } from './mapowanie.js?v=10';
+} from './db.js?v=11';
+import { formatujCene, naGrosze } from './mapowanie.js?v=11';
 
 const $  = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 
 const stan = {
+  widok: 'sceny',
+  strona: null,           // zawartość wiersza site/home
+  wszystkieProdukty: [],
   sceny: [],
   scena: null,
   produkty: [],
@@ -55,6 +58,15 @@ async function pokazPanel() {
   $('[data-panel]').hidden = false;
   $('[data-user]').textContent = ktoZalogowany() || '';
   await wczytajSceny();
+
+  // Potrzebne w zakładce „Strona główna" do wyboru wyróżnionych produktów.
+  try {
+    stan.wszystkieProdukty = await select(
+      'products', 'select=id,name,scene_id&order=scene_id.asc,position.asc',
+      { zAutoryzacja: true }) || [];
+  } catch (err) {
+    console.warn('Nie udało się wczytać listy produktów:', err.message);
+  }
 }
 
 $('[data-login-form]').addEventListener('submit', async e => {
@@ -731,6 +743,292 @@ $('[data-gal-new]').addEventListener('click', async () => {
     toast('Ujęcie dodane. Wgraj do niego zdjęcie.');
   } catch (err) {
     toast(`Nie udało się dodać: ${err.message}`, true);
+  }
+});
+
+
+/* ==================================================================== *
+ * ZAKŁADKA „STRONA GŁÓWNA"
+ *
+ * Sceny i produkty siedziały w bazie, a strona główna czytała plik —
+ * przez to nowa kategoria nie miała jak się na niej pojawić. Teraz
+ * kategorie generują się ze scen, a resztę treści trzyma tabela site.
+ * ==================================================================== */
+
+$$('[data-zakladka]').forEach(b => b.addEventListener('click', () => {
+  if (stan.brudne && !confirm('Masz niezapisane zmiany. Przełączyć widok?')) return;
+  brudne(false);
+  przelacz(b.dataset.zakladka);
+}));
+
+function przelacz(widok) {
+  stan.widok = widok;
+  $$('[data-zakladka]').forEach(b => b.classList.toggle('is-aktywna', b.dataset.zakladka === widok));
+  $('[data-widok="sceny"]').hidden = widok !== 'sceny';
+  $('[data-widok-strona]').hidden = widok !== 'strona';
+  $('[data-widok-sceny-wybor]').hidden = widok !== 'sceny';
+  if (widok === 'strona') wczytajStrone();
+}
+
+async function wczytajStrone() {
+  if (stan.strona) return;                    // już wczytane
+
+  try {
+    const wiersze = await select('site', 'select=value&key=eq.home', { zAutoryzacja: true });
+    stan.strona = wiersze?.[0]?.value || null;
+  } catch (err) {
+    return toast('Nie udało się wczytać ustawień strony: ' + err.message, true);
+  }
+
+  if (!stan.strona) {
+    return toast('Brak wiersza site/home w bazie — uruchom db/site.sql.', true);
+  }
+
+  const d = stan.strona;
+  $('[data-s-brand]').value = d.brand || '';
+  $('[data-s-search]').value = d.searchPlaceholder || '';
+  $('[data-s-products-title]').value = d.productsTitle || '';
+  $('[data-s-cats-title]').value = d.categoriesTitle || '';
+
+  // Sekcje o zbyt różnej strukturze na osobne formularze.
+  const reszta = {};
+  ['nav', 'trust', 'tiles', 'collections', 'collectionsTitle', 'collectionsAllLabel',
+   'categoriesAllLabel', 'productsAllLabel', 'about', 'values', 'newsletter', 'footer']
+    .forEach(k => { if (d[k] !== undefined) reszta[k] = d[k]; });
+  $('[data-s-reszta]').value = JSON.stringify(reszta, null, 2);
+
+  rysujKategorie();
+  rysujHero();
+  rysujWyroznione();
+}
+
+/* ---------- kategorie = sceny ---------- */
+
+function rysujKategorie() {
+  const ul = $('[data-kat-list]');
+
+  if (!stan.sceny.length) {
+    ul.innerHTML = '<li class="pusto">Nie masz jeszcze żadnej sceny. Dodaj ją w zakładce obok.</li>';
+    return;
+  }
+
+  ul.innerHTML = stan.sceny.map(s => `
+    <li class="kat" data-kat="${escapeHTML(s.id)}">
+      <div class="kat__kolo">${s.thumb || s.image
+        ? `<img src="${escapeHTML(s.thumb || s.image)}" alt="">`
+        : '<span>brak</span>'}</div>
+      <div class="kat__pola">
+        <p class="kat__nazwa">${escapeHTML(s.label || s.id)}
+          <span class="kat__stan">${s.published ? 'widoczna' : 'szkic — niewidoczna'}</span>
+        </p>
+        <div class="kat__akcje">
+          <label class="upload">
+            <input type="file" accept="image/*" hidden data-kat-file>
+            <span class="mini">Miniatura do kółka</span>
+          </label>
+          <input class="kat__badge" placeholder="Plakietka, np. NOWE" value="${escapeHTML(s.badge || '')}" data-kat-badge>
+          <button class="mini" type="button" data-kat-save>Zapisz</button>
+          <span class="upload__stan" data-kat-stan></span>
+        </div>
+      </div>
+    </li>`).join('');
+
+  $$('.kat', ul).forEach(li => {
+    const id = li.dataset.kat;
+
+    $('[data-kat-save]', li).addEventListener('click', async () => {
+      try {
+        await upsert('scenes', { id, badge: $('[data-kat-badge]', li).value.trim() || null });
+        toast('Zapisane.');
+        await wczytajSceny();
+        rysujKategorie();
+      } catch (err) { toast(err.message, true); }
+    });
+
+    $('[data-kat-file]', li).addEventListener('change', async e => {
+      const plik = e.target.files?.[0];
+      if (!plik) return;
+      const st = $('[data-kat-stan]', li);
+      st.textContent = 'Wgrywanie…';
+      try {
+        const adres = await wgrajZdjecie(plik, 'kategorie');
+        await upsert('scenes', { id, thumb: adres });
+        st.textContent = '';
+        toast('Miniatura ustawiona.');
+        await wczytajSceny();
+        rysujKategorie();
+      } catch (err) {
+        st.textContent = '';
+        toast(err.message, true);
+      } finally {
+        e.target.value = '';
+      }
+    });
+  });
+}
+
+/* ---------- karuzela na górze ---------- */
+
+function rysujHero() {
+  const slajdy = stan.strona.hero || [];
+  $('[data-hero-count]').textContent = slajdy.length;
+
+  const ul = $('[data-hero-list]');
+  if (!slajdy.length) {
+    ul.innerHTML = '<li class="pusto">Brak slajdów.</li>';
+    return;
+  }
+
+  ul.innerHTML = slajdy.map((h, i) => `
+    <li class="gitem" data-hero="${i}">
+      <div class="gitem__foto">${h.image ? `<img src="${escapeHTML(h.image)}" alt="">` : 'brak zdjęcia'}</div>
+      <div class="gitem__pola">
+        <input placeholder="Nadtytuł" value="${escapeHTML(h.badge || '')}" data-h-badge>
+        <textarea rows="2" placeholder="Hasło" data-h-title>${escapeHTML(h.title || '')}</textarea>
+        <textarea rows="2" placeholder="Opis" data-h-text>${escapeHTML(h.text || '')}</textarea>
+        <div class="gitem__akcje">
+          <label class="upload">
+            <input type="file" accept="image/*" hidden data-h-file>
+            <span class="mini">Wgraj zdjęcie</span>
+          </label>
+          <button class="mini mini--danger" type="button" data-h-del>Usuń slajd</button>
+          <span class="upload__stan" data-h-stan></span>
+        </div>
+      </div>
+    </li>`).join('');
+
+  $$('.gitem', ul).forEach(li => {
+    const i = Number(li.dataset.hero);
+
+    $$('input, textarea', li).forEach(el => el.addEventListener('input', () => {
+      const h = stan.strona.hero[i];
+      h.badge = $('[data-h-badge]', li).value;
+      h.title = $('[data-h-title]', li).value;
+      h.text  = $('[data-h-text]', li).value;
+      brudne(true);
+    }));
+
+    $('[data-h-del]', li).addEventListener('click', () => {
+      if (!confirm('Usunąć ten slajd?')) return;
+      stan.strona.hero.splice(i, 1);
+      rysujHero();
+      brudne(true);
+    });
+
+    $('[data-h-file]', li).addEventListener('change', async e => {
+      const plik = e.target.files?.[0];
+      if (!plik) return;
+      const st = $('[data-h-stan]', li);
+      st.textContent = 'Wgrywanie…';
+      try {
+        stan.strona.hero[i].image = await wgrajZdjecie(plik, 'hero');
+        st.textContent = '';
+        rysujHero();
+        brudne(true);
+        toast('Zdjęcie wgrane. Pamiętaj o zapisaniu strony.');
+      } catch (err) {
+        st.textContent = '';
+        toast(err.message, true);
+      } finally {
+        e.target.value = '';
+      }
+    });
+  });
+}
+
+$('[data-hero-new]').addEventListener('click', () => {
+  if (!stan.strona) return;
+  (stan.strona.hero ||= []).push({
+    badge: 'NOWY SLAJD', title: 'Hasło', text: '',
+    primary: { label: 'Przycisk', href: '#' }, image: ''
+  });
+  rysujHero();
+  brudne(true);
+});
+
+/* ---------- wyróżnione produkty ---------- */
+
+function rysujWyroznione() {
+  const ids = stan.strona.featuredIds ||= [];
+  const ul = $('[data-wyr-list]');
+
+  ul.innerHTML = ids.length
+    ? ids.map((id, i) => {
+        const p = stan.wszystkieProdukty.find(q => q.id === id);
+        return `
+          <li class="wyb" data-wyb="${escapeHTML(id)}">
+            <span class="wyb__nr">${i + 1}</span>
+            <span class="wyb__nazwa">${escapeHTML(p ? p.name : id)}${p ? '' : ' — nie ma takiego produktu'}</span>
+            <button type="button" data-wyb-gora ${i === 0 ? 'disabled' : ''} aria-label="W górę">&uarr;</button>
+            <button type="button" data-wyb-dol ${i === ids.length - 1 ? 'disabled' : ''} aria-label="W dół">&darr;</button>
+            <button type="button" data-wyb-usun aria-label="Usuń">&times;</button>
+          </li>`;
+      }).join('')
+    : '<li class="pusto">Nic nie wybrano — sekcja będzie pusta.</li>';
+
+  $$('.wyb', ul).forEach(li => {
+    const i = ids.indexOf(li.dataset.wyb);
+    $('[data-wyb-gora]', li).addEventListener('click', () => przestaw(ids, i, -1));
+    $('[data-wyb-dol]', li).addEventListener('click', () => przestaw(ids, i, +1));
+    $('[data-wyb-usun]', li).addEventListener('click', () => {
+      ids.splice(i, 1);
+      rysujWyroznione();
+      brudne(true);
+    });
+  });
+
+  const sel = $('[data-wyr-select]');
+  const wolne = stan.wszystkieProdukty.filter(p => !ids.includes(p.id));
+  sel.innerHTML = '<option value="">— wybierz produkt —</option>' +
+    wolne.map(p => `<option value="${escapeHTML(p.id)}">${escapeHTML(p.name)} · ${escapeHTML(p.scene_id || '')}</option>`).join('');
+  sel.onchange = () => {
+    if (!sel.value) return;
+    ids.push(sel.value);
+    rysujWyroznione();
+    brudne(true);
+  };
+}
+
+function przestaw(tab, i, o) {
+  const j = i + o;
+  if (j < 0 || j >= tab.length) return;
+  [tab[i], tab[j]] = [tab[j], tab[i]];
+  rysujWyroznione();
+  brudne(true);
+}
+
+/* ---------- zapis ---------- */
+
+$('[data-s-save]').addEventListener('click', async () => {
+  if (!stan.strona) return;
+
+  // Najpierw sprawdzamy dane z pola tekstowego — literówka w nawiasie
+  // nie może położyć całej strony głównej.
+  let reszta;
+  try {
+    reszta = JSON.parse($('[data-s-reszta]').value);
+    $('[data-s-reszta-stan]').textContent = '';
+  } catch (err) {
+    $('[data-s-reszta-stan]').textContent = 'Błąd w danych sekcji: ' + err.message;
+    return toast('Popraw dane w polu „Pozostałe sekcje" — nic nie zapisano.', true);
+  }
+
+  const nowa = {
+    ...stan.strona,
+    ...reszta,
+    brand: $('[data-s-brand]').value.trim(),
+    searchPlaceholder: $('[data-s-search]').value.trim(),
+    productsTitle: $('[data-s-products-title]').value.trim(),
+    categoriesTitle: $('[data-s-cats-title]').value.trim()
+  };
+
+  try {
+    await upsert('site', { key: 'home', value: nowa, updated_at: new Date().toISOString() });
+    stan.strona = nowa;
+    brudne(false);
+    toast('Strona główna zapisana.');
+  } catch (err) {
+    toast('Nie udało się zapisać: ' + err.message, true);
   }
 });
 

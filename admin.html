@@ -7,8 +7,8 @@
   <title>Panel — produkty</title>
   <meta name="theme-color" content="#f7f4ee">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="assets/css/style.css?v=10">
-  <link rel="stylesheet" href="assets/css/admin.css?v=9">
+  <link rel="stylesheet" href="assets/css/style.css?v=13">
+  <link rel="stylesheet" href="assets/css/admin.css?v=13">
 </head>
 <body class="adm">
 
@@ -46,7 +46,12 @@
       <div class="adm__bar-in">
         <span class="adm__logo">Panel produktów</span>
 
-        <div class="adm__scene">
+        <nav class="adm__zakladki">
+          <button class="zak is-aktywna" type="button" data-zakladka="sceny">Sceny i produkty</button>
+          <button class="zak" type="button" data-zakladka="strona">Strona główna</button>
+        </nav>
+
+        <div class="adm__scene" data-widok-sceny-wybor>
           <label class="sr-only" for="wybor-sceny">Scena</label>
           <select id="wybor-sceny" data-scene-select></select>
           <button class="mini" type="button" data-scene-new>+ Nowa scena</button>
@@ -61,7 +66,7 @@
       <p class="adm__toast" data-toast hidden></p>
     </header>
 
-    <main class="adm__main">
+    <main class="adm__main" data-widok="sceny">
 
       <!-- ---------- LEWA: zdjęcie z punktami ---------- -->
       <section class="adm__col adm__col--foto">
@@ -239,8 +244,106 @@
       </section>
 
     </main>
+
+    <!-- ================= STRONA GŁÓWNA ================= -->
+    <main class="adm__main adm__main--strona" data-widok-strona hidden>
+      <section class="adm__col">
+
+        <div class="pane">
+          <div class="pane__head">
+            <h2>Kategorie na stronie głównej</h2>
+          </div>
+          <div class="pane__body">
+            <p class="fld__hint">
+              Kategorie biorą się z Twoich scen — każda opublikowana scena pojawia się
+              na stronie głównej sama. Tutaj ustawiasz tylko miniaturę w kółku i plakietkę.
+            </p>
+            <ul class="katlist" data-kat-list></ul>
+          </div>
+        </div>
+
+        <div class="pane">
+          <div class="pane__head">
+            <h2>Wyróżnione produkty</h2>
+            <span class="pane__hint">sekcja „Najczęściej kupowane"</span>
+          </div>
+          <div class="pane__body">
+            <p class="fld__hint">Kolejność na stronie odpowiada kolejności tutaj.</p>
+            <ul class="wybrane" data-wyr-list></ul>
+            <div class="fld">
+              <span class="fld__label">Dodaj produkt</span>
+              <select data-wyr-select></select>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <section class="adm__col">
+
+        <div class="pane">
+          <div class="pane__head"><h2>Podstawy</h2></div>
+          <div class="pane__body">
+            <label class="fld">
+              <span class="fld__label">Nazwa sklepu</span>
+              <input data-s-brand>
+            </label>
+            <label class="fld">
+              <span class="fld__label">Podpowiedź w wyszukiwarce</span>
+              <input data-s-search>
+            </label>
+            <div class="fld-row">
+              <label class="fld">
+                <span class="fld__label">Tytuł sekcji produktów</span>
+                <input data-s-products-title>
+              </label>
+              <label class="fld">
+                <span class="fld__label">Tytuł sekcji kategorii</span>
+                <input data-s-cats-title>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="pane">
+          <div class="pane__head">
+            <h2>Karuzela na górze <span class="licznik" data-hero-count>0</span></h2>
+            <button class="mini" type="button" data-hero-new>+ Dodaj slajd</button>
+          </div>
+          <div class="pane__body">
+            <ul class="glist" data-hero-list></ul>
+          </div>
+        </div>
+
+        <details class="pane">
+          <summary class="pane__summary">Pozostałe sekcje</summary>
+          <div class="pane__body">
+            <p class="fld__hint">
+              Pasek zaufania, kafelki, kolekcje, sekcja „o nas", wartości, newsletter
+              i stopka. Struktura jest tu zbyt różnorodna na osobne formularze, więc
+              edytujesz je jako dane. Zmieniaj wartości w cudzysłowach, nie ruszaj nawiasów.
+            </p>
+            <label class="fld">
+              <span class="fld__label">Dane sekcji</span>
+              <textarea rows="18" data-s-reszta spellcheck="false"></textarea>
+              <span class="fld__hint" data-s-reszta-stan></span>
+            </label>
+          </div>
+        </details>
+
+        <div class="pane">
+          <div class="pane__body">
+            <div class="pane__actions">
+              <button class="btn-solid" type="button" data-s-save>Zapisz stronę główną</button>
+              <a class="mini" href="index.html" target="_blank" rel="noopener">Podgląd ↗</a>
+            </div>
+          </div>
+        </div>
+
+      </section>
+    </main>
   </div>
 
-  <script src="assets/js/admin.js?v=10" type="module"></script>
+  <script src="assets/js/admin.js?v=13" type="module"></script>
 </body>
 </html>

@@ -334,3 +334,12 @@
 /* licznik przy ikonie koszyka chowa się, gdy pusto */
 .hdr__count.is-pusty { display: none; }
 button.hdr__act { border: 0; background: none; font: inherit; cursor: pointer; }
+
+/* pusta sekcja wyróżnionych produktów na stronie głównej */
+.prods__pusto {
+  grid-column: 1 / -1;
+  padding: 28px 20px; text-align: center;
+  border: 1px dashed var(--line);
+  border-radius: var(--r-md);
+  color: var(--ink-dim); font-size: 13.5px; line-height: 1.6;
+}
