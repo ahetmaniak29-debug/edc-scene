@@ -3,9 +3,9 @@
  * Nagłówek, menu i stopka siedzą we wspólnym module chrome.js.
  */
 
-import { icon, esc, media, loadSite, loadScenes, renderChrome } from './chrome.js?v=11';
-import { initDb, dbGotowa, select } from './db.js?v=11';
-import { zBazy } from './mapowanie.js?v=11';
+import { icon, esc, media, loadSite, loadScenes, renderChrome } from './chrome.js?v=14';
+import { initDb, dbGotowa, select } from './db.js?v=14';
+import { zBazy } from './mapowanie.js?v=14';
 
 const $ = (sel, root = document) => root.querySelector(sel);
 
@@ -118,6 +118,7 @@ function trust() {
 
 function cats() {
   const box = $('[data-cats]');
+  const sekcja = box.closest('.cats');
 
   // Brak scen w bazie = pokazujemy to, co siedzi w konfiguracji,
   // żeby świeżo postawiona strona nie miała pustej sekcji.
@@ -130,6 +131,15 @@ function cats() {
       }))
     : (data.categories || []);
 
+  const n = zrodlo.length;
+  sekcja.hidden = n === 0;
+  if (!n) return;
+
+  // Sklep rośnie etapami i układ ma rosnąć razem z nim.
+  // Jedno kółko w rzędzie zaprojektowanym na dziewięć wygląda na pomyłkę,
+  // więc przy małej liczbie kategorii pokazujemy szerokie karty.
+  sekcja.dataset.ile = n <= 2 ? 'malo' : n <= 5 ? 'srednio' : 'duzo';
+
   const items = zrodlo.map(c => `
     <li>
       <a class="cat" href="${esc(c.href)}">
@@ -141,13 +151,14 @@ function cats() {
       </a>
     </li>`).join('');
 
-  const all = `
+  // Kafel „zobacz wszystkie" ma sens dopiero, gdy jest czego nie widać.
+  const all = n >= 6 ? `
     <li>
       <a class="cat cat--all" href="scena.html">
         <span class="cat__circle">${esc(data.categoriesAllLabel || '')}${icon('arrow')}</span>
         <span class="cat__name">&nbsp;</span>
       </a>
-    </li>`;
+    </li>` : '';
 
   box.innerHTML = items + all;
 }
@@ -176,6 +187,9 @@ function collections() {
   const c = data.collections || {};
   const f = c.featured || {};
 
+  const boczne = c.side || [];
+  $('[data-collections]').dataset.ile = boczne.length ? 'duzo' : 'malo';
+
   $('[data-collections]').innerHTML = `
     <a class="coll coll--big" href="${esc(f.href)}">
       <div class="coll__media">${media(f.image, f.title, 'kolekcje', '1200 × 900 px')}</div>
@@ -187,7 +201,7 @@ function collections() {
       </div>
     </a>
     <div class="colls__side">
-      ${(c.side || []).map(s => `
+      ${boczne.map(s => `
         <a class="coll coll--side" href="${esc(s.href)}">
           <div class="coll__body">
             <h3 class="coll__title">${esc(s.title)}</h3>
@@ -206,13 +220,16 @@ async function products() {
   $('[data-products-all]').innerHTML = `${esc(data.productsAllLabel || '')}${icon('arrow')}`;
 
   const list = $('[data-products]');
+  const sekcja = list.closest('.block');
   const wybrane = await wczytajWyroznione();
 
-  if (!wybrane.length) {
-    list.innerHTML = `<li class="prods__pusto">Nie wybrano jeszcze produktów do tej sekcji.
-      Zrobisz to w panelu, w zakładce „Strona główna".</li>`;
-    return;
-  }
+  // Pusta sekcja z komunikatem dla właściciela nie ma czego szukać
+  // na stronie oglądanej przez klientów — chowamy ją w całości.
+  sekcja.hidden = wybrane.length === 0;
+  if (!wybrane.length) return;
+
+  // Sześć kolumn przy trzech produktach zostawia połowę rzędu pustą.
+  sekcja.dataset.ile = wybrane.length <= 3 ? 'malo' : 'duzo';
 
   list.innerHTML = wybrane.map(p => `
     <li class="prod">

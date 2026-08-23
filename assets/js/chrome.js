@@ -44,9 +44,9 @@ export const ph = (folder, size, variant = '') => `
 export const media = (src, alt, folder, size, variant = '') =>
   src ? `<img class="img" src="${esc(src)}" alt="${esc(alt || '')}" loading="lazy">` : ph(folder, size, variant);
 
-import { naZmiane, pobierz, ustawIlosc, ile as ileWKoszyku, suma } from './koszyk.js?v=11';
-import { initDb, dbGotowa, select } from './db.js?v=11';
-import { formatujCene } from './mapowanie.js?v=11';
+import { naZmiane, pobierz, ustawIlosc, ile as ileWKoszyku, suma } from './koszyk.js?v=14';
+import { initDb, dbGotowa, select } from './db.js?v=14';
+import { formatujCene } from './mapowanie.js?v=14';
 
 const $  = (sel, root = document) => root.querySelector(sel);
 const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
