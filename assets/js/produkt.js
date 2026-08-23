@@ -8,11 +8,11 @@
  * dokładnie tak samo jak strona kategorii.
  */
 
-import { track } from './counter.js?v=14';
-import { icon, esc, loadSite, renderChrome } from './chrome.js?v=14';
-import { initDb, dbGotowa, select } from './db.js?v=14';
-import { zBazy, naGrosze } from './mapowanie.js?v=14';
-import { dodaj as doKoszyka } from './koszyk.js?v=14';
+import { track } from './counter.js?v=16';
+import { icon, esc, loadSite, renderChrome } from './chrome.js?v=16';
+import { initDb, dbGotowa, select } from './db.js?v=16';
+import { zBazy, naGrosze } from './mapowanie.js?v=16';
+import { dodaj as doKoszyka } from './koszyk.js?v=16';
 
 const $  = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
@@ -34,7 +34,7 @@ const stan = {
 async function start() {
   try {
     const site = await loadSite();
-    renderChrome(site, 'produkt.html');
+    await renderChrome(site, 'produkt.html');
   } catch (err) {
     console.error(err);          // brak oprawy nie może zablokować produktu
   }

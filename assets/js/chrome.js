@@ -44,9 +44,9 @@ export const ph = (folder, size, variant = '') => `
 export const media = (src, alt, folder, size, variant = '') =>
   src ? `<img class="img" src="${esc(src)}" alt="${esc(alt || '')}" loading="lazy">` : ph(folder, size, variant);
 
-import { naZmiane, pobierz, ustawIlosc, ile as ileWKoszyku, suma } from './koszyk.js?v=14';
-import { initDb, dbGotowa, select } from './db.js?v=14';
-import { formatujCene } from './mapowanie.js?v=14';
+import { naZmiane, pobierz, ustawIlosc, ile as ileWKoszyku, suma } from './koszyk.js?v=16';
+import { initDb, dbGotowa, select } from './db.js?v=16';
+import { formatujCene } from './mapowanie.js?v=16';
 
 const $  = (sel, root = document) => root.querySelector(sel);
 const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
@@ -92,14 +92,19 @@ export async function loadScenes() {
  * @param {object} data zawartość data/home.json
  * @param {string} [activePath] adres bieżącej strony, żeby podświetlić pozycję menu
  */
-export function renderChrome(data, activePath = '') {
-  header(data, activePath);
+export async function renderChrome(data, activePath = '', sceny = null) {
+  // Menu potrafi rozwinąć listę kategorii, więc potrzebuje scen.
+  // Strona główna ma je już wczytane i podaje z zewnątrz; pozostałe
+  // strony pobierają je tutaj.
+  const kategorie = (sceny || await loadScenes()).filter(s => s.published);
+
+  header(data, activePath, kategorie);
   footer(data);
-  mobileNav(data, activePath);
+  mobileNav(data, activePath, kategorie);
   koszyk();
 }
 
-function header(data, activePath) {
+function header(data, activePath, kategorie) {
   const brand = $('[data-brand]');
   if (brand) brand.textContent = data.brand || '';
 
@@ -107,11 +112,43 @@ function header(data, activePath) {
   if (search) search.placeholder = data.searchPlaceholder || '';
 
   const nav = $('[data-nav]');
-  if (nav) {
-    nav.innerHTML = (data.nav || []).map(n => `
-      <li><a href="${esc(n.href)}"${isActive(n.href, activePath) ? ' aria-current="page"' : ''}>${
-        esc(n.label)}${n.dropdown ? icon('chevron') : ''}</a></li>`).join('');
-  }
+  if (!nav) return;
+
+  nav.innerHTML = (data.nav || []).map((n, i) => {
+    // Pozycja oznaczona jako 'kategorie' sama zaciąga listę scen —
+    // dodanie kategorii w panelu od razu ją tu dokłada.
+    if (n.dropdown === 'kategorie') {
+      if (!kategorie.length) return '';
+      return `
+        <li class="ma-liste">
+          <button type="button" aria-expanded="false" aria-controls="lista-${i}">
+            ${esc(n.label)}${icon('chevron')}
+          </button>
+          <ul class="podlista" id="lista-${i}">
+            ${kategorie.map(k => `
+              <li><a href="scena.html?scene=${encodeURIComponent(k.id)}">${esc(k.label || k.id)}</a></li>`).join('')}
+          </ul>
+        </li>`;
+    }
+    return `
+      <li><a href="${esc(n.href || '#')}"${isActive(n.href, activePath) ? ' aria-current="page"' : ''}>${esc(n.label)}</a></li>`;
+  }).join('');
+
+  // Rozwijanie klikiem, nie najechaniem — na dotyku najechanie nie istnieje.
+  $$('.ma-liste > button', nav).forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      const otwarte = btn.getAttribute('aria-expanded') === 'true';
+      $$('.ma-liste > button', nav).forEach(b => b.setAttribute('aria-expanded', 'false'));
+      btn.setAttribute('aria-expanded', String(!otwarte));
+    });
+  });
+  document.addEventListener('click', () => {
+    $$('.ma-liste > button', nav).forEach(b => b.setAttribute('aria-expanded', 'false'));
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') $$('.ma-liste > button', nav).forEach(b => b.setAttribute('aria-expanded', 'false'));
+  });
 }
 
 function footer(data) {
@@ -133,14 +170,23 @@ function footer(data) {
     <p class="ftr__legal">${esc(f.legal)}</p>`;
 }
 
-function mobileNav(data, activePath) {
+function mobileNav(data, activePath, kategorie) {
   const nav = $('[data-mnav]');
   const scrim = $('[data-mnav-scrim]');
   const burger = $('[data-burger]');
   if (!nav || !scrim || !burger) return;
 
-  $('[data-mnav-list]').innerHTML = (data.nav || []).map(n =>
-    `<li><a href="${esc(n.href)}"${isActive(n.href, activePath) ? ' aria-current="page"' : ''}>${esc(n.label)}</a></li>`).join('');
+  $('[data-mnav-list]').innerHTML = (data.nav || []).map(n => {
+    // W menu mobilnym rozwijana lista byłaby schowana w schowanym —
+    // kategorie wypisujemy od razu, wcięte pod nagłówkiem.
+    if (n.dropdown === 'kategorie') {
+      if (!kategorie.length) return '';
+      return `<li><span class="mnav__grupa">${esc(n.label)}</span></li>` +
+        kategorie.map(k => `
+          <li><a class="mnav__pod" href="scena.html?scene=${encodeURIComponent(k.id)}">${esc(k.label || k.id)}</a></li>`).join('');
+    }
+    return `<li><a href="${esc(n.href || '#')}"${isActive(n.href, activePath) ? ' aria-current="page"' : ''}>${esc(n.label)}</a></li>`;
+  }).join('');
 
   const open = () => {
     nav.hidden = false; scrim.hidden = false;

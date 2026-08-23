@@ -10,8 +10,8 @@ import {
   initDb, dbGotowa, konfiguracja,
   zaloguj, wyloguj, zalogowany, ktoZalogowany,
   select, upsert, usun, wgrajZdjecie
-} from './db.js?v=14';
-import { formatujCene, naGrosze } from './mapowanie.js?v=14';
+} from './db.js?v=16';
+import { formatujCene, naGrosze } from './mapowanie.js?v=16';
 
 const $  = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
@@ -790,16 +790,15 @@ async function wczytajStrone() {
   $('[data-s-products-title]').value = d.productsTitle || '';
   $('[data-s-cats-title]').value = d.categoriesTitle || '';
 
-  // Sekcje o zbyt różnej strukturze na osobne formularze.
-  const reszta = {};
-  ['nav', 'trust', 'tiles', 'collections', 'collectionsTitle', 'collectionsAllLabel',
-   'categoriesAllLabel', 'productsAllLabel', 'about', 'values', 'newsletter', 'footer']
-    .forEach(k => { if (d[k] !== undefined) reszta[k] = d[k]; });
-  $('[data-s-reszta]').value = JSON.stringify(reszta, null, 2);
+  $('[data-s-coll-title]').value = d.collectionsTitle || '';
+  $('[data-s-coll-all]').value = d.collectionsAllLabel || '';
+  $('[data-s-ftr-about]').value = d.footer?.about || '';
+  $('[data-s-ftr-legal]').value = d.footer?.legal || '';
 
   rysujKategorie();
   rysujHero();
   rysujWyroznione();
+  rysujSekcje();
 }
 
 /* ---------- kategorie = sceny ---------- */
@@ -997,29 +996,239 @@ function przestaw(tab, i, o) {
   brudne(true);
 }
 
+
+/* ------------------------------------------------------------------ *
+ * Generyczny edytor sekcji
+ *
+ * Kafelki, kolekcje, wartości i pasek zaufania to w gruncie rzeczy ta
+ * sama rzecz: lista bloków z tytułem, opisem, odnośnikiem i zdjęciem.
+ * Zamiast czterech osobnych formularzy jest jeden, opisany zestawem pól.
+ * ------------------------------------------------------------------ */
+
+const IKONY_DO_WYBORU = [
+  ['truck', 'ciężarówka'], ['return', 'zwrot'], ['shield', 'tarcza'], ['help', 'słuchawki'],
+  ['star', 'gwiazdka'], ['tag', 'metka'], ['trend', 'wykres'], ['people', 'ludzie']
+];
+
+/**
+ * @param {string} sel        gdzie wstawić
+ * @param {object[]|object} dane  tablica bloków albo pojedynczy blok
+ * @param {object[]} pola     [{k, label, typ}]  typ: text|obszar|zdjecie|ptaszek|ikona|linie
+ * @param {object} opcje      {folder, licznik, poZmianie}
+ */
+function edytorSekcji(sel, dane, pola, opcje = {}) {
+  const box = $(sel);
+  if (!box) return;
+
+  const lista = Array.isArray(dane) ? dane : [dane];
+  const pojedynczy = !Array.isArray(dane);
+
+  if (opcje.licznik) $(opcje.licznik).textContent = lista.length;
+
+  if (!lista.length) {
+    box.innerHTML = '<p class="pusto">Nic tu jeszcze nie ma.</p>';
+    return;
+  }
+
+  box.innerHTML = lista.map((el, i) => `
+    <div class="blok" data-blok="${i}">
+      ${pojedynczy ? '' : `<div class="blok__gora">
+        <span class="blok__nr">${i + 1}</span>
+        <button class="mini" type="button" data-blok-gora ${i === 0 ? 'disabled' : ''}>&uarr;</button>
+        <button class="mini" type="button" data-blok-dol ${i === lista.length - 1 ? 'disabled' : ''}>&darr;</button>
+        <button class="mini mini--danger" type="button" data-blok-usun>Usuń</button>
+      </div>`}
+      <div class="blok__pola">
+        ${pola.map(f => polePodglad(f, el)).join('')}
+      </div>
+    </div>`).join('');
+
+  $$('.blok', box).forEach((div, i) => {
+    const el = lista[i];
+
+    // zapisujemy prosto w obiekcie — zapis całej strony bierze go potem
+    $$('[data-pole]', div).forEach(input => {
+      const klucz = input.dataset.pole;
+      const typ = input.dataset.typ;
+      input.addEventListener(typ === 'ptaszek' ? 'change' : 'input', () => {
+        if (typ === 'ptaszek') el[klucz] = input.checked;
+        else if (typ === 'linie') el[klucz] = input.value.split('\n').map(t => t.trim()).filter(Boolean);
+        else el[klucz] = input.value;
+        brudne(true);
+      });
+    });
+
+    const plik = $('[data-blok-foto]', div);
+    if (plik) {
+      plik.addEventListener('change', async e => {
+        const f = e.target.files?.[0];
+        if (!f) return;
+        const st = $('[data-blok-stan]', div);
+        st.textContent = 'Wgrywanie…';
+        try {
+          el[plik.dataset.pole] = await wgrajZdjecie(f, opcje.folder || 'banery');
+          st.textContent = '';
+          brudne(true);
+          opcje.poZmianie?.();
+        } catch (err) {
+          st.textContent = '';
+          toast(err.message, true);
+        } finally {
+          e.target.value = '';
+        }
+      });
+    }
+
+    if (pojedynczy) return;
+    $('[data-blok-gora]', div).addEventListener('click', () => { przestawBlok(lista, i, -1, opcje); });
+    $('[data-blok-dol]',  div).addEventListener('click', () => { przestawBlok(lista, i, +1, opcje); });
+    $('[data-blok-usun]', div).addEventListener('click', () => {
+      if (!confirm('Usunąć ten blok?')) return;
+      lista.splice(i, 1);
+      brudne(true);
+      opcje.poZmianie?.();
+    });
+  });
+}
+
+function polePodglad(f, el) {
+  const v = el[f.k];
+  if (f.typ === 'zdjecie') {
+    return `
+      <div class="blok__foto">
+        <div class="blok__podglad">${v ? `<img src="${escapeHTML(v)}" alt="">` : 'brak zdjęcia'}</div>
+        <label class="upload">
+          <input type="file" accept="image/*" hidden data-blok-foto data-pole="${f.k}">
+          <span class="mini">${v ? 'Podmień zdjęcie' : 'Wgraj zdjęcie'}</span>
+        </label>
+        <span class="upload__stan" data-blok-stan></span>
+      </div>`;
+  }
+  if (f.typ === 'ptaszek') {
+    return `<label class="chk"><input type="checkbox" data-pole="${f.k}" data-typ="ptaszek" ${v ? 'checked' : ''}><span>${f.label}</span></label>`;
+  }
+  if (f.typ === 'ikona') {
+    return `<label class="fld"><span class="fld__label">${f.label}</span>
+      <select data-pole="${f.k}" data-typ="ikona">${IKONY_DO_WYBORU.map(([id, n]) =>
+        `<option value="${id}" ${v === id ? 'selected' : ''}>${n}</option>`).join('')}</select></label>`;
+  }
+  if (f.typ === 'obszar' || f.typ === 'linie') {
+    const tekst = f.typ === 'linie' ? (Array.isArray(v) ? v.join('\n') : '') : (v || '');
+    return `<label class="fld"><span class="fld__label">${f.label}</span>
+      <textarea rows="${f.typ === 'linie' ? 4 : 2}" data-pole="${f.k}" data-typ="${f.typ}">${escapeHTML(tekst)}</textarea></label>`;
+  }
+  return `<label class="fld"><span class="fld__label">${f.label}</span>
+    <input data-pole="${f.k}" value="${escapeHTML(v || '')}"></label>`;
+}
+
+function przestawBlok(lista, i, o, opcje) {
+  const j = i + o;
+  if (j < 0 || j >= lista.length) return;
+  [lista[i], lista[j]] = [lista[j], lista[i]];
+  brudne(true);
+  opcje.poZmianie?.();
+}
+
+/* ---------- podpięcie wszystkich sekcji ---------- */
+
+const POLA_BLOKU = [
+  { k: 'kicker', label: 'Nadtytuł (opcjonalny)' },
+  { k: 'title',  label: 'Tytuł' },
+  { k: 'text',   label: 'Opis', typ: 'obszar' },
+  { k: 'cta',    label: 'Napis na przycisku' },
+  { k: 'href',   label: 'Dokąd prowadzi' },
+  { k: 'image',  typ: 'zdjecie' }
+];
+
+function rysujSekcje() {
+  const d = stan.strona;
+  d.nav ||= []; d.tiles ||= []; d.trust ||= []; d.values ||= [];
+  d.collections ||= { featured: {}, side: [] };
+  d.collections.side ||= [];
+  d.footer ||= { columns: [] };
+  d.footer.columns ||= [];
+
+  edytorSekcji('[data-ed-nav]', d.nav, [
+    { k: 'label', label: 'Napis' },
+    { k: 'href',  label: 'Dokąd prowadzi (puste, gdy rozwijana lista)' },
+    { k: 'dropdown', label: 'Rozwijana lista kategorii — wpisz: kategorie' }
+  ], { licznik: '[data-cnt-nav]', poZmianie: rysujSekcje });
+
+  edytorSekcji('[data-ed-tiles]', d.tiles,
+    [...POLA_BLOKU, { k: 'dark', label: 'Ciemny kafelek', typ: 'ptaszek' }],
+    { folder: 'produkty', licznik: '[data-cnt-tiles]', poZmianie: rysujSekcje });
+
+  edytorSekcji('[data-ed-coll-main]', d.collections.featured, POLA_BLOKU,
+    { folder: 'kolekcje', poZmianie: rysujSekcje });
+
+  edytorSekcji('[data-ed-coll-side]', d.collections.side, POLA_BLOKU,
+    { folder: 'kolekcje', licznik: '[data-cnt-side]', poZmianie: rysujSekcje });
+
+  edytorSekcji('[data-ed-trust]', d.trust, [
+    { k: 'icon',  label: 'Ikonka', typ: 'ikona' },
+    { k: 'title', label: 'Tytuł' },
+    { k: 'text',  label: 'Opis' }
+  ], { licznik: '[data-cnt-trust]', poZmianie: rysujSekcje });
+
+  edytorSekcji('[data-ed-values]', d.values, [
+    { k: 'icon',  label: 'Ikonka', typ: 'ikona' },
+    { k: 'title', label: 'Tytuł' },
+    { k: 'text',  label: 'Opis' }
+  ], { licznik: '[data-cnt-values]', poZmianie: rysujSekcje });
+
+  edytorSekcji('[data-ed-about]', d.about ||= {}, POLA_BLOKU,
+    { folder: 'banery', poZmianie: rysujSekcje });
+
+  edytorSekcji('[data-ed-news]', d.newsletter ||= {}, [
+    { k: 'title',       label: 'Tytuł' },
+    { k: 'text',        label: 'Zachęta' },
+    { k: 'placeholder', label: 'Podpowiedź w polu e-mail' },
+    { k: 'cta',         label: 'Napis na przycisku' }
+  ], { poZmianie: rysujSekcje });
+
+  edytorSekcji('[data-ed-ftr]', d.footer.columns, [
+    { k: 'title', label: 'Nagłówek kolumny' },
+    { k: 'links', label: 'Odnośniki — jeden na linię', typ: 'linie' }
+  ], { licznik: '[data-cnt-ftr]', poZmianie: rysujSekcje });
+}
+
+const DODAJ = {
+  '[data-add-nav]':    () => stan.strona.nav.push({ label: 'Nowa pozycja', href: '#' }),
+  '[data-add-tiles]':  () => stan.strona.tiles.push({ title: 'Nowy kafelek', text: '', cta: 'Zobacz', href: '#', image: '' }),
+  '[data-add-side]':   () => stan.strona.collections.side.push({ title: 'Nowa kolekcja', text: '', cta: 'Zobacz', href: '#', image: '' }),
+  '[data-add-trust]':  () => stan.strona.trust.push({ icon: 'star', title: 'Nowa pozycja', text: '' }),
+  '[data-add-values]': () => stan.strona.values.push({ icon: 'star', title: 'Nowa wartość', text: '' }),
+  '[data-add-ftr]':    () => stan.strona.footer.columns.push({ title: 'Nowa kolumna', links: [] })
+};
+
+Object.entries(DODAJ).forEach(([sel, akcja]) => {
+  $(sel)?.addEventListener('click', () => {
+    if (!stan.strona) return toast('Najpierw wczytaj stronę główną.', true);
+    akcja();
+    rysujSekcje();
+    brudne(true);
+  });
+});
+
 /* ---------- zapis ---------- */
 
 $('[data-s-save]').addEventListener('click', async () => {
   if (!stan.strona) return;
 
-  // Najpierw sprawdzamy dane z pola tekstowego — literówka w nawiasie
-  // nie może położyć całej strony głównej.
-  let reszta;
-  try {
-    reszta = JSON.parse($('[data-s-reszta]').value);
-    $('[data-s-reszta-stan]').textContent = '';
-  } catch (err) {
-    $('[data-s-reszta-stan]').textContent = 'Błąd w danych sekcji: ' + err.message;
-    return toast('Popraw dane w polu „Pozostałe sekcje" — nic nie zapisano.', true);
-  }
-
+  const d = stan.strona;
   const nowa = {
-    ...stan.strona,
-    ...reszta,
+    ...d,
     brand: $('[data-s-brand]').value.trim(),
     searchPlaceholder: $('[data-s-search]').value.trim(),
     productsTitle: $('[data-s-products-title]').value.trim(),
-    categoriesTitle: $('[data-s-cats-title]').value.trim()
+    categoriesTitle: $('[data-s-cats-title]').value.trim(),
+    collectionsTitle: $('[data-s-coll-title]').value.trim(),
+    collectionsAllLabel: $('[data-s-coll-all]').value.trim(),
+    footer: {
+      ...(d.footer || {}),
+      about: $('[data-s-ftr-about]').value.trim(),
+      legal: $('[data-s-ftr-legal]').value.trim()
+    }
   };
 
   try {

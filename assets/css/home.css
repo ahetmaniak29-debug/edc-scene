@@ -769,3 +769,55 @@
   .cats[data-ile="malo"] .cat__name { font-size: 18px; }
   .cats[data-ile="srednio"] .cat__circle { width: 88px; height: 88px; }
 }
+
+/* ---------------------------------------------------------
+   MENU — rozwijana lista kategorii
+   Otwiera się klikiem, nie najechaniem: na dotyku najechanie
+   nie istnieje, a menu, którego nie da się otworzyć palcem,
+   to menu, którego nie ma.
+   --------------------------------------------------------- */
+.hdr__nav .ma-liste { position: relative; }
+.hdr__nav .ma-liste > button {
+  display: flex; align-items: center; gap: 5px;
+  padding: 8px 11px; border: 0; border-radius: var(--r-sm);
+  background: none; color: var(--ink);
+  font: inherit; font-size: 14.5px; cursor: pointer;
+  transition: background 0.16s var(--ease);
+}
+.hdr__nav .ma-liste > button:hover { background: rgba(0, 0, 0, 0.045); }
+.hdr__nav .ma-liste > button svg {
+  width: 13px; height: 13px; opacity: 0.5;
+  transition: transform 0.2s var(--ease);
+}
+.hdr__nav .ma-liste > button[aria-expanded="true"] { background: rgba(0, 0, 0, 0.06); }
+.hdr__nav .ma-liste > button[aria-expanded="true"] svg { transform: rotate(180deg); }
+
+.podlista {
+  position: absolute; top: calc(100% + 6px); left: 0; z-index: 5;
+  min-width: 210px; padding: 6px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-md);
+  display: grid; gap: 1px;
+  opacity: 0; visibility: hidden; pointer-events: none;
+  transform: translateY(-5px);
+  transition: opacity 0.18s var(--ease), transform 0.18s var(--ease), visibility 0.18s;
+}
+.ma-liste > button[aria-expanded="true"] + .podlista {
+  opacity: 1; visibility: visible; pointer-events: auto; transform: none;
+}
+.podlista a {
+  display: block; padding: 9px 12px;
+  border-radius: var(--r-sm);
+  font-size: 14px; text-decoration: none; color: var(--ink);
+}
+.podlista a:hover { background: var(--paper); color: var(--accent); }
+
+/* menu mobilne — kategorie wypisane wprost, bez chowania w chowanym */
+.mnav__grupa {
+  display: block; padding: 14px 12px 6px;
+  font-size: 11px; font-weight: 700; letter-spacing: 0.13em;
+  text-transform: uppercase; color: var(--ink-dim);
+}
+.mnav__pod { padding-left: 24px !important; font-size: 15px !important; }

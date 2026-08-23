@@ -1,7 +1,7 @@
-import { track, getScene, getAll, reset, fetchSummary } from './counter.js?v=14';
-import { icon, media, loadSite, renderChrome } from './chrome.js?v=14';
-import { initDb, dbGotowa, select } from './db.js?v=14';
-import { zBazy, formatujCene } from './mapowanie.js?v=14';
+import { track, getScene, getAll, reset, fetchSummary } from './counter.js?v=16';
+import { icon, media, loadSite, renderChrome } from './chrome.js?v=16';
+import { initDb, dbGotowa, select } from './db.js?v=16';
+import { zBazy, formatujCene } from './mapowanie.js?v=16';
 
 const $  = (sel, root = document) => root.querySelector(sel);
 const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
@@ -32,7 +32,7 @@ async function boot() {
   // Wspólna oprawa (nagłówek, menu, stopka) — ta sama co na stronie głównej.
   try {
     const site = await loadSite();
-    renderChrome(site, 'scena.html');
+    await renderChrome(site, 'scena.html');
     renderTrust(site.trust || []);
   } catch (err) {
     console.error(err);   // brak oprawy nie może zablokować samej sceny

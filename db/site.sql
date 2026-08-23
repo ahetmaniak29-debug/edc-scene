@@ -54,11 +54,8 @@ insert into public.site (key, value) values ('home', '{
   "brand": "NAZWA SKLEPU",
   "searchPlaceholder": "Szukaj produktów, marek i nie tylko...",
   "nav": [
-    { "label": "Sklep",     "href": "#", "dropdown": true },
-    { "label": "Kategorie", "href": "#", "dropdown": true },
-    { "label": "Nowości",   "href": "#" },
-    { "label": "Wyprzedaż", "href": "#" },
-    { "label": "Marki",     "href": "#" }
+    { "label": "Sklep",     "href": "index.html" },
+    { "label": "Kategorie", "dropdown": "kategorie" }
   ],
   "hero": [
     {
@@ -122,3 +119,20 @@ on conflict (key) do nothing;
 -- -------------------------------------------------------------
 -- select jsonb_pretty(value) from public.site where key = 'home';
 -- select id, label, published, thumb from public.scenes order by position;
+
+
+-- -------------------------------------------------------------
+--  NAPRAWA MENU
+--  Pierwsza wersja miała pozycje z pustymi odnośnikami („Nowości",
+--  „Wyprzedaż", „Marki") — klikanie w nie nic nie robiło.
+--  Poniższe podmienia je na działające, ale TYLKO jeśli nikt ich
+--  jeszcze nie zmienił w panelu.
+-- -------------------------------------------------------------
+update public.site
+   set value = jsonb_set(value, '{nav}', '[
+         { "label": "Sklep",     "href": "index.html" },
+         { "label": "Kategorie", "dropdown": "kategorie" }
+       ]'::jsonb),
+       updated_at = now()
+ where key = 'home'
+   and value->'nav' @> '[{"label": "Wyprzedaż"}]'::jsonb;

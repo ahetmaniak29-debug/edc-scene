@@ -3,9 +3,9 @@
  * Nagłówek, menu i stopka siedzą we wspólnym module chrome.js.
  */
 
-import { icon, esc, media, loadSite, loadScenes, renderChrome } from './chrome.js?v=14';
-import { initDb, dbGotowa, select } from './db.js?v=14';
-import { zBazy } from './mapowanie.js?v=14';
+import { icon, esc, media, loadSite, loadScenes, renderChrome } from './chrome.js?v=16';
+import { initDb, dbGotowa, select } from './db.js?v=16';
+import { zBazy } from './mapowanie.js?v=16';
 
 const $ = (sel, root = document) => root.querySelector(sel);
 
@@ -25,11 +25,9 @@ async function boot() {
   }
 
   document.title = data.brand || 'Sklep';
-  renderChrome(data, 'index.html');
-
-  // Kategorie to opublikowane sceny — dodanie sceny w panelu od razu
-  // pokazuje ją tutaj, bez dotykania jakiegokolwiek pliku.
+  // sceny sluza i za kategorie w menu, i za sekcje kategorii
   sceny = (await loadScenes()).filter(s => s.published);
+  await renderChrome(data, 'index.html', sceny);
 
   hero();
   trust();

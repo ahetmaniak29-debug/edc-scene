@@ -8,7 +8,7 @@
   <meta name="theme-color" content="#f7f4ee">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="assets/css/style.css?v=13">
-  <link rel="stylesheet" href="assets/css/admin.css?v=13">
+  <link rel="stylesheet" href="assets/css/admin.css?v=16">
 </head>
 <body class="adm">
 
@@ -316,18 +316,86 @@
         </div>
 
         <details class="pane">
-          <summary class="pane__summary">Pozostałe sekcje</summary>
+          <summary class="pane__summary">Menu na górze <span class="licznik" data-cnt-nav>0</span></summary>
           <div class="pane__body">
             <p class="fld__hint">
-              Pasek zaufania, kafelki, kolekcje, sekcja „o nas", wartości, newsletter
-              i stopka. Struktura jest tu zbyt różnorodna na osobne formularze, więc
-              edytujesz je jako dane. Zmieniaj wartości w cudzysłowach, nie ruszaj nawiasów.
+              Pozycja z rozwijaną listą kategorii sama zaciąga Twoje sceny —
+              nie trzeba jej aktualizować po dodaniu kategorii.
             </p>
+            <div data-ed-nav></div>
+            <button class="mini" type="button" data-add-nav>+ Dodaj pozycję</button>
+          </div>
+        </details>
+
+        <details class="pane">
+          <summary class="pane__summary">Kafelki pod kategoriami <span class="licznik" data-cnt-tiles>0</span></summary>
+          <div class="pane__body">
+            <div data-ed-tiles></div>
+            <button class="mini" type="button" data-add-tiles>+ Dodaj kafelek</button>
+          </div>
+        </details>
+
+        <details class="pane">
+          <summary class="pane__summary">Kolekcje</summary>
+          <div class="pane__body">
+            <div class="fld-row">
+              <label class="fld">
+                <span class="fld__label">Tytuł sekcji</span>
+                <input data-s-coll-title>
+              </label>
+              <label class="fld">
+                <span class="fld__label">Napis „zobacz wszystkie"</span>
+                <input data-s-coll-all>
+              </label>
+            </div>
+            <p class="fld__label">Kolekcja główna (duża, po lewej)</p>
+            <div data-ed-coll-main></div>
+            <p class="fld__label">Kolekcje boczne <span class="licznik" data-cnt-side>0</span></p>
+            <div data-ed-coll-side></div>
+            <button class="mini" type="button" data-add-side>+ Dodaj kolekcję boczną</button>
+          </div>
+        </details>
+
+        <details class="pane">
+          <summary class="pane__summary">Pasek zaufania <span class="licznik" data-cnt-trust>0</span></summary>
+          <div class="pane__body">
+            <div data-ed-trust></div>
+            <button class="mini" type="button" data-add-trust>+ Dodaj pozycję</button>
+          </div>
+        </details>
+
+        <details class="pane">
+          <summary class="pane__summary">Sekcja „o nas"</summary>
+          <div class="pane__body"><div data-ed-about></div></div>
+        </details>
+
+        <details class="pane">
+          <summary class="pane__summary">Wartości <span class="licznik" data-cnt-values>0</span></summary>
+          <div class="pane__body">
+            <div data-ed-values></div>
+            <button class="mini" type="button" data-add-values>+ Dodaj wartość</button>
+          </div>
+        </details>
+
+        <details class="pane">
+          <summary class="pane__summary">Newsletter</summary>
+          <div class="pane__body"><div data-ed-news></div></div>
+        </details>
+
+        <details class="pane">
+          <summary class="pane__summary">Stopka</summary>
+          <div class="pane__body">
             <label class="fld">
-              <span class="fld__label">Dane sekcji</span>
-              <textarea rows="18" data-s-reszta spellcheck="false"></textarea>
-              <span class="fld__hint" data-s-reszta-stan></span>
+              <span class="fld__label">Zdanie pod logotypem</span>
+              <textarea rows="2" data-s-ftr-about></textarea>
             </label>
+            <label class="fld">
+              <span class="fld__label">Nota prawna</span>
+              <input data-s-ftr-legal>
+            </label>
+            <p class="fld__label">Kolumny <span class="licznik" data-cnt-ftr>0</span></p>
+            <div data-ed-ftr></div>
+            <button class="mini" type="button" data-add-ftr>+ Dodaj kolumnę</button>
           </div>
         </details>
 
@@ -344,6 +412,6 @@
     </main>
   </div>
 
-  <script src="assets/js/admin.js?v=13" type="module"></script>
+  <script src="assets/js/admin.js?v=16" type="module"></script>
 </body>
 </html>
