@@ -7,8 +7,8 @@
   <title>Panel — produkty</title>
   <meta name="theme-color" content="#f7f4ee">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="assets/css/style.css?v=24">
-  <link rel="stylesheet" href="assets/css/admin.css?v=24">
+  <link rel="stylesheet" href="assets/css/style.css?v=31">
+  <link rel="stylesheet" href="assets/css/admin.css?v=31">
 </head>
 <body class="adm">
 
@@ -79,6 +79,8 @@
           <div class="foto" data-foto>
             <img data-foto-img alt="">
             <div class="foto__spots" data-foto-spots></div>
+            <!-- prostokąt obszaru kolekcji — rysowany myszą przy zaznaczaniu -->
+            <div class="foto__area" data-foto-area hidden></div>
             <p class="foto__empty" data-foto-empty>Brak zdjęcia sceny</p>
           </div>
 
@@ -120,6 +122,38 @@
               <input type="checkbox" data-scene-published>
               <span>Opublikowana — widoczna na stronie</span>
             </label>
+
+            <!-- ---------- kolekcja ---------- -->
+            <fieldset class="fld fld--grupa">
+              <legend class="fld__label">Kolekcja</legend>
+              <p class="fld__hint">
+                Scena może być zbliżeniem wewnątrz innej sceny. Wskaż wnętrze,
+                a potem zaznacz na nim fragment — na stronie kadr wjedzie
+                w to miejsce i pokaże to zbliżenie.
+              </p>
+
+              <label class="fld">
+                <span class="fld__label">Należy do wnętrza</span>
+                <select data-scene-parent></select>
+              </label>
+
+              <label class="fld" data-area-only hidden>
+                <span class="fld__label">Podpis fragmentu na zdjęciu wnętrza</span>
+                <input data-scene-area-label placeholder="np. Stolik kawowy">
+              </label>
+
+              <div class="fld" data-area-only hidden>
+                <span class="fld__label">Fragment (procenty zdjęcia wnętrza)</span>
+                <div class="fld__rzad">
+                  <input type="number" step="0.1" data-area-x placeholder="x">
+                  <input type="number" step="0.1" data-area-y placeholder="y">
+                  <input type="number" step="0.1" data-area-w placeholder="szer.">
+                  <input type="number" step="0.1" data-area-h placeholder="wys.">
+                </div>
+                <button class="mini" type="button" data-area-pick>Zaznacz fragment na zdjęciu</button>
+                <span class="fld__hint" data-area-hint></span>
+              </div>
+            </fieldset>
 
             <div class="pane__actions">
               <button class="btn-solid" type="button" data-scene-save>Zapisz scenę</button>
@@ -412,6 +446,6 @@
     </main>
   </div>
 
-  <script src="assets/js/admin.js?v=24" type="module"></script>
+  <script src="assets/js/admin.js?v=31" type="module"></script>
 </body>
 </html>

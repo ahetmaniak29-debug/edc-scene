@@ -7,9 +7,9 @@
   <meta name="description" content="Wyselekcjonowany sprzęt na jednym zdjęciu. Dotknij przedmiotu, żeby zobaczyć szczegóły.">
   <meta name="theme-color" content="#1b1917">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="assets/css/style.css?v=24">
-  <link rel="stylesheet" href="assets/css/home.css?v=24">
-  <link rel="stylesheet" href="assets/css/produkt.css?v=24">
+  <link rel="stylesheet" href="assets/css/style.css?v=31">
+  <link rel="stylesheet" href="assets/css/home.css?v=31">
+  <link rel="stylesheet" href="assets/css/produkt.css?v=31">
 </head>
 <body class="home">
   <a class="skip-link" href="#tresc">Przejdź do treści</a>
@@ -43,6 +43,7 @@
       <nav class="crumbs" aria-label="Ścieżka">
         <a href="index.html">Strona główna</a>
         <span aria-hidden="true">/</span>
+        <a class="crumbs__kolekcja" data-crumb-kolekcja href="#" hidden></a>
         <span data-crumb aria-current="page"></span>
       </nav>
 
@@ -65,10 +66,24 @@
            nie zasłaniać. -->
       <section class="stage" aria-label="Scena z przedmiotami">
         <div class="stage__frame" data-stage>
-          <img class="stage__img" data-scene-img alt="" decoding="async">
-          <div class="stage__hotspots" data-hotspots></div>
-          <div class="stage__loading" data-stage-loading>Wczytywanie sceny…</div>
+          <!-- Wszystko, co ma najechać na wybrany mebel, siedzi w jednym
+               pudełku — animujemy je razem, a nie każdy element osobno. -->
+          <div class="stage__zoom" data-stage-zoom>
+            <img class="stage__img" data-scene-img alt="" decoding="async">
+            <div class="stage__hotspots" data-hotspots></div>
+            <div class="stage__kadry" data-kadry hidden></div>
+          </div>
 
+          <!-- Zbliżenie przenika nad wnętrzem w trakcie najazdu; po
+               animacji staje się zwykłym zdjęciem sceny. -->
+          <img class="stage__detal" data-stage-detal alt="" aria-hidden="true">
+
+          <button class="stage__wroc" type="button" data-wroc hidden>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+            <span>Wróć do wnętrza</span>
+          </button>
+
+          <div class="stage__loading" data-stage-loading>Wczytywanie sceny…</div>
         </div>
 
         <p class="stage__hint" data-stage-hint hidden>
@@ -199,6 +214,6 @@
     <ul data-mnav-list></ul>
   </nav>
 
-  <script src="assets/js/app.js?v=24" type="module"></script>
+  <script src="assets/js/app.js?v=31" type="module"></script>
 </body>
 </html>

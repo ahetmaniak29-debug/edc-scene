@@ -8,11 +8,11 @@
  * dokładnie tak samo jak strona kategorii.
  */
 
-import { track } from './counter.js?v=16';
-import { icon, esc, loadSite, renderChrome } from './chrome.js?v=16';
-import { initDb, dbGotowa, select } from './db.js?v=16';
-import { zBazy, naGrosze } from './mapowanie.js?v=16';
-import { dodaj as doKoszyka } from './koszyk.js?v=16';
+import { track } from './counter.js?v=31';
+import { icon, esc, loadSite, renderChrome } from './chrome.js?v=31';
+import { initDb, dbGotowa, select } from './db.js?v=31';
+import { zBazy, naGrosze } from './mapowanie.js?v=31';
+import { dodaj as doKoszyka } from './koszyk.js?v=31';
 
 const $  = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];

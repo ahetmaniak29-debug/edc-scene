@@ -1,7 +1,7 @@
-import { track, getScene, getAll, reset, fetchSummary } from './counter.js?v=16';
-import { icon, media, loadSite, renderChrome } from './chrome.js?v=16';
-import { initDb, dbGotowa, select } from './db.js?v=16';
-import { zBazy, formatujCene } from './mapowanie.js?v=16';
+import { track, getScene, getAll, reset, fetchSummary } from './counter.js?v=31';
+import { icon, media, loadSite, renderChrome } from './chrome.js?v=31';
+import { initDb, dbGotowa, select } from './db.js?v=31';
+import { zBazy, formatujCene } from './mapowanie.js?v=31';
 
 const $  = (sel, root = document) => root.querySelector(sel);
 const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
@@ -11,6 +11,8 @@ const params = new URLSearchParams(location.search);
 const state = {
   config: null,
   scene: null,
+  kolekcja: null,  // scena-wnętrze, gdy siedzimy w kadrze
+  kadr: null,      // otwarty kadr
   current: null,   // aktualnie otwarty produkt
   analytics: null,
   supabase: null,
@@ -107,7 +109,18 @@ async function zBazyDanych(wanted) {
       }
     }
 
-    return zBazy(scena, produkty || [], zdjecia || [], zdjeciaProduktow);
+    // Kadry kolekcji — sceny-dzieci. Tabela może jeszcze nie mieć kolumny
+    // parent_id (skrypt db/kolekcje.sql nieuruchomiony) — wtedy po prostu
+    // nie ma kolekcji i strona działa jak dotąd.
+    let kadry = [];
+    try {
+      kadry = await select('scenes',
+        `select=*&parent_id=eq.${encodeURIComponent(scena.id)}&order=position.asc`) || [];
+    } catch (err) {
+      console.warn('Kolekcje niedostępne (uruchom db/kolekcje.sql):', err.message);
+    }
+
+    return zBazy(scena, produkty || [], zdjecia || [], zdjeciaProduktow, kadry);
   } catch (err) {
     console.warn('Nie udało się wczytać sceny z bazy:', err.message);
     return null;
@@ -163,6 +176,7 @@ function renderScene() {
   img.src = s.image;
 
   renderHotspots(s.products || []);
+  renderKadry(s.kadry || []);
   renderList(s.products || []);
   renderGallery(s.gallery || []);
   initFold();
@@ -221,6 +235,267 @@ function renderList(products) {
   const count = $('[data-list-count]');
   if (count) count.textContent = products.length;
 }
+
+/* ------------------------------------------------------------------ *
+ * Kolekcja — wchodzenie w kadr
+ *
+ * Kolekcja to zdjęcie wnętrza z zaznaczonymi obszarami. Kliknięcie
+ * obszaru nie przeładowuje strony: kadr najeżdża na wskazany mebel
+ * (transform na całej zawartości ramki), a w trakcie najazdu przenika
+ * w zbliżenie. Dzięki temu widać, DOKĄD się weszło — a nie tylko, że
+ * pojawiło się inne zdjęcie.
+ *
+ * Kadr jest zwykłą sceną z własnymi produktami i punktami, więc po
+ * wejściu wszystko poniżej (punkty, lista, galeria) działa jak zawsze.
+ * ------------------------------------------------------------------ */
+
+const CZAS_NAJAZDU = 900;   // ms — tyle trwa wjazd w kadr
+
+/** Prostokąty obszarów na zdjęciu wnętrza. */
+function renderKadry(kadry) {
+  const wrap = $('[data-kadry]');
+  if (!wrap) return;
+
+  wrap.innerHTML = '';
+  wrap.hidden = kadry.length === 0;
+  if (!kadry.length) return;
+
+  kadry.forEach(k => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'kadr';
+    btn.style.left = `${k.area.x}%`;
+    btn.style.top = `${k.area.y}%`;
+    btn.style.width = `${k.area.w}%`;
+    btn.style.height = `${k.area.h}%`;
+    btn.setAttribute('aria-label', `${k.label} — wejdź w zbliżenie`);
+    btn.innerHTML = `
+      <span class="kadr__ramka" aria-hidden="true"></span>
+      <span class="kadr__podpis">
+        ${escapeHTML(k.label)}
+        <span class="kadr__lupa" aria-hidden="true">${icon('arrow')}</span>
+      </span>`;
+    btn.addEventListener('click', () => wejdzWKadr(k));
+    wrap.appendChild(btn);
+  });
+}
+
+/** Scena kadru — z bazy, a gdy baza milczy, z pliku w repozytorium. */
+async function wczytajKadr(id) {
+  const zBazy = await zBazyDanych(id);
+  if (zBazy) return zBazy;
+  try {
+    return await loadJSON(`data/scenes/${id}.json`);
+  } catch {
+    return null;
+  }
+}
+
+async function wejdzWKadr(kadr, { push = true } = {}) {
+  if (state.kadr) return;                    // już jesteśmy w środku
+
+  // Adres zbliżenia znamy od razu z danych kolekcji, więc kadr rusza
+  // natychmiast po kliknięciu, a produkty dociągają się w tle. Czekanie
+  // na bazę przed animacją dawało pół sekundy, w której nic się nie działo.
+  const ladowanie = wczytajKadr(kadr.id);
+
+  state.kolekcja = state.scene;
+  state.kadr = kadr;
+
+  await najedz(kadr.area, kadr.image);
+
+  const scena = await ladowanie;
+  if (!scena) {                              // baza milczy — zostaje samo zdjęcie
+    state.scene = { id: kadr.id, label: kadr.label, title: kadr.label,
+                    subtitle: '', image: kadr.image, products: [], gallery: [], kadry: [] };
+  } else {
+    state.scene = scena;
+  }
+  pokazScene(scena, kadr.label);
+  const wroc = $('[data-wroc]');
+  wroc.hidden = false;
+  wroc.onclick = () => wrocDoKolekcji();
+
+  if (push) {
+    const url = `?scene=${encodeURIComponent(state.kolekcja.id)}&kadr=${encodeURIComponent(kadr.id)}`;
+    history.pushState({ kadr: kadr.id }, '', url);
+  }
+}
+
+async function wrocDoKolekcji({ push = true } = {}) {
+  if (!state.kolekcja) return;
+
+  const wnetrze = state.kolekcja;
+  const area = state.kadr.area;
+
+  await cofnij(area, state.scene.image, wnetrze.image);
+
+  state.scene = wnetrze;
+  state.kadr = null;
+  state.kolekcja = null;
+  pokazScene(wnetrze, '');
+  $('[data-wroc]').hidden = true;
+
+  if (push) history.pushState({}, '', `?scene=${encodeURIComponent(wnetrze.id)}`);
+}
+
+/**
+ * Przepisuje widok na podaną scenę. To samo, co robi renderScene,
+ * ale bez ładowania zdjęcia od zera — zdjęcie podmienia animacja.
+ */
+function pokazScene(s, podpisKadru) {
+  $('[data-scene-title]').textContent = s.title || '';
+  $('[data-scene-subtitle]').textContent = s.subtitle || '';
+
+  const label = podpisKadru || s.label || '';
+  const chip = $('[data-scene-label]');
+  chip.textContent = label;
+  chip.hidden = !label;
+
+  const okruszek = $('[data-crumb]');
+  const rodzic = $('[data-crumb-kolekcja]');
+  if (state.kolekcja) {
+    rodzic.hidden = false;
+    rodzic.textContent = state.kolekcja.label || 'Kolekcja';
+    rodzic.onclick = e => { e.preventDefault(); wrocDoKolekcji(); };
+    okruszek.textContent = label;
+  } else {
+    rodzic.hidden = true;
+    okruszek.textContent = label;
+  }
+
+  renderHotspots(s.products || []);
+  renderKadry(s.kadry || []);
+  renderList(s.products || []);
+  renderGallery(s.gallery || []);
+}
+
+/* ---------- sama animacja ---------- */
+
+/** Wyliczenie transformacji, która wciąga wskazany prostokąt na cały kadr. */
+function transformacjaNa(area, ramka) {
+  // Skala z większego wymiaru — obszar ma wypełnić ramkę, a nie zmieścić
+  // się w niej z paskami po bokach.
+  const skala = Math.max(100 / area.w, 100 / area.h);
+  const srodekX = (area.x + area.w / 2) / 100 * ramka.width;
+  const srodekY = (area.y + area.h / 2) / 100 * ramka.height;
+  return `translate(${ramka.width / 2}px, ${ramka.height / 2}px) `
+       + `scale(${skala}) translate(${-srodekX}px, ${-srodekY}px)`;
+}
+
+const bezRuchu = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/**
+ * Czekanie na zdekodowanie zdjęcia — ale nie w nieskończoność.
+ * `decode()` w karcie schowanej w tle potrafi nie rozwiązać się wcale,
+ * a od tego wisi cała sekwencja wejścia w kadr.
+ */
+function zdekoduj(img, limit = 600) {
+  if (!img.decode) return Promise.resolve();
+  return Promise.race([
+    img.decode().catch(() => {}),
+    new Promise(r => setTimeout(r, limit))
+  ]);
+}
+
+/**
+ * Animacje jedziemy przez Web Animations API, a nie przez przejścia CSS.
+ * Powód jest praktyczny: WAAPI daje `finished`, więc następny krok
+ * odpala się wtedy, kiedy animacja naprawdę się skończyła. Przy
+ * przejściach trzeba było zgadywać licznikiem czasu, a licznik potrafi
+ * się rozjechać z tym, co widać na ekranie.
+ */
+function graj(el, klatki, czas) {
+  if (!el.animate || bezRuchu()) return Promise.resolve();
+  const a = el.animate(klatki, {
+    duration: czas,
+    easing: 'cubic-bezier(0.65, 0, 0.2, 1)',
+    fill: 'forwards'
+  });
+
+  // Bezpiecznik: w karcie w tle przeglądarka wstrzymuje animacje, więc
+  // `finished` potrafi nie przyjść przez cały czas, gdy ktoś patrzy na
+  // inną zakładkę. Bez tego wejście w kadr zawisłoby w połowie.
+  const spoznione = new Promise(r => setTimeout(r, czas + 250));
+
+  return Promise.race([a.finished.catch(() => {}), spoznione])
+    .then(() => a.cancel());
+}
+
+/** Wjazd w obszar z przenikaniem w zbliżenie. */
+async function najedz(area, zdjecieKadru) {
+  const ramka = $('[data-stage]').getBoundingClientRect();
+  const zoom = $('[data-stage-zoom]');
+  const detal = $('[data-stage-detal]');
+  const docelowa = transformacjaNa(area, ramka);
+
+  detal.src = zdjecieKadru;
+  $('[data-hotspots]').classList.add('is-znika');
+  $('[data-kadry]').classList.add('is-znika');
+
+  await Promise.all([
+    graj(zoom, [{ transform: 'none' }, { transform: docelowa }], CZAS_NAJAZDU),
+    // Zbliżenie wchodzi w drugiej połowie najazdu — najpierw ma być widać,
+    // dokąd kadr jedzie, dopiero potem co tam jest.
+    graj(detal, [{ opacity: 0, offset: 0 }, { opacity: 0, offset: 0.42 }, { opacity: 1 }], CZAS_NAJAZDU)
+  ]);
+
+  // Zbliżenie staje się zwykłym zdjęciem sceny: ramka znów oblepia je
+  // co do piksela, więc punkty na nim trafiają tam, gdzie mają.
+  const img = $('[data-scene-img]');
+  img.src = zdjecieKadru;
+  await zdekoduj(img);
+
+  zoom.style.transform = '';
+  detal.style.opacity = '';
+  $('[data-hotspots]').classList.remove('is-znika');
+  $('[data-kadry]').classList.remove('is-znika');
+}
+
+/** Odwrotność najazdu: odjazd ze zbliżenia z powrotem na całe wnętrze. */
+async function cofnij(area, zdjecieKadru, zdjecieWnetrza) {
+  const zoom = $('[data-stage-zoom]');
+  const detal = $('[data-stage-detal]');
+  const img = $('[data-scene-img]');
+
+  $('[data-hotspots]').classList.add('is-znika');
+  $('[data-kadry]').classList.add('is-znika');
+
+  // Zbliżenie zostaje na wierzchu, a pod nim wraca zdjęcie wnętrza.
+  // Czekamy, aż wnętrze się zdekoduje — inaczej odjazd zaczyna się od
+  // pustej ramki. Na `load` nie ma co liczyć: przy zdjęciu z pamięci
+  // potrafi nie przyjść wcale.
+  detal.src = zdjecieKadru;
+  detal.style.opacity = '1';
+  img.src = zdjecieWnetrza;
+  await zdekoduj(img);
+
+  const ramka = $('[data-stage]').getBoundingClientRect();
+  const startowa = transformacjaNa(area, ramka);
+  zoom.style.transform = startowa;
+
+  await Promise.all([
+    graj(zoom, [{ transform: startowa }, { transform: 'none' }], CZAS_NAJAZDU),
+    graj(detal, [{ opacity: 1, offset: 0 }, { opacity: 0, offset: 0.5 }, { opacity: 0 }], CZAS_NAJAZDU)
+  ]);
+
+  zoom.style.transform = '';
+  detal.style.opacity = '';
+  $('[data-hotspots]').classList.remove('is-znika');
+  $('[data-kadry]').classList.remove('is-znika');
+}
+
+/* ---------- adres i przycisk „wstecz" ---------- */
+
+window.addEventListener('popstate', () => {
+  const kadrId = new URLSearchParams(location.search).get('kadr');
+  if (kadrId && !state.kadr) {
+    const k = (state.scene.kadry || []).find(x => x.id === kadrId);
+    if (k) wejdzWKadr(k, { push: false });
+  } else if (!kadrId && state.kadr) {
+    wrocDoKolekcji({ push: false });
+  }
+});
 
 /* ------------------------------------------------------------------ *
  * Płynne zwijanie listy

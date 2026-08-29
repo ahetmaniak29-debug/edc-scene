@@ -201,6 +201,129 @@ svg { width: 1em; height: 1em; fill: none; stroke: currentColor; stroke-width: 2
 }
 .stage__hint.is-hidden { opacity: 0; transition: opacity 0.4s var(--ease); }
 
+
+/* =========================================================
+   KOLEKCJA — obszary na zdjęciu wnętrza i wjazd w kadr
+   Kliknięcie obszaru najeżdża kadrem na wskazany mebel, a w trakcie
+   najazdu przenika w zbliżenie. Animujemy jedno pudełko (.stage__zoom),
+   więc punkty i obszary jadą razem ze zdjęciem, piksel w piksel.
+   ========================================================= */
+
+.stage__zoom {
+  position: relative;
+  display: block;
+  will-change: transform;
+}
+
+/* Zbliżenie leży nad wnętrzem tylko na czas animacji. Kadruje z
+   przycięciem (cover), bo przez te 900 ms i tak nikt nie zdąży
+   sprawdzić proporcji — a nie może zostawić pasów przy krawędziach. */
+/* Przezroczystością steruje JS (Web Animations API), więc nie ma tu
+   żadnego przejścia — dwa mechanizmy naraz kłóciłyby się o tę samą
+   właściwość i przenikanie zaczynałoby migać. */
+.stage__detal {
+  position: absolute; inset: 0; z-index: 4;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Punkty i obszary schodzą z drogi, zanim kadr ruszy. */
+.stage__hotspots.is-znika,
+.stage__kadry.is-znika {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 180ms var(--ease);
+}
+
+.stage__kadry { position: absolute; inset: 0; z-index: 3; }
+.stage__kadry[hidden] { display: none; }
+
+/* ---------- obszar do kliknięcia ---------- */
+.kadr {
+  position: absolute;
+  margin: 0; padding: 0;
+  border: 0; background: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Ramka obszaru nie krzyczy, dopóki nie najedziesz — zdjęcie wnętrza
+   ma być zdjęciem wnętrza, a nie planszą z prostokątami. */
+.kadr__ramka {
+  position: absolute; inset: 0;
+  border: 1.5px solid rgba(255, 255, 255, 0.55);
+  border-radius: var(--r-md);
+  background: rgba(255, 255, 255, 0.06);
+  -webkit-backdrop-filter: brightness(1.12);
+  backdrop-filter: brightness(1.12);
+  opacity: 0;
+  transition: opacity 0.28s var(--ease), transform 0.28s var(--ease);
+}
+.kadr:hover .kadr__ramka,
+.kadr:focus-visible .kadr__ramka { opacity: 1; transform: scale(1.015); }
+
+/* Podpis widać zawsze — inaczej na dotyku nie da się zgadnąć,
+   gdzie w ogóle można kliknąć. */
+.kadr__podpis {
+  position: absolute; left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  display: inline-flex; align-items: center; gap: 9px;
+  white-space: nowrap;
+  padding: 9px 14px;
+  border-radius: 999px;
+  background: rgba(18, 16, 14, 0.62);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: var(--ink);
+  font-size: 12.5px; font-weight: 600; letter-spacing: 0.04em;
+  transition: background 0.24s var(--ease), transform 0.24s var(--ease);
+}
+.kadr:hover .kadr__podpis,
+.kadr:focus-visible .kadr__podpis {
+  background: var(--sand); color: var(--sand-ink);
+  border-color: transparent;
+  transform: translate(-50%, -50%) scale(1.04);
+}
+.kadr__lupa { display: inline-flex; }
+.kadr__lupa svg { width: 13px; height: 13px; }
+
+/* ---------- powrót do wnętrza ---------- */
+.stage__wroc {
+  position: absolute; left: 16px; top: 16px; z-index: 6;
+  display: inline-flex; align-items: center; gap: 9px;
+  padding: 10px 16px 10px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+  background: rgba(18, 16, 14, 0.62);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  color: var(--ink);
+  font: inherit; font-size: 12.5px; font-weight: 600;
+  cursor: pointer;
+  transition: background 0.18s var(--ease), color 0.18s var(--ease);
+}
+.stage__wroc:hover { background: var(--sand); color: var(--sand-ink); }
+.stage__wroc[hidden] { display: none; }
+.stage__wroc svg { width: 15px; height: 15px; }
+
+.crumbs__kolekcja[hidden] { display: none; }
+.crumbs__kolekcja::after {
+  content: "/";
+  margin-left: 9px;
+  color: var(--ink-dim);
+}
+
+@media (max-width: 620px) {
+  .kadr__podpis { font-size: 11.5px; padding: 7px 11px; }
+  .stage__wroc { left: 10px; top: 10px; padding: 8px 13px 8px 10px; }
+}
+
+/* Kto prosił o mniej ruchu, dostaje podmianę zdjęcia bez najazdu —
+   sprawdza to JS przed uruchomieniem animacji (patrz bezRuchu w app.js). */
+
 /* ---------- Zwijana lista ---------- */
 .fold {
   background: var(--surface);

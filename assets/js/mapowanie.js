@@ -40,8 +40,9 @@ export const adresObrazka = s => s || '';
  * @param {object[]} produkty wiersze z tabeli products
  * @param {object[]} zdjecia  wiersze z tabeli scene_images
  * @param {object[]} zdjeciaProduktow wiersze z tabeli product_images
+ * @param {object[]} kadry  sceny-dzieci (kolekcja) — wiersze z tabeli scenes
  */
-export function zBazy(scena, produkty = [], zdjecia = [], zdjeciaProduktow = []) {
+export function zBazy(scena, produkty = [], zdjecia = [], zdjeciaProduktow = [], kadry = []) {
   // Zdjęcia pogrupowane po produkcie — jeden przebieg zamiast filtrowania w pętli.
   const wgProduktu = new Map();
   for (const z of zdjeciaProduktow) {
@@ -80,6 +81,22 @@ export function zBazy(scena, produkty = [], zdjecia = [], zdjeciaProduktow = [])
       image: adresObrazka(z.image),
       title: z.title || '',
       text: z.body || ''
-    }))
+    })),
+
+    // Kolekcja: obszary na zdjęciu wnętrza, każdy prowadzi do zbliżenia.
+    // Kadr bez prostokąta nie ma jak się pokazać na zdjęciu, więc odpada.
+    kadry: kadry
+      .filter(k => k.area_w !== null && k.area_w !== undefined && Number(k.area_w) > 0)
+      .map(k => ({
+        id: k.id,
+        label: k.area_label || k.label || '',
+        image: adresObrazka(k.image),
+        area: {
+          x: Number(k.area_x) || 0,
+          y: Number(k.area_y) || 0,
+          w: Number(k.area_w) || 0,
+          h: Number(k.area_h) || 0
+        }
+      }))
   };
 }

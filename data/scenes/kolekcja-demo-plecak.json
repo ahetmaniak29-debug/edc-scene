@@ -1,0 +1,53 @@
+{
+  "id": "kolekcja-demo-plecak",
+  "label": "Stolik kawowy",
+  "title": "Stolik kawowy.",
+  "subtitle": "Zbliżenie z kolekcji. Punkty działają tak samo jak na każdej innej scenie.",
+  "image": "ZDJECIA/kolekcje/edc-scena-duza.jpg",
+  "imageAlt": "",
+  "gallery": [],
+  "products": [
+    {
+      "id": "demo-plecak",
+      "name": "Przedmiot na stoliku",
+      "brand": "Nazwa marki",
+      "category": "kolekcja-demo",
+      "price": "0,00 zł",
+      "why": "Miejsce na jedno–dwa zdania o tym przedmiocie.",
+      "specs": [
+        {
+          "k": "Parametr",
+          "v": "wartość"
+        }
+      ],
+      "url": "#",
+      "ctaLabel": "Zobacz u sprzedawcy",
+      "images": [],
+      "hotspot": {
+        "x": 46,
+        "y": 46
+      }
+    },
+    {
+      "id": "demo-saszetka",
+      "name": "Drugi przedmiot",
+      "brand": "Nazwa marki",
+      "category": "kolekcja-demo",
+      "price": "0,00 zł",
+      "why": "Miejsce na jedno–dwa zdania o tym przedmiocie.",
+      "specs": [
+        {
+          "k": "Parametr",
+          "v": "wartość"
+        }
+      ],
+      "url": "#",
+      "ctaLabel": "Zobacz u sprzedawcy",
+      "images": [],
+      "hotspot": {
+        "x": 30,
+        "y": 72
+      }
+    }
+  ]
+}

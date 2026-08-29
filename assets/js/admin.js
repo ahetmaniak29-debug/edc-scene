@@ -10,8 +10,8 @@ import {
   initDb, dbGotowa, konfiguracja,
   zaloguj, wyloguj, zalogowany, ktoZalogowany,
   select, upsert, usun, wgrajZdjecie
-} from './db.js?v=16';
-import { formatujCene, naGrosze } from './mapowanie.js?v=16';
+} from './db.js?v=31';
+import { formatujCene, naGrosze } from './mapowanie.js?v=31';
 
 const $  = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
@@ -26,6 +26,7 @@ const stan = {
   galeria: [],
   wybrany: null,        // id edytowanego produktu, '' = nowy
   zdjeciaProduktu: [],  // wiersze product_images dla wybranego produktu
+  zaznaczanie: false,   // trwa obrysowywanie fragmentu na zdjęciu wnętrza
   brudne: false
 };
 
@@ -134,8 +135,13 @@ async function wczytajSceny() {
   }
 
   const sel = $('[data-scene-select]');
+  // Kadry kolekcji wypisujemy z wcięciem — inaczej lista scen zamienia się
+  // w worek, w którym nie widać, co jest wnętrzem, a co zbliżeniem.
   sel.innerHTML = stan.sceny
-    .map(s => `<option value="${s.id}">${s.label || s.id}${s.published ? '' : '  · szkic'}</option>`)
+    .map(s => {
+      const wciecie = s.parent_id ? '  ↳ ' : '';
+      return `<option value="${s.id}">${wciecie}${s.label || s.id}${s.published ? '' : '  · szkic'}</option>`;
+    })
     .join('');
 
   if (!stan.sceny.length) {
@@ -164,6 +170,7 @@ async function wybierzScene(id) {
   $('[data-scene-published]').checked = Boolean(stan.scena.published);
 
   rysujZdjecie();
+  rysujWyborWnetrza();
 
   try {
     [stan.produkty, stan.galeria] = await Promise.all([
@@ -224,7 +231,16 @@ $('[data-scene-save]').addEventListener('click', async () => {
       image: stan.scena.image || null,
       image_alt: $('[data-scene-alt]').value.trim(),
       position: stan.scena.position ?? 0,
-      published: $('[data-scene-published]').checked
+      published: $('[data-scene-published]').checked,
+
+      // Kolekcja: rodzic i fragment jego zdjęcia. Puste pole = null,
+      // bo pusty tekst w kolumnie liczbowej wywala zapis.
+      parent_id: $('[data-scene-parent]').value || null,
+      area_label: $('[data-scene-area-label]').value.trim() || null,
+      area_x: liczbaAlbo($('[data-area-x]').value),
+      area_y: liczbaAlbo($('[data-area-y]').value),
+      area_w: liczbaAlbo($('[data-area-w]').value),
+      area_h: liczbaAlbo($('[data-area-h]').value)
     });
     toast('Scena zapisana.');
     await wczytajSceny();
@@ -338,6 +354,164 @@ $('[data-foto]').addEventListener('click', e => {
   rysujPunkty();
   brudne(true);
 });
+
+/* ------------------------------------------------------------------ *
+ * Kolekcje — scena jako zbliżenie wewnątrz innej sceny
+ *
+ * W bazie to ta sama tabela `scenes`: kadr ma rodzica i prostokąt,
+ * który zajmuje na jego zdjęciu. Tutaj obsługujemy dwie rzeczy:
+ * wybór rodzica i narysowanie tego prostokąta myszą.
+ * ------------------------------------------------------------------ */
+
+/** Lista wnętrz do wyboru — wszystko poza samą sceną i jej kadrami. */
+function rysujWyborWnetrza() {
+  const sel = $('[data-scene-parent]');
+  if (!sel || !stan.scena) return;
+
+  const mozliwe = stan.sceny.filter(s =>
+    s.id !== stan.scena.id &&           // scena nie może być własnym wnętrzem
+    !s.parent_id                        // kadr w kadrze to już labirynt
+  );
+
+  sel.innerHTML = '<option value="">— osobna scena, nie kadr —</option>'
+    + mozliwe.map(s =>
+        `<option value="${escapeHTML(s.id)}">${escapeHTML(s.label || s.id)}</option>`).join('');
+  sel.value = stan.scena.parent_id || '';
+
+  $('[data-scene-area-label]').value = stan.scena.area_label || '';
+  $('[data-area-x]').value = stan.scena.area_x ?? '';
+  $('[data-area-y]').value = stan.scena.area_y ?? '';
+  $('[data-area-w]').value = stan.scena.area_w ?? '';
+  $('[data-area-h]').value = stan.scena.area_h ?? '';
+
+  przelaczPolaObszaru();
+}
+
+/** Pola fragmentu mają sens tylko wtedy, gdy scena jest czyimś kadrem. */
+function przelaczPolaObszaru() {
+  const jestKadrem = Boolean($('[data-scene-parent]').value);
+  $$('[data-area-only]').forEach(el => { el.hidden = !jestKadrem; });
+}
+
+/** Prostokąt fragmentu narysowany na podglądzie zdjęcia. */
+function rysujObszar() {
+  const box = $('[data-foto-area]');
+  if (!box) return;
+
+  const x = parseFloat($('[data-area-x]').value);
+  const y = parseFloat($('[data-area-y]').value);
+  const w = parseFloat($('[data-area-w]').value);
+  const h = parseFloat($('[data-area-h]').value);
+
+  const kompletny = [x, y, w, h].every(Number.isFinite) && w > 0 && h > 0;
+  box.hidden = !kompletny || !stan.zaznaczanie;
+  if (!kompletny) return;
+
+  box.style.left = `${x}%`;
+  box.style.top = `${y}%`;
+  box.style.width = `${w}%`;
+  box.style.height = `${h}%`;
+}
+
+/**
+ * Tryb zaznaczania: podglądem staje się zdjęcie WNĘTRZA (bo to na nim
+ * rysujemy fragment), a nie zdjęcie tej sceny. Po skończeniu wracamy
+ * do zwykłego widoku, żeby nikt nie pomylił jednego z drugim.
+ */
+function wlaczZaznaczanie() {
+  const rodzicId = $('[data-scene-parent]').value;
+  const rodzic = stan.sceny.find(s => s.id === rodzicId);
+  if (!rodzic) return toast('Najpierw wskaż wnętrze, w którym leży ten kadr.', true);
+  if (!rodzic.image) return toast('To wnętrze nie ma jeszcze zdjęcia.', true);
+
+  stan.zaznaczanie = true;
+  $('[data-foto-img]').src = rodzic.image;
+  $('[data-foto-img]').hidden = false;
+  $('[data-foto-empty]').hidden = true;
+  $('[data-foto-spots]').hidden = true;
+  $('[data-foto]').classList.add('is-zaznacza');
+  $('[data-area-pick]').textContent = 'Skończ zaznaczanie';
+  $('[data-area-hint]').textContent = 'Przeciągnij myszą po zdjęciu, żeby obrysować fragment.';
+  rysujObszar();
+}
+
+function wylaczZaznaczanie() {
+  stan.zaznaczanie = false;
+  $('[data-foto-spots]').hidden = false;
+  $('[data-foto]').classList.remove('is-zaznacza');
+  $('[data-area-pick]').textContent = 'Zaznacz fragment na zdjęciu';
+  $('[data-area-hint]').textContent = '';
+  $('[data-foto-area]').hidden = true;
+  rysujZdjecie();
+}
+
+$('[data-scene-parent]')?.addEventListener('change', () => {
+  przelaczPolaObszaru();
+  if (stan.zaznaczanie) wylaczZaznaczanie();
+  brudne(true);
+});
+
+$('[data-area-pick]')?.addEventListener('click', () => {
+  if (stan.zaznaczanie) wylaczZaznaczanie();
+  else wlaczZaznaczanie();
+});
+
+$$('[data-area-x], [data-area-y], [data-area-w], [data-area-h]')
+  .forEach(el => el.addEventListener('input', () => { rysujObszar(); brudne(true); }));
+
+/* ---------- rysowanie prostokąta myszą ---------- */
+
+(() => {
+  const foto = $('[data-foto]');
+  if (!foto) return;
+
+  let start = null;
+
+  const procenty = e => {
+    const img = $('[data-foto-img]');
+    const r = img.getBoundingClientRect();
+    return {
+      x: Math.min(100, Math.max(0, ((e.clientX - r.left) / r.width) * 100)),
+      y: Math.min(100, Math.max(0, ((e.clientY - r.top) / r.height) * 100))
+    };
+  };
+
+  const zapisz = (a, b) => {
+    const x = Math.min(a.x, b.x), y = Math.min(a.y, b.y);
+    const w = Math.abs(b.x - a.x), h = Math.abs(b.y - a.y);
+    $('[data-area-x]').value = +x.toFixed(1);
+    $('[data-area-y]').value = +y.toFixed(1);
+    $('[data-area-w]').value = +w.toFixed(1);
+    $('[data-area-h]').value = +h.toFixed(1);
+    rysujObszar();
+  };
+
+  foto.addEventListener('pointerdown', e => {
+    if (!stan.zaznaczanie) return;
+    e.preventDefault();
+    start = procenty(e);
+    foto.setPointerCapture(e.pointerId);
+  });
+
+  foto.addEventListener('pointermove', e => {
+    if (!stan.zaznaczanie || !start) return;
+    zapisz(start, procenty(e));
+  });
+
+  foto.addEventListener('pointerup', e => {
+    if (!stan.zaznaczanie || !start) return;
+    zapisz(start, procenty(e));
+    start = null;
+    brudne(true);
+
+    // Przeciągnięcie na centymetr to zwykle pomyłka, nie fragment mebla.
+    const w = parseFloat($('[data-area-w]').value);
+    const h = parseFloat($('[data-area-h]').value);
+    if (w < 3 || h < 3) {
+      toast('Fragment jest bardzo mały — obrysuj większy kawałek zdjęcia.', true);
+    }
+  });
+})();
 
 /* ------------------------------------------------------------------ *
  * Lista produktów
@@ -1242,6 +1416,14 @@ $('[data-s-save]').addEventListener('click', async () => {
 });
 
 /* ------------------------------------------------------------------ */
+
+/** "" → null, "12,5" → 12.5. Puste pole nie może pójść do kolumny liczbowej. */
+function liczbaAlbo(tekst) {
+  const t = String(tekst ?? '').trim().replace(',', '.');
+  if (t === '') return null;
+  const n = Number(t);
+  return Number.isFinite(n) ? n : null;
+}
 
 function escapeHTML(str) {
   return String(str ?? '').replace(/[&<>"']/g,

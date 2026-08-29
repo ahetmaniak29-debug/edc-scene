@@ -12,7 +12,8 @@
   "defaultScene": "outdoor-edc",
   "_scenesAwaryjne": "Używane tylko wtedy, gdy baza nie odpowie. Normalnie lista scen pochodzi z tabeli scenes.",
   "scenes": [
-    "outdoor-edc"
+    "outdoor-edc",
+    "kolekcja-demo"
   ],
   "analytics": {
     "_komentarz": "Zliczanie kliknięć. Schemat i uprawnienia: db/schema.sql.",

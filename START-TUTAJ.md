@@ -30,6 +30,7 @@ w ciągu 1–2 minut, bez żadnego budowania.
 |---|---|
 | `index.html` | strona główna sklepu |
 | `scena.html?scene=<id>` | kategoria — klikalne zdjęcie z punktami |
+| `scena.html?scene=<id>&kadr=<id>` | kolekcja — zbliżenie wnętrza (ta sama strona) |
 | `produkt.html?id=<slug>` | jeden produkt, układ mozaikowy |
 | `admin.html` | panel — **niepodlinkowany z witryny**, wchodzisz z ręki |
 
@@ -60,9 +61,39 @@ Pliki, które czasem trzeba ruszyć ręcznie:
 
 ---
 
+## Kolekcje (wnętrza)
+
+Kolekcja to zdjęcie pokoju z zaznaczonymi fragmentami. Klikasz fragment,
+kadr wjeżdża w to miejsce i przechodzi w zbliżenie — a zbliżenie to zwykła
+scena z punktami i produktami.
+
+**Kadr nie jest osobnym bytem w bazie.** To ta sama tabela `scenes`, tylko
+z rodzicem (`parent_id`) i prostokątem, który zajmuje na zdjęciu rodzica
+(`area_x`, `area_y`, `area_w`, `area_h` — w procentach). Dzięki temu wszystko,
+co działa dla scen, działa dla kadrów bez dopisywania czegokolwiek.
+
+Jak założyć kolekcję:
+
+1. Uruchom **`db/kolekcje.sql`** w Supabase → SQL Editor (raz, dodaje kolumny).
+2. W panelu zrób scenę wnętrza — np. „Salon" — i wgraj jej zdjęcie.
+3. Zrób drugą scenę, np. „Stolik kawowy", i wgraj jej zbliżenie.
+4. W ustawieniach tej drugiej sceny: **Kolekcja → Należy do wnętrza: Salon**,
+   podpis fragmentu, a potem **Zaznacz fragment na zdjęciu** i obrysuj myszą
+   stolik na zdjęciu salonu. Zapisz.
+5. Dodaj produkty do zbliżenia tak samo jak na każdej innej scenie.
+
+Kadry nie pokazują się w menu ani wśród kategorii na stronie głównej —
+wchodzi się w nie wyłącznie ze zdjęcia wnętrza.
+
+Przykład do obejrzenia bez bazy: `scena.html?scene=kolekcja-demo`
+(dane leżą w `data/scenes/kolekcja-demo*.json`).
+
+---
+
 ## Baza
 
-Wszystkie skrypty z `db/` są **już uruchomione**. Gdyby trzeba było odtworzyć
+Wszystkie skrypty z `db/` są uruchomione **poza `db/kolekcje.sql`** —
+ten trzeba puścić, żeby działały kolekcje. Gdyby trzeba było odtworzyć
 bazę od zera, kolejność jest taka:
 
 1. `db/schema.sql` — liczniki kliknięć
@@ -70,6 +101,7 @@ bazę od zera, kolejność jest taka:
 3. `db/product_images.sql` — zdjęcia produktów
 4. `db/site.sql` — treść strony głównej, miniatury kategorii
 5. `db/events_cart.sql` — zdarzenie „dodano do koszyka"
+6. `db/kolekcje.sql` — kolekcje: rodzic i fragment zdjęcia
 
 Tabele: `scenes`, `products`, `product_images`, `scene_images`, `site`, `events`.
 

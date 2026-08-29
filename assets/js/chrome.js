@@ -44,9 +44,9 @@ export const ph = (folder, size, variant = '') => `
 export const media = (src, alt, folder, size, variant = '') =>
   src ? `<img class="img" src="${esc(src)}" alt="${esc(alt || '')}" loading="lazy">` : ph(folder, size, variant);
 
-import { naZmiane, pobierz, ustawIlosc, ile as ileWKoszyku, suma } from './koszyk.js?v=16';
-import { initDb, dbGotowa, select } from './db.js?v=16';
-import { formatujCene } from './mapowanie.js?v=16';
+import { naZmiane, pobierz, ustawIlosc, ile as ileWKoszyku, suma } from './koszyk.js?v=31';
+import { initDb, dbGotowa, select } from './db.js?v=31';
+import { formatujCene } from './mapowanie.js?v=31';
 
 const $  = (sel, root = document) => root.querySelector(sel);
 const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
@@ -80,7 +80,10 @@ export async function loadScenes() {
   try {
     await initDb();
     if (!dbGotowa()) return [];
-    return await select('scenes', 'select=*&order=position.asc') || [];
+    const sceny = await select('scenes', 'select=*&order=position.asc') || [];
+    // Kadry kolekcji (sceny z rodzicem) nie są osobnymi kategoriami —
+    // wchodzi się w nie ze zdjęcia wnętrza, a nie z menu.
+    return sceny.filter(s => !s.parent_id);
   } catch (err) {
     console.warn('Nie udalo sie wczytac kategorii:', err.message);
     return [];
