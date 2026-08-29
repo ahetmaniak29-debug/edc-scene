@@ -1,7 +1,7 @@
-import { track, getScene, getAll, reset, fetchSummary } from './counter.js?v=35';
-import { icon, media, loadSite, renderChrome } from './chrome.js?v=35';
-import { initDb, dbGotowa, select } from './db.js?v=35';
-import { zBazy, formatujCene } from './mapowanie.js?v=35';
+import { track, getScene, getAll, reset, fetchSummary } from './counter.js?v=36';
+import { icon, media, loadSite, renderChrome } from './chrome.js?v=36';
+import { initDb, dbGotowa, select } from './db.js?v=36';
+import { zBazy, formatujCene } from './mapowanie.js?v=36';
 
 const $  = (sel, root = document) => root.querySelector(sel);
 const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
@@ -254,11 +254,11 @@ function renderList(products) {
 
 const CZAS_NAJAZDU = 900;   // ms — tyle trwa wjazd w kadr
 
-// Wąski, wysoki fragment (np. stolik z lampą przy krawędzi zdjęcia) wymagałby
-// powiększenia rzędu siedmiu razy — zdjęcie wnętrza rozłaziłoby się wtedy
-// w piksele, zanim zbliżenie zdąży się pojawić. Powyżej tego progu kadr
-// przestaje dojeżdżać do samego mebla i po prostu wchodzi w jego okolicę.
-const MAX_SKALA = 4.5;
+// Mały fragment (stolik z lampą to niecałe 10% szerokości zdjęcia) wymagałby
+// powiększenia rzędu dziesięciu razy i wnętrze rozłaziłoby się w piksele.
+// Próg jest wyższy niż wcześniej, bo zbliżenie wchodzi dopiero pod koniec
+// najazdu — rozmyty kadr nie zdąży się już pokazać.
+const MAX_SKALA = 6;
 
 /** Prostokąty obszarów na zdjęciu wnętrza. */
 function renderKadry(kadry) {
@@ -442,11 +442,19 @@ async function najedz(area, zdjecieKadru) {
   $('[data-hotspots]').classList.add('is-znika');
   $('[data-kadry]').classList.add('is-znika');
 
+  // Zbliżenie to inne ujęcie, nie wycinek zdjęcia wnętrza. Gdyby weszło
+  // w połowie drogi, kadr jechałby jeszcze w jedno miejsce, a na ekranie
+  // stałoby już co innego — i stąd wrażenie, że animacja nie trzyma się
+  // kupy. Dlatego najazd ma się prawie skończyć, zanim zbliżenie się
+  // pokaże, a samo zbliżenie dojeżdża razem z nim: wchodzi lekko
+  // powiększone i osiada do swojej wielkości.
   await Promise.all([
     graj(zoom, [{ transform: 'none' }, { transform: docelowa }], CZAS_NAJAZDU),
-    // Zbliżenie wchodzi w drugiej połowie najazdu — najpierw ma być widać,
-    // dokąd kadr jedzie, dopiero potem co tam jest.
-    graj(detal, [{ opacity: 0, offset: 0 }, { opacity: 0, offset: 0.42 }, { opacity: 1 }], CZAS_NAJAZDU)
+    graj(detal, [
+      { opacity: 0, transform: 'scale(1.14)', offset: 0 },
+      { opacity: 0, transform: 'scale(1.11)', offset: 0.58 },
+      { opacity: 1, transform: 'scale(1)' }
+    ], CZAS_NAJAZDU)
   ]);
 
   // Zbliżenie staje się zwykłym zdjęciem sceny: ramka znów oblepia je
@@ -457,6 +465,7 @@ async function najedz(area, zdjecieKadru) {
 
   zoom.style.transform = '';
   detal.style.opacity = '';
+  detal.style.transform = '';
   $('[data-hotspots]').classList.remove('is-znika');
   $('[data-kadry]').classList.remove('is-znika');
 }
@@ -483,13 +492,20 @@ async function cofnij(area, zdjecieKadru, zdjecieWnetrza) {
   const startowa = transformacjaNa(area, ramka);
   zoom.style.transform = startowa;
 
+  // Odjazd lustrzanie: zbliżenie schodzi na początku, powiększając się
+  // lekko, a wnętrze wyjeżdża spod niego na swoje miejsce.
   await Promise.all([
     graj(zoom, [{ transform: startowa }, { transform: 'none' }], CZAS_NAJAZDU),
-    graj(detal, [{ opacity: 1, offset: 0 }, { opacity: 0, offset: 0.5 }, { opacity: 0 }], CZAS_NAJAZDU)
+    graj(detal, [
+      { opacity: 1, transform: 'scale(1)', offset: 0 },
+      { opacity: 0, transform: 'scale(1.11)', offset: 0.42 },
+      { opacity: 0, transform: 'scale(1.14)' }
+    ], CZAS_NAJAZDU)
   ]);
 
   zoom.style.transform = '';
   detal.style.opacity = '';
+  detal.style.transform = '';
   $('[data-hotspots]').classList.remove('is-znika');
   $('[data-kadry]').classList.remove('is-znika');
 }

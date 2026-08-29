@@ -3,9 +3,9 @@
  * Nagłówek, menu i stopka siedzą we wspólnym module chrome.js.
  */
 
-import { icon, esc, media, loadSite, loadScenes, renderChrome } from './chrome.js?v=35';
-import { initDb, dbGotowa, select } from './db.js?v=35';
-import { zBazy } from './mapowanie.js?v=35';
+import { icon, esc, media, loadSite, loadScenes, renderChrome } from './chrome.js?v=36';
+import { initDb, dbGotowa, select } from './db.js?v=36';
+import { zBazy } from './mapowanie.js?v=36';
 
 const $ = (sel, root = document) => root.querySelector(sel);
 
