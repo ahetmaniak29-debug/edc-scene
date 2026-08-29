@@ -11,8 +11,8 @@ import {
   zaloguj, wyloguj, zalogowany, ktoZalogowany,
   select, upsert, usun, wgrajZdjecie,
   listaZdjec, skasujZdjecie as skasujZeStorage
-} from './db.js?v=34';
-import { formatujCene, naGrosze } from './mapowanie.js?v=34';
+} from './db.js?v=35';
+import { formatujCene, naGrosze } from './mapowanie.js?v=35';
 
 const $  = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];

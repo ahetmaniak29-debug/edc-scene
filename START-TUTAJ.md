@@ -90,8 +90,10 @@ Jak założyć kolekcję:
 Kadry nie pokazują się w menu ani wśród kategorii na stronie głównej —
 wchodzi się w nie wyłącznie ze zdjęcia wnętrza.
 
-Przykład do obejrzenia bez bazy: `scena.html?scene=kolekcja-demo`
-(dane leżą w `data/scenes/kolekcja-demo*.json`).
+Gotowa kolekcja do obejrzenia: **`scena.html?scene=salon`** — salon ze
+stolikiem kawowym i stolikiem z lampą. Siedzi w plikach
+(`data/scenes/salon*.json` + `ZDJECIA/kolekcje/salon*.jpg`), więc działa
+bez bazy. Kiedy założysz to samo w panelu, baza weźmie górę nad plikami.
 
 ---
 

@@ -1,7 +1,7 @@
-import { track, getScene, getAll, reset, fetchSummary } from './counter.js?v=34';
-import { icon, media, loadSite, renderChrome } from './chrome.js?v=34';
-import { initDb, dbGotowa, select } from './db.js?v=34';
-import { zBazy, formatujCene } from './mapowanie.js?v=34';
+import { track, getScene, getAll, reset, fetchSummary } from './counter.js?v=35';
+import { icon, media, loadSite, renderChrome } from './chrome.js?v=35';
+import { initDb, dbGotowa, select } from './db.js?v=35';
+import { zBazy, formatujCene } from './mapowanie.js?v=35';
 
 const $  = (sel, root = document) => root.querySelector(sel);
 const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
@@ -254,6 +254,12 @@ function renderList(products) {
 
 const CZAS_NAJAZDU = 900;   // ms — tyle trwa wjazd w kadr
 
+// Wąski, wysoki fragment (np. stolik z lampą przy krawędzi zdjęcia) wymagałby
+// powiększenia rzędu siedmiu razy — zdjęcie wnętrza rozłaziłoby się wtedy
+// w piksele, zanim zbliżenie zdąży się pojawić. Powyżej tego progu kadr
+// przestaje dojeżdżać do samego mebla i po prostu wchodzi w jego okolicę.
+const MAX_SKALA = 4.5;
+
 /** Prostokąty obszarów na zdjęciu wnętrza. */
 function renderKadry(kadry) {
   const wrap = $('[data-kadry]');
@@ -379,7 +385,7 @@ function pokazScene(s, podpisKadru) {
 function transformacjaNa(area, ramka) {
   // Skala z większego wymiaru — obszar ma wypełnić ramkę, a nie zmieścić
   // się w niej z paskami po bokach.
-  const skala = Math.max(100 / area.w, 100 / area.h);
+  const skala = Math.min(Math.max(100 / area.w, 100 / area.h), MAX_SKALA);
   const srodekX = (area.x + area.w / 2) / 100 * ramka.width;
   const srodekY = (area.y + area.h / 2) / 100 * ramka.height;
   return `translate(${ramka.width / 2}px, ${ramka.height / 2}px) `

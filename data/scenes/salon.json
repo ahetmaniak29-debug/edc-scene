@@ -1,0 +1,35 @@
+{
+  "_uwaga": "Kolekcja zbudowana na plikach z ZDJECIA/kolekcje/. Docelowo to samo zakładasz w panelu — ten plik jest kołem ratunkowym, gdy baza nie odpowie.",
+  "id": "salon",
+  "label": "Salon",
+  "title": "Salon.",
+  "subtitle": "Kliknij zaznaczony mebel, żeby wejść w zbliżenie i zobaczyć, co na nim stoi.",
+  "image": "ZDJECIA/kolekcje/salon.jpg",
+  "imageAlt": "Salon o zmierzchu: jasna sofa przy oknach, ciemny stolik kawowy na dywanie, kominek i boazeria.",
+  "gallery": [],
+  "products": [],
+  "kadry": [
+    {
+      "id": "salon-stolik-kawowy",
+      "label": "Stolik kawowy",
+      "image": "ZDJECIA/kolekcje/salon-stolik-kawowy.jpg",
+      "area": {
+        "x": 38,
+        "y": 62,
+        "w": 34,
+        "h": 28
+      }
+    },
+    {
+      "id": "salon-stolik-lampa",
+      "label": "Stolik z lampą",
+      "image": "ZDJECIA/kolekcje/salon-stolik-lampa.jpg",
+      "area": {
+        "x": 0,
+        "y": 43,
+        "w": 17,
+        "h": 39
+      }
+    }
+  ]
+}

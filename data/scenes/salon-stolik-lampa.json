@@ -1,0 +1,116 @@
+{
+  "id": "salon-stolik-lampa",
+  "label": "Stolik z lampą",
+  "title": "Stolik z lampą.",
+  "subtitle": "Kąt przy oknie — dotknij numeru, żeby zobaczyć szczegóły.",
+  "image": "ZDJECIA/kolekcje/salon-stolik-lampa.jpg",
+  "imageAlt": "Czarny stolik przy oknie, na nim ceramiczna lampa z lnianym abażurem, miseczka i książki.",
+  "gallery": [],
+  "products": [
+    {
+      "id": "salon-lampa",
+      "name": "Lampa stołowa",
+      "brand": "Nazwa marki",
+      "category": "salon",
+      "price": "0,00 zł",
+      "why": "Ciemna ceramika, mosiężny trzon, lniany abażur.",
+      "specs": [
+        {
+          "k": "Parametr",
+          "v": "wartość"
+        }
+      ],
+      "url": "#",
+      "ctaLabel": "Zobacz u sprzedawcy",
+      "images": [],
+      "hotspot": {
+        "x": 49,
+        "y": 27
+      }
+    },
+    {
+      "id": "salon-miseczka",
+      "name": "Miseczka",
+      "brand": "Nazwa marki",
+      "category": "salon",
+      "price": "0,00 zł",
+      "why": "Na klucze albo drobiazgi — matowa czerń.",
+      "specs": [
+        {
+          "k": "Parametr",
+          "v": "wartość"
+        }
+      ],
+      "url": "#",
+      "ctaLabel": "Zobacz u sprzedawcy",
+      "images": [],
+      "hotspot": {
+        "x": 40,
+        "y": 56
+      }
+    },
+    {
+      "id": "salon-pojemnik",
+      "name": "Pojemnik z pokrywką",
+      "brand": "Nazwa marki",
+      "category": "salon",
+      "price": "0,00 zł",
+      "why": "Ceramika, szkliwiona na czarno.",
+      "specs": [
+        {
+          "k": "Parametr",
+          "v": "wartość"
+        }
+      ],
+      "url": "#",
+      "ctaLabel": "Zobacz u sprzedawcy",
+      "images": [],
+      "hotspot": {
+        "x": 64,
+        "y": 49
+      }
+    },
+    {
+      "id": "salon-ksiazki-boczne",
+      "name": "Książki",
+      "brand": "Nazwa marki",
+      "category": "salon",
+      "price": "0,00 zł",
+      "why": "Dwa tomy, które trzymają wysokość blatu.",
+      "specs": [
+        {
+          "k": "Parametr",
+          "v": "wartość"
+        }
+      ],
+      "url": "#",
+      "ctaLabel": "Zobacz u sprzedawcy",
+      "images": [],
+      "hotspot": {
+        "x": 66,
+        "y": 58
+      }
+    },
+    {
+      "id": "salon-stolik-boczny",
+      "name": "Stolik boczny",
+      "brand": "Nazwa marki",
+      "category": "salon",
+      "price": "0,00 zł",
+      "why": "Czarny dąb, jedna szuflada, wąski blat.",
+      "specs": [
+        {
+          "k": "Parametr",
+          "v": "wartość"
+        }
+      ],
+      "url": "#",
+      "ctaLabel": "Zobacz u sprzedawcy",
+      "images": [],
+      "hotspot": {
+        "x": 57,
+        "y": 75
+      }
+    }
+  ]
+}

@@ -1,0 +1,116 @@
+{
+  "id": "salon-stolik-kawowy",
+  "label": "Stolik kawowy",
+  "title": "Stolik kawowy.",
+  "subtitle": "Wszystko, co stoi na tym stoliku — dotknij numeru, żeby zobaczyć szczegóły.",
+  "image": "ZDJECIA/kolekcje/salon-stolik-kawowy.jpg",
+  "imageAlt": "Ciemny drewniany stolik kawowy z książkami, mosiężną misą i szklanym wazonem.",
+  "gallery": [],
+  "products": [
+    {
+      "id": "salon-stolik",
+      "name": "Stolik kawowy",
+      "brand": "Nazwa marki",
+      "category": "salon",
+      "price": "0,00 zł",
+      "why": "Masywny blat z ciemnego dębu, półka na książki pod spodem.",
+      "specs": [
+        {
+          "k": "Parametr",
+          "v": "wartość"
+        }
+      ],
+      "url": "#",
+      "ctaLabel": "Zobacz u sprzedawcy",
+      "images": [],
+      "hotspot": {
+        "x": 20,
+        "y": 60
+      }
+    },
+    {
+      "id": "salon-misa",
+      "name": "Misa dekoracyjna",
+      "brand": "Nazwa marki",
+      "category": "salon",
+      "price": "0,00 zł",
+      "why": "Mosiądz z patyną — im dłużej stoi, tym lepiej wygląda.",
+      "specs": [
+        {
+          "k": "Parametr",
+          "v": "wartość"
+        }
+      ],
+      "url": "#",
+      "ctaLabel": "Zobacz u sprzedawcy",
+      "images": [],
+      "hotspot": {
+        "x": 65,
+        "y": 42
+      }
+    },
+    {
+      "id": "salon-wazon",
+      "name": "Wazon szklany",
+      "brand": "Nazwa marki",
+      "category": "salon",
+      "price": "0,00 zł",
+      "why": "Grube szkło, wąska szyjka — trzyma gałęzie bez stelaża.",
+      "specs": [
+        {
+          "k": "Parametr",
+          "v": "wartość"
+        }
+      ],
+      "url": "#",
+      "ctaLabel": "Zobacz u sprzedawcy",
+      "images": [],
+      "hotspot": {
+        "x": 66,
+        "y": 24
+      }
+    },
+    {
+      "id": "salon-ksiazki-gorne",
+      "name": "Album na blat",
+      "brand": "Nazwa marki",
+      "category": "salon",
+      "price": "0,00 zł",
+      "why": "Dwie duże pozycje, które robią za podstawkę i za lekturę.",
+      "specs": [
+        {
+          "k": "Parametr",
+          "v": "wartość"
+        }
+      ],
+      "url": "#",
+      "ctaLabel": "Zobacz u sprzedawcy",
+      "images": [],
+      "hotspot": {
+        "x": 49,
+        "y": 29
+      }
+    },
+    {
+      "id": "salon-ksiazki-polka",
+      "name": "Zestaw książek",
+      "brand": "Nazwa marki",
+      "category": "salon",
+      "price": "0,00 zł",
+      "why": "Na dolnej półce, w zasięgu ręki z kanapy.",
+      "specs": [
+        {
+          "k": "Parametr",
+          "v": "wartość"
+        }
+      ],
+      "url": "#",
+      "ctaLabel": "Zobacz u sprzedawcy",
+      "images": [],
+      "hotspot": {
+        "x": 37,
+        "y": 71
+      }
+    }
+  ]
+}
