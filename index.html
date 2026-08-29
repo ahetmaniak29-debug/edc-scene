@@ -5,11 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Sklep</title>
   <meta name="description" content="Strona główna sklepu.">
-  <meta name="theme-color" content="#f7f4ee">
+  <meta name="theme-color" content="#1b1917">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="assets/css/style.css?v=13">
-  <link rel="stylesheet" href="assets/css/home.css?v=17">
-  <link rel="stylesheet" href="assets/css/produkt.css?v=13">
+  <link rel="stylesheet" href="assets/css/style.css?v=18">
+  <link rel="stylesheet" href="assets/css/home.css?v=18">
+  <link rel="stylesheet" href="assets/css/produkt.css?v=18">
 </head>
 <body class="home">
   <a class="skip-link" href="#tresc">Przejdź do treści</a>
@@ -23,23 +23,7 @@
         <ul data-nav></ul>
       </nav>
 
-      <form class="hdr__search" role="search" onsubmit="return false">
-        <input type="search" data-search aria-label="Szukaj">
-        <button type="submit" aria-label="Szukaj">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
-        </button>
-      </form>
-
       <div class="hdr__actions">
-        <a class="hdr__act" href="#">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg>
-          <span>Konto</span>
-        </a>
-        <a class="hdr__act" href="#">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-8-4.9-8-10a4.6 4.6 0 018-3 4.6 4.6 0 018 3c0 5.1-8 10-8 10z"/></svg>
-          <span>Ulubione</span>
-          <em class="hdr__count">0</em>
-        </a>
         <button class="hdr__act" type="button" data-cart-open>
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8h12l-1 12H7L6 8z"/><path d="M9 8V6a3 3 0 016 0v2"/></svg>
           <span>Koszyk</span>
@@ -55,35 +39,34 @@
   <main id="tresc">
     <div class="shell">
 
-      <!-- ================= HERO / KARUZELA ================= -->
-      <section class="hero" aria-label="Wyróżnione" aria-roledescription="carousel">
-        <div class="hero__track" data-hero-track></div>
+      <!-- ================= ŚCIANA (pierwszy ekran) =================
+           Hero, kategorie i kafelki leżą w jednej siatce — sekcje są
+           dla układu przezroczyste, kaflami są ich elementy. -->
+      <div class="sciana">
 
-        <button class="hero__arrow hero__arrow--prev" type="button" data-hero-prev aria-label="Poprzedni slajd">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
-        </button>
-        <button class="hero__arrow hero__arrow--next" type="button" data-hero-next aria-label="Następny slajd">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
-        </button>
+        <section class="hero" aria-label="Wyróżnione" aria-roledescription="carousel">
+          <div class="hero__track" data-hero-track></div>
 
-        <div class="hero__dots" data-hero-dots role="tablist" aria-label="Wybór slajdu"></div>
-      </section>
+          <button class="hero__arrow hero__arrow--prev" type="button" data-hero-prev aria-label="Poprzedni slajd">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+          </button>
+          <button class="hero__arrow hero__arrow--next" type="button" data-hero-next aria-label="Następny slajd">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+          </button>
 
-      <!-- ================= PASEK ZAUFANIA ================= -->
-      <section class="trust" aria-label="Nasze zasady">
-        <ul class="trust__list" data-trust></ul>
-      </section>
+          <div class="hero__dots" data-hero-dots role="tablist" aria-label="Wybór slajdu"></div>
+        </section>
 
-      <!-- ================= KATEGORIE ================= -->
-      <section class="cats" aria-labelledby="cats-h">
-        <h2 class="sr-only" id="cats-h">Kategorie</h2>
-        <ul class="cats__list" data-cats></ul>
-      </section>
+        <section class="cats" aria-labelledby="cats-h">
+          <h2 class="sr-only" id="cats-h">Kategorie</h2>
+          <ul class="cats__list" data-cats></ul>
+        </section>
 
-      <!-- ================= KAFELKI PROMOCYJNE ================= -->
-      <section class="tiles" aria-label="Wyróżnione sekcje">
-        <div class="tiles__grid" data-tiles></div>
-      </section>
+        <section class="tiles" aria-label="Wyróżnione sekcje">
+          <div class="tiles__grid" data-tiles></div>
+        </section>
+
+      </div>
 
       <!-- ================= KOLEKCJE ================= -->
       <section class="block" aria-labelledby="coll-h">
@@ -106,7 +89,13 @@
       <!-- ================= O NAS ================= -->
       <section class="about" data-about></section>
 
-      <!-- ================= WARTOŚCI ================= -->
+      <!-- ================= ZASADY I WARTOŚCI =================
+           Drobny druk schodzi na dół — nad zdjęciami nie ma miejsca
+           na paski z ikonkami. -->
+      <section class="trust" aria-label="Nasze zasady">
+        <ul class="trust__list" data-trust></ul>
+      </section>
+
       <section class="vals" aria-label="Dlaczego my">
         <ul class="vals__list" data-values></ul>
       </section>
@@ -131,6 +120,6 @@
     <ul data-mnav-list></ul>
   </nav>
 
-  <script src="assets/js/home.js?v=16" type="module"></script>
+  <script src="assets/js/home.js?v=18" type="module"></script>
 </body>
 </html>

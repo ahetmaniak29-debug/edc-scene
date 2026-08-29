@@ -147,16 +147,15 @@
   display: flex; align-items: center; justify-content: center; gap: 10px;
   width: 100%; min-height: 54px;
   border: 0; border-radius: 14px;
-  background: var(--accent-bright); color: #fff;
+  background: var(--sand); color: var(--sand-ink);
   font: inherit; font-size: 15.5px; font-weight: 700;
   cursor: pointer;
-  box-shadow: 0 6px 22px rgba(242, 101, 34, 0.32);
   transition: filter 0.16s var(--ease), transform 0.1s var(--ease), background 0.2s var(--ease);
 }
 .bt__dokoszyka svg { width: 18px; height: 18px; }
 .bt__dokoszyka:hover { filter: brightness(1.08); }
 .bt__dokoszyka:active { transform: translateY(1px); }
-.bt__dokoszyka.is-dodane { background: #3f9a5c; box-shadow: 0 6px 22px rgba(63, 154, 92, 0.3); }
+.bt__dokoszyka.is-dodane { background: var(--accent-bright); color: var(--accent-ink); }
 .bt__kup-nota { font-size: 11.5px; color: rgba(253, 251, 248, 0.5); text-align: center; }
 
 /* ---------- nawigacja ---------- */
@@ -324,7 +323,7 @@
   margin-bottom: 14px; font-size: 14px; color: var(--ink-mid);
 }
 .ksz__suma strong { font-size: 21px; color: var(--ink); font-variant-numeric: tabular-nums; }
-.ksz__foot .btn { background: var(--accent); }
+.ksz__foot .btn { background: var(--sand); }
 .ksz__foot .btn[disabled] {
   background: var(--line); color: var(--ink-dim);
   box-shadow: none; cursor: not-allowed;

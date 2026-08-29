@@ -55,6 +55,7 @@ Pliki, które czasem trzeba ruszyć ręcznie:
 | `data/home.json` | **kopia awaryjna** strony głównej — używana tylko, gdy baza nie odpowie |
 | `data/scenes/*.json` | kopia awaryjna scen |
 | `assets/css/style.css` | kolory i czcionki (na samej górze pliku) |
+| `assets/css/home.css` | układ strony głównej — ściana z kafli (`.sciana`) |
 | `ZDJECIA/` | zdjęcia wrzucane ręcznie; te z panelu idą do Supabase Storage |
 
 ---
@@ -89,8 +90,9 @@ całej treści, liczniki kliknięć w bazie.
 
 - **Płatności** — przycisk „Przejdź do płatności" jest celowo nieaktywny.
   Gdy podłączysz bramkę, punkt wyjścia to `assets/js/koszyk.js`.
-- **Wyszukiwarka** — pole w nagłówku niczego nie szuka.
-- **Konto i ulubione** — ikonki w nagłówku nic nie robią.
+- **Wyszukiwarka** — zdjęta z nagłówka, bo niczego nie szukała. Style zostały
+  (`.hdr__search` w `home.css`), więc wraca odsłonięciem, gdy będzie działać.
+- **Konto i ulubione** — też zdjęte z nagłówka z tego samego powodu.
 - **Katalog / lista wszystkich produktów** — nie ma takiej strony.
 - **Filtry i sortowanie** — przy kilkudziesięciu produktach zaczną być potrzebne.
 
@@ -104,6 +106,10 @@ W tabeli `events` zostały wiersze testowe. Do usunięcia w SQL Editorze:
 delete from public.events
  where scene in ('test-polaczenia', 'test-sprawdzenie');
 ```
+
+Witryna chodzi na motywie galeryjnym: ciemny grafit, piaskowe płyty, duże
+zdjęcia. Panel administratora celowo został jasny — ma przypiętą własną paletę
+na górze `assets/css/admin.css`.
 
 Treści na stronie to nadal **puste miejsca** („Nazwa produktu 1", „Główne hasło.",
 „0,00 zł"). Wypełniasz je w panelu.

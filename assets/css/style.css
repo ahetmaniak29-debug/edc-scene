@@ -1,31 +1,41 @@
 /* =========================================================
-   Scena — motyw jasny, naturalny
-   Papierowe tło, jeden akcent, miękkie cienie jak w katalogu.
-   Chcesz zmienić kolor marki? Podmień --accent i --accent-bright.
+   Scena — motyw galeryjny, ciemny
+   Grafit zamiast papieru, piaskowe płyty, zdjęcia niosą stronę.
    ========================================================= */
 :root {
-  --paper:      #f7f4ee;   /* tło strony — ciepła biel, nie sterylna */
-  --paper-warm: #efeae1;   /* delikatne przełamanie */
-  --surface:    #ffffff;   /* karty, panel */
-  --line:       #e2dbd0;
-  --line-soft:  #ece6dc;
+  /* Motyw galeryjny: ciepły grafit, piaskowe płyty, jeden chłodny akcent.
+     Chcesz zmienić kolor marki? Podmień --accent i --accent-bright. */
+  --paper:      #1b1917;   /* tło strony — ciepły grafit, nie czarny */
+  --paper-warm: #232019;   /* puste miejsce, ramki zastępcze */
+  --surface:    #292520;   /* kafle i karty */
+  --line:       #3b352e;
+  --line-soft:  #302b25;
 
-  --ink:      #1a1815;
-  --ink-mid:  #5f5951;
-  --ink-dim:  #938c81;
+  /* Płyta piaskowa — kafle z samym tekstem, jak w referencji */
+  --sand:      #a08b72;
+  --sand-deep: #8a7660;
+  --sand-ink:  #1b1712;
 
-  --accent:        #c2451a;   /* przyciski i tekst — kontrast AA na bieli */
-  --accent-bright: #f26522;   /* punkty, akcenty dekoracyjne */
-  --accent-soft:   #fdf1e9;   /* tło podbite akcentem */
-  --accent-ink:    #ffffff;
+  --ink:      #f3eee6;
+  --ink-mid:  #b3a795;
+  --ink-dim:  #877c6d;
 
-  --shadow-sm: 0 1px 2px rgba(60, 48, 30, 0.06), 0 2px 6px rgba(60, 48, 30, 0.05);
-  --shadow-md: 0 2px 6px rgba(60, 48, 30, 0.06), 0 10px 28px rgba(60, 48, 30, 0.09);
-  --shadow-lg: 0 -2px 10px rgba(60, 48, 30, 0.05), 0 -20px 60px rgba(60, 48, 30, 0.16);
+  --accent:        #5f9e88;   /* patyna — chłodny akcent na ciepłym tle */
+  --accent-bright: #7cbda6;
+  --accent-soft:   #23332e;
+  --accent-ink:    #0d1714;
+
+  /* Na ciemnym tle cienie nie pracują — zostają ledwie wyczuwalne głębie */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 10px 34px rgba(0, 0, 0, 0.42);
+  --shadow-lg: 0 -20px 70px rgba(0, 0, 0, 0.55);
 
   --r-sm: 10px;
   --r-md: 16px;
-  --r-lg: 26px;
+  --r-lg: 22px;
+
+  --hdr-h: 68px;
+  --gap: 12px;
 
   --safe-b: env(safe-area-inset-bottom, 0px);
   --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
@@ -42,7 +52,7 @@ body {
   margin: 0;
   background: var(--paper);
   background-image:
-    radial-gradient(120% 70% at 50% -10%, #fffdf9 0%, rgba(255, 253, 249, 0) 62%);
+    radial-gradient(120% 80% at 50% -10%, #221f1b 0%, rgba(34, 31, 27, 0) 60%);
   color: var(--ink);
   font-family: var(--font);
   font-size: 16px;
@@ -513,16 +523,15 @@ svg { width: 1em; height: 1em; fill: none; stroke: currentColor; stroke-width: 2
   display: flex; align-items: center; justify-content: center; gap: 9px;
   width: 100%;
   min-height: 54px;
-  background: var(--accent-bright);
-  color: #fff;
+  background: var(--sand);
+  color: var(--sand-ink);
   border-radius: var(--r-md);
   font-weight: 700; font-size: 15.5px;
   text-decoration: none;
-  transition: filter 0.18s var(--ease), transform 0.1s var(--ease), box-shadow 0.2s var(--ease);
-  box-shadow: 0 6px 22px rgba(242, 101, 34, 0.36);
+  transition: filter 0.18s var(--ease), transform 0.1s var(--ease);
 }
 .btn svg { width: 17px; height: 17px; }
-.btn:hover { filter: brightness(1.08); box-shadow: 0 8px 28px rgba(242, 101, 34, 0.46); }
+.btn:hover { filter: brightness(1.08); }
 .btn:active { transform: translateY(1px); }
 
 .lb__note {

@@ -4,6 +4,33 @@
    niż strona publiczna — to narzędzie, nie witryna.
    ========================================================= */
 
+/* Panel zostaje jasny, mimo że witryna przeszła na motyw galeryjny.
+   To narzędzie do pracy z treścią — na jasnym tle łatwiej ocenić zdjęcia,
+   a przy okazji nie trzeba przerabiać całego panelu razem ze sklepem. */
+.adm, .adm .lb, .adm .scrim {
+  --paper:      #f7f4ee;
+  --paper-warm: #efeae1;
+  --surface:    #ffffff;
+  --line:       #e2dbd0;
+  --line-soft:  #ece6dc;
+
+  --ink:      #1a1815;
+  --ink-mid:  #5f5951;
+  --ink-dim:  #938c81;
+
+  --sand:      #8a7660;
+  --sand-deep: #6f5e4c;
+  --sand-ink:  #ffffff;
+
+  --accent:        #2f6f5d;
+  --accent-bright: #3d8a74;
+  --accent-soft:   #eaf3f0;
+  --accent-ink:    #ffffff;
+
+  --shadow-sm: 0 1px 2px rgba(60, 48, 30, 0.06), 0 2px 6px rgba(60, 48, 30, 0.05);
+  --shadow-md: 0 2px 6px rgba(60, 48, 30, 0.06), 0 10px 28px rgba(60, 48, 30, 0.09);
+}
+
 .adm { background: var(--paper); min-height: 100vh; }
 
 .sr-only {
@@ -28,6 +55,15 @@
 }
 .log__title { font-family: var(--font-display); font-size: 26px; font-weight: 400; }
 .log__sub { margin-top: 8px; color: var(--ink-mid); font-size: 14px; }
+/* .btn-solid mieszka w home.css, którego panel nie wczytuje — dlatego
+   przycisk logowania dostaje własny styl, zamiast być gołym <button>. */
+.adm .btn-solid {
+  display: inline-flex; align-items: center; gap: 9px;
+  padding: 12px 20px; border: 0; border-radius: var(--r-sm);
+  background: var(--ink); color: var(--paper);
+  font: inherit; font-size: 14.5px; font-weight: 600; cursor: pointer;
+}
+.adm .btn-solid:hover { filter: brightness(1.5); }
 .log__btn { width: 100%; justify-content: center; margin-top: 6px; }
 .log__err {
   margin-top: 14px; padding: 11px 13px;
