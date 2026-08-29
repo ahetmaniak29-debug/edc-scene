@@ -87,7 +87,9 @@ svg { width: 1em; height: 1em; fill: none; stroke: currentColor; stroke-width: 2
 .stage { margin: 0 0 34px; }
 
 /* Ramka oblepia zdjęcie co do piksela (fit-content, bez object-fit),
-   dzięki czemu punkty podane w % zawsze trafiają w ten sam przedmiot. */
+   dzięki czemu punkty podane w % zawsze trafiają w ten sam przedmiot.
+   Nie rozciągaj jej na 100%: niżej w pliku zdjęcie ma limit 88vh wysokości,
+   więc ramka zrobiłaby się szersza od zdjęcia, a punkty przestałyby trafiać. */
 .stage__frame {
   position: relative;
   width: fit-content;
