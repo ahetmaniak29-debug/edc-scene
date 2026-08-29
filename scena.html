@@ -7,9 +7,9 @@
   <meta name="description" content="Wyselekcjonowany sprzęt na jednym zdjęciu. Dotknij przedmiotu, żeby zobaczyć szczegóły.">
   <meta name="theme-color" content="#1b1917">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="assets/css/style.css?v=37">
-  <link rel="stylesheet" href="assets/css/home.css?v=37">
-  <link rel="stylesheet" href="assets/css/produkt.css?v=37">
+  <link rel="stylesheet" href="assets/css/style.css?v=38">
+  <link rel="stylesheet" href="assets/css/home.css?v=38">
+  <link rel="stylesheet" href="assets/css/produkt.css?v=38">
 </head>
 <body class="home">
   <a class="skip-link" href="#tresc">Przejdź do treści</a>
@@ -67,6 +67,11 @@
       <section class="stage" aria-label="Scena z przedmiotami">
         <div class="stage__frame" data-stage>
           <img class="stage__img" data-scene-img alt="" decoding="async">
+
+          <!-- Poprzednie zdjęcie zostaje na wierzchu i gaśnie, kiedy nowe
+               jest już pod spodem — stąd przenikanie zamiast cięcia. -->
+          <img class="stage__poprzednie" data-stage-poprzednie alt="" aria-hidden="true">
+
           <div class="stage__hotspots" data-hotspots></div>
           <div class="stage__kadry" data-kadry hidden></div>
 
@@ -206,6 +211,6 @@
     <ul data-mnav-list></ul>
   </nav>
 
-  <script src="assets/js/app.js?v=37" type="module"></script>
+  <script src="assets/js/app.js?v=38" type="module"></script>
 </body>
 </html>

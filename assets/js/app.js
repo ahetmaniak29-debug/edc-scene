@@ -1,7 +1,7 @@
-import { track, getScene, getAll, reset, fetchSummary } from './counter.js?v=37';
-import { icon, media, loadSite, renderChrome } from './chrome.js?v=37';
-import { initDb, dbGotowa, select } from './db.js?v=37';
-import { zBazy, formatujCene } from './mapowanie.js?v=37';
+import { track, getScene, getAll, reset, fetchSummary } from './counter.js?v=38';
+import { icon, media, loadSite, renderChrome } from './chrome.js?v=38';
+import { initDb, dbGotowa, select } from './db.js?v=38';
+import { zBazy, formatujCene } from './mapowanie.js?v=38';
 
 const $  = (sel, root = document) => root.querySelector(sel);
 const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
@@ -388,11 +388,31 @@ function zdekoduj(img, limit = 600) {
   ]);
 }
 
-/** Podmiana zdjęcia sceny. Czekamy na dekodowanie, żeby nie mrugnęło pustą ramką. */
+/**
+ * Podmiana zdjęcia sceny z przenikaniem.
+ *
+ * Sztuczka jest prosta: to, co było, zostaje na wierzchu jako osobna
+ * warstwa, nowe zdjęcie ląduje pod spodem, a dopiero potem stare gaśnie.
+ * Dzięki temu w żadnym momencie nie widać pustej ramki — i nie trzeba
+ * niczego animować poza przezroczystością.
+ */
 async function podmienZdjecieSceny(src) {
   const img = $('[data-scene-img]');
+  const stare = $('[data-stage-poprzednie]');
+  const bylo = img.currentSrc || img.getAttribute('src');
+
+  if (bylo && stare) {
+    stare.src = bylo;
+    stare.classList.add('is-widoczne');
+  }
+
   img.src = src;
   await zdekoduj(img);
+
+  if (!stare) return;
+  // Gaśnięcie leci już bez czekania — punkty i lista mają się pojawić od razu.
+  requestAnimationFrame(() => stare.classList.remove('is-widoczne'));
+  setTimeout(() => { if (!stare.classList.contains('is-widoczne')) stare.removeAttribute('src'); }, 600);
 }
 
 /* ---------- adres i przycisk „wstecz" ---------- */
