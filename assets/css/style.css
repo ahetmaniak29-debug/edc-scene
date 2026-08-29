@@ -213,6 +213,11 @@ svg { width: 1em; height: 1em; fill: none; stroke: currentColor; stroke-width: 2
   position: relative;
   display: block;
   will-change: transform;
+  /* Kluczowe: przekształcenie liczone jest od lewego górnego rogu.
+     Przy domyślnym środku (50% 50%) kadr najeżdża zawsze mniej więcej
+     w to samo miejsce zamiast w kliknięty fragment — wzór na najazd
+     zakłada punkt zaczepienia w rogu. */
+  transform-origin: 0 0;
 }
 
 /* Zbliżenie leży nad wnętrzem tylko na czas animacji. Kadruje z

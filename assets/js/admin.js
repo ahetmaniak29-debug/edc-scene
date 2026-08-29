@@ -10,8 +10,8 @@ import {
   initDb, dbGotowa, konfiguracja,
   zaloguj, wyloguj, zalogowany, ktoZalogowany,
   select, upsert, usun, wgrajZdjecie
-} from './db.js?v=31';
-import { formatujCene, naGrosze } from './mapowanie.js?v=31';
+} from './db.js?v=32';
+import { formatujCene, naGrosze } from './mapowanie.js?v=32';
 
 const $  = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
