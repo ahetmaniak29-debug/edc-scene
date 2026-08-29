@@ -7,8 +7,8 @@
   <title>Panel — produkty</title>
   <meta name="theme-color" content="#f7f4ee">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="assets/css/style.css?v=32">
-  <link rel="stylesheet" href="assets/css/admin.css?v=32">
+  <link rel="stylesheet" href="assets/css/style.css?v=34">
+  <link rel="stylesheet" href="assets/css/admin.css?v=34">
 </head>
 <body class="adm">
 
@@ -49,6 +49,7 @@
         <nav class="adm__zakladki">
           <button class="zak is-aktywna" type="button" data-zakladka="sceny">Sceny i produkty</button>
           <button class="zak" type="button" data-zakladka="strona">Strona główna</button>
+          <button class="zak" type="button" data-zakladka="zdjecia">Zdjęcia</button>
         </nav>
 
         <div class="adm__scene" data-widok-sceny-wybor>
@@ -446,6 +447,50 @@
     </main>
   </div>
 
-  <script src="assets/js/admin.js?v=32" type="module"></script>
+    <!-- ================= BIBLIOTEKA ZDJĘĆ ================= -->
+    <main class="adm__main adm__main--zdjecia" data-widok-zdjecia hidden>
+      <section class="adm__col">
+        <div class="pane">
+          <div class="pane__head">
+            <h2>Zdjęcia</h2>
+            <span class="pane__hint">
+              Wszystko, co wgrałeś — także zdjęcia wstawione przy scenach i blokach strony.
+            </span>
+          </div>
+
+          <div class="pane__body">
+            <div class="bib__pasek">
+              <label class="upload">
+                <input type="file" accept="image/*" multiple hidden data-bib-plik>
+                <span class="btn-solid">Wgraj zdjęcia</span>
+              </label>
+
+              <label class="fld fld--waski">
+                <span class="fld__label">Folder</span>
+                <select data-bib-folder>
+                  <option value="sceny">sceny</option>
+                  <option value="produkty">produkty</option>
+                  <option value="kolekcje">kolekcje</option>
+                  <option value="banery">banery</option>
+                  <option value="inne">inne</option>
+                </select>
+              </label>
+
+              <span class="upload__stan" data-bib-stan></span>
+            </div>
+
+            <p class="fld__hint">
+              Kliknij zdjęcie, żeby skopiować jego adres — wklejisz go wszędzie,
+              gdzie pole prosi o adres obrazka.
+            </p>
+
+            <div class="bib" data-bib-siatka></div>
+            <p class="bib__pusto" data-bib-pusto hidden>W tym folderze nie ma jeszcze zdjęć.</p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+  <script src="assets/js/admin.js?v=34" type="module"></script>
 </body>
 </html>

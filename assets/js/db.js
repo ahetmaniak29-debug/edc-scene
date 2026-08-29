@@ -243,3 +243,77 @@ export async function wgrajZdjecie(plik, folder = 'inne') {
 
   return adresZdjecia(sciezka);
 }
+
+/* ---------- biblioteka zdjęć ---------- */
+
+/**
+ * Zawartość kubełka. Storage nie ma prawdziwych folderów — to tylko
+ * przedrostki w nazwie pliku — więc listę bierzemy per przedrostek.
+ * Wpisy bez `id` to właśnie przedrostki, nie pliki.
+ */
+export async function listaZdjec(folder = '', { limit = 200 } = {}) {
+  const t = await token();
+  if (!t) throw new Error('Najpierw się zaloguj.');
+
+  const res = await siec(`${cfg.url}/storage/v1/object/list/${KUBELEK}`, {
+    method: 'POST',
+    headers: {
+      apikey: cfg.key,
+      Authorization: `Bearer ${t}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      prefix: folder ? `${folder}/` : '',
+      limit,
+      offset: 0,
+      sortBy: { column: 'created_at', order: 'desc' }
+    })
+  });
+
+  const lista = await wynik(res) || [];
+  return lista
+    .filter(w => w.id)                       // pomijamy same przedrostki
+    .map(w => ({
+      nazwa: w.name,
+      sciezka: folder ? `${folder}/${w.name}` : w.name,
+      adres: adresZdjecia(folder ? `${folder}/${w.name}` : w.name),
+      rozmiar: w.metadata?.size ?? null,
+      kiedy: w.created_at || w.updated_at || null
+    }));
+}
+
+/** Foldery (przedrostki) w kubełku. */
+export async function folderyZdjec() {
+  const t = await token();
+  if (!t) throw new Error('Najpierw się zaloguj.');
+
+  const res = await siec(`${cfg.url}/storage/v1/object/list/${KUBELEK}`, {
+    method: 'POST',
+    headers: {
+      apikey: cfg.key,
+      Authorization: `Bearer ${t}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ prefix: '', limit: 100, offset: 0 })
+  });
+
+  const lista = await wynik(res) || [];
+  return lista.filter(w => !w.id).map(w => w.name);
+}
+
+/** Kasowanie pliku z kubełka. Ścieżka, nie adres. */
+export async function skasujZdjecie(sciezka) {
+  const t = await token();
+  if (!t) throw new Error('Najpierw się zaloguj.');
+
+  const res = await siec(`${cfg.url}/storage/v1/object/${KUBELEK}/${sciezka}`, {
+    method: 'DELETE',
+    headers: { apikey: cfg.key, Authorization: `Bearer ${t}` }
+  });
+
+  if (!res.ok) {
+    const tekst = await res.text();
+    throw new Error(`Nie udało się skasować: ${tekst.slice(0, 160)}`);
+  }
+  return true;
+}

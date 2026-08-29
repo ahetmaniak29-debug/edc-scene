@@ -9,9 +9,10 @@
 import {
   initDb, dbGotowa, konfiguracja,
   zaloguj, wyloguj, zalogowany, ktoZalogowany,
-  select, upsert, usun, wgrajZdjecie
-} from './db.js?v=32';
-import { formatujCene, naGrosze } from './mapowanie.js?v=32';
+  select, upsert, usun, wgrajZdjecie,
+  listaZdjec, skasujZdjecie as skasujZeStorage
+} from './db.js?v=34';
+import { formatujCene, naGrosze } from './mapowanie.js?v=34';
 
 const $  = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
@@ -27,6 +28,7 @@ const stan = {
   wybrany: null,        // id edytowanego produktu, '' = nowy
   zdjeciaProduktu: [],  // wiersze product_images dla wybranego produktu
   zaznaczanie: false,   // trwa obrysowywanie fragmentu na zdjęciu wnętrza
+  biblioteka: [],       // pliki pokazane w zakładce ze zdjęciami
   brudne: false
 };
 
@@ -940,8 +942,10 @@ function przelacz(widok) {
   $$('[data-zakladka]').forEach(b => b.classList.toggle('is-aktywna', b.dataset.zakladka === widok));
   $('[data-widok="sceny"]').hidden = widok !== 'sceny';
   $('[data-widok-strona]').hidden = widok !== 'strona';
+  $('[data-widok-zdjecia]').hidden = widok !== 'zdjecia';
   $('[data-widok-sceny-wybor]').hidden = widok !== 'sceny';
   if (widok === 'strona') wczytajStrone();
+  if (widok === 'zdjecia') wczytajBiblioteke();
 }
 
 async function wczytajStrone() {
@@ -1416,6 +1420,121 @@ $('[data-s-save]').addEventListener('click', async () => {
 });
 
 /* ------------------------------------------------------------------ */
+
+/* ------------------------------------------------------------------ *
+ * Biblioteka zdjęć
+ *
+ * Wszystkie wgrane pliki w jednym miejscu: wrzucasz wiele naraz,
+ * widzisz co już jest, kopiujesz adres albo kasujesz.
+ *
+ * Storage nie ma prawdziwych folderów — folder to tylko przedrostek
+ * w nazwie pliku. Dlatego zawsze oglądamy jeden przedrostek naraz,
+ * a nie „wszystko", którego API i tak by nie zwróciło jednym strzałem.
+ * ------------------------------------------------------------------ */
+
+async function wczytajBiblioteke() {
+  const siatka = $('[data-bib-siatka]');
+  const folder = $('[data-bib-folder]').value;
+
+  siatka.innerHTML = '<p class="bib__pusto">Wczytywanie…</p>';
+
+  let pliki = [];
+  try {
+    pliki = await listaZdjec(folder);
+  } catch (err) {
+    siatka.innerHTML = '';
+    return toast(`Nie udało się wczytać zdjęć: ${err.message}`, true);
+  }
+
+  stan.biblioteka = pliki;
+  $('[data-bib-pusto]').hidden = pliki.length > 0;
+
+  siatka.innerHTML = pliki.map(p => `
+    <figure class="bib__kafel" data-sciezka="${escapeHTML(p.sciezka)}">
+      <button class="bib__foto" type="button" title="Kopiuj adres">
+        <img src="${escapeHTML(p.adres)}" alt="" loading="lazy">
+      </button>
+      <figcaption class="bib__opis">
+        <span class="bib__nazwa" title="${escapeHTML(p.nazwa)}">${escapeHTML(p.nazwa)}</span>
+        <span class="bib__waga">${p.rozmiar ? Math.round(p.rozmiar / 1024) + ' kB' : ''}</span>
+      </figcaption>
+      <button class="bib__kasuj mini mini--danger" type="button" title="Usuń z serwera">Usuń</button>
+    </figure>`).join('');
+}
+
+/** Kopiowanie adresu — z zapasowym sposobem, gdy schowek jest zablokowany. */
+async function skopiuj(tekst) {
+  try {
+    await navigator.clipboard.writeText(tekst);
+    return true;
+  } catch {
+    const pole = document.createElement('textarea');
+    pole.value = tekst;
+    pole.style.position = 'fixed';
+    pole.style.opacity = '0';
+    document.body.appendChild(pole);
+    pole.select();
+    const ok = document.execCommand?.('copy');
+    pole.remove();
+    return Boolean(ok);
+  }
+}
+
+$('[data-bib-siatka]')?.addEventListener('click', async e => {
+  const kafel = e.target.closest('.bib__kafel');
+  if (!kafel) return;
+
+  const sciezka = kafel.dataset.sciezka;
+  const plik = stan.biblioteka.find(p => p.sciezka === sciezka);
+  if (!plik) return;
+
+  if (e.target.closest('.bib__kasuj')) {
+    // Zdjęcie może gdzieś wisieć na stronie — kasowanie zostawia po nim
+    // puste miejsce, więc pytamy wprost.
+    if (!confirm(`Usunąć „${plik.nazwa}" z serwera?\n\nJeśli jest gdzieś użyte, zostanie po nim puste miejsce.`)) return;
+    try {
+      await skasujZeStorage(sciezka);
+      toast('Zdjęcie usunięte.');
+      wczytajBiblioteke();
+    } catch (err) {
+      toast(err.message, true);
+    }
+    return;
+  }
+
+  if (e.target.closest('.bib__foto')) {
+    const ok = await skopiuj(plik.adres);
+    toast(ok ? 'Adres skopiowany.' : plik.adres, !ok);
+  }
+});
+
+$('[data-bib-folder]')?.addEventListener('change', wczytajBiblioteke);
+
+$('[data-bib-plik]')?.addEventListener('change', async e => {
+  const pliki = [...(e.target.files || [])];
+  if (!pliki.length) return;
+
+  const folder = $('[data-bib-folder]').value;
+  const stanEl = $('[data-bib-stan]');
+  let udane = 0;
+
+  for (const [i, plik] of pliki.entries()) {
+    stanEl.textContent = `Wgrywanie ${i + 1} z ${pliki.length}…`;
+    try {
+      await wgrajZdjecie(plik, folder);
+      udane++;
+    } catch (err) {
+      toast(`${plik.name}: ${err.message}`, true);
+    }
+  }
+
+  stanEl.textContent = '';
+  e.target.value = '';
+  toast(udane === pliki.length
+    ? `Wgrane: ${udane}.`
+    : `Wgrane: ${udane} z ${pliki.length}.`, udane !== pliki.length);
+  wczytajBiblioteke();
+});
 
 /** "" → null, "12,5" → 12.5. Puste pole nie może pójść do kolumny liczbowej. */
 function liczbaAlbo(tekst) {

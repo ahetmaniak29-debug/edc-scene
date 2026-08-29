@@ -40,6 +40,11 @@ w ciągu 1–2 minut, bez żadnego budowania.
 
 **Prawie wszystko w panelu**, po zalogowaniu:
 
+- **Zdjęcia** (osobna zakładka) — wrzucasz wiele plików naraz, widzisz
+  wszystko, co już jest w Storage, klikasz miniaturę żeby skopiować adres,
+  kasujesz niepotrzebne. Zdjęcia można też wgrywać na miejscu: przy scenie
+  i przy każdym bloku strony głównej.
+
 - **Sceny i produkty** — zdjęcie sceny, punkty (ustawiasz klikając w zdjęcie),
   produkty, ich zdjęcia, ceny, parametry
 - **Strona główna** — nazwa sklepu, menu, karuzela na górze, kafelki, kolekcje,

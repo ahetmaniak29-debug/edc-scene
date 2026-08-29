@@ -1,7 +1,7 @@
-import { track, getScene, getAll, reset, fetchSummary } from './counter.js?v=32';
-import { icon, media, loadSite, renderChrome } from './chrome.js?v=32';
-import { initDb, dbGotowa, select } from './db.js?v=32';
-import { zBazy, formatujCene } from './mapowanie.js?v=32';
+import { track, getScene, getAll, reset, fetchSummary } from './counter.js?v=34';
+import { icon, media, loadSite, renderChrome } from './chrome.js?v=34';
+import { initDb, dbGotowa, select } from './db.js?v=34';
+import { zBazy, formatujCene } from './mapowanie.js?v=34';
 
 const $  = (sel, root = document) => root.querySelector(sel);
 const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
@@ -109,15 +109,18 @@ async function zBazyDanych(wanted) {
       }
     }
 
-    // Kadry kolekcji — sceny-dzieci. Tabela może jeszcze nie mieć kolumny
-    // parent_id (skrypt db/kolekcje.sql nieuruchomiony) — wtedy po prostu
-    // nie ma kolekcji i strona działa jak dotąd.
+    // Kadry kolekcji — sceny-dzieci. Zanim o nie zapytamy, sprawdzamy,
+    // czy tabela w ogóle zna kolumnę parent_id: przed uruchomieniem
+    // db/kolekcje.sql nie zna, a odrzucone zapytanie tylko zaśmieca konsolę.
+    // Wiersz sceny przychodzi z `select=*`, więc klucz jest, gdy jest kolumna.
     let kadry = [];
-    try {
-      kadry = await select('scenes',
-        `select=*&parent_id=eq.${encodeURIComponent(scena.id)}&order=position.asc`) || [];
-    } catch (err) {
-      console.warn('Kolekcje niedostępne (uruchom db/kolekcje.sql):', err.message);
+    if ('parent_id' in scena) {
+      try {
+        kadry = await select('scenes',
+          `select=*&parent_id=eq.${encodeURIComponent(scena.id)}&order=position.asc`) || [];
+      } catch (err) {
+        console.warn('Nie udało się wczytać kadrów kolekcji:', err.message);
+      }
     }
 
     return zBazy(scena, produkty || [], zdjecia || [], zdjeciaProduktow, kadry);
