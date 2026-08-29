@@ -5,9 +5,9 @@
    siedzą w style.css.
    ========================================================= */
 
-/* Bez limitu szerokości — ściana ma sięgać krawędzi ekranu, a nie
-   kończyć się w połowie monitora z pustym tłem po bokach. */
-.shell { width: 100%; margin: 0 auto; padding: 0 var(--gap); }
+/* Strona ma swoją szerokość i trochę wolnego miejsca po bokach — bez tego
+   ściana klei się do krawędzi ekranu i robi się duszno. */
+.shell { max-width: 1560px; margin: 0 auto; padding: 0 var(--gap); }
 .sr-only {
   position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
   overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
