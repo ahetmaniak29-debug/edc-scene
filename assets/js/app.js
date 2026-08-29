@@ -1,7 +1,7 @@
-import { track, getScene, getAll, reset, fetchSummary } from './counter.js?v=36';
-import { icon, media, loadSite, renderChrome } from './chrome.js?v=36';
-import { initDb, dbGotowa, select } from './db.js?v=36';
-import { zBazy, formatujCene } from './mapowanie.js?v=36';
+import { track, getScene, getAll, reset, fetchSummary } from './counter.js?v=37';
+import { icon, media, loadSite, renderChrome } from './chrome.js?v=37';
+import { initDb, dbGotowa, select } from './db.js?v=37';
+import { zBazy, formatujCene } from './mapowanie.js?v=37';
 
 const $  = (sel, root = document) => root.querySelector(sel);
 const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
@@ -243,22 +243,17 @@ function renderList(products) {
  * Kolekcja — wchodzenie w kadr
  *
  * Kolekcja to zdjęcie wnętrza z zaznaczonymi obszarami. Kliknięcie
- * obszaru nie przeładowuje strony: kadr najeżdża na wskazany mebel
- * (transform na całej zawartości ramki), a w trakcie najazdu przenika
- * w zbliżenie. Dzięki temu widać, DOKĄD się weszło — a nie tylko, że
- * pojawiło się inne zdjęcie.
+ * obszaru nie przeładowuje strony — podmienia zdjęcie na zbliżenie
+ * i wszystko, co pod nim: punkty, listę, okruszki.
+ *
+ * Bez animacji przejścia. Była tu wcześniej: kadr najeżdżał na mebel
+ * i przenikał w zbliżenie. Wyglądało źle, bo zbliżenia to osobne ujęcia,
+ * a nie wycinki zdjęcia wnętrza — najazd obiecywał ciągłość, której
+ * zdjęcia nie miały. Zwykła podmiana jest uczciwsza.
  *
  * Kadr jest zwykłą sceną z własnymi produktami i punktami, więc po
  * wejściu wszystko poniżej (punkty, lista, galeria) działa jak zawsze.
  * ------------------------------------------------------------------ */
-
-const CZAS_NAJAZDU = 900;   // ms — tyle trwa wjazd w kadr
-
-// Mały fragment (stolik z lampą to niecałe 10% szerokości zdjęcia) wymagałby
-// powiększenia rzędu dziesięciu razy i wnętrze rozłaziłoby się w piksele.
-// Próg jest wyższy niż wcześniej, bo zbliżenie wchodzi dopiero pod koniec
-// najazdu — rozmyty kadr nie zdąży się już pokazać.
-const MAX_SKALA = 6;
 
 /** Prostokąty obszarów na zdjęciu wnętrza. */
 function renderKadry(kadry) {
@@ -311,7 +306,7 @@ async function wejdzWKadr(kadr, { push = true } = {}) {
   state.kolekcja = state.scene;
   state.kadr = kadr;
 
-  await najedz(kadr.area, kadr.image);
+  await podmienZdjecieSceny(kadr.image);
 
   const scena = await ladowanie;
   if (!scena) {                              // baza milczy — zostaje samo zdjęcie
@@ -335,9 +330,8 @@ async function wrocDoKolekcji({ push = true } = {}) {
   if (!state.kolekcja) return;
 
   const wnetrze = state.kolekcja;
-  const area = state.kadr.area;
 
-  await cofnij(area, state.scene.image, wnetrze.image);
+  await podmienZdjecieSceny(wnetrze.image);
 
   state.scene = wnetrze;
   state.kadr = null;
@@ -379,25 +373,12 @@ function pokazScene(s, podpisKadru) {
   renderGallery(s.gallery || []);
 }
 
-/* ---------- sama animacja ---------- */
-
-/** Wyliczenie transformacji, która wciąga wskazany prostokąt na cały kadr. */
-function transformacjaNa(area, ramka) {
-  // Skala z większego wymiaru — obszar ma wypełnić ramkę, a nie zmieścić
-  // się w niej z paskami po bokach.
-  const skala = Math.min(Math.max(100 / area.w, 100 / area.h), MAX_SKALA);
-  const srodekX = (area.x + area.w / 2) / 100 * ramka.width;
-  const srodekY = (area.y + area.h / 2) / 100 * ramka.height;
-  return `translate(${ramka.width / 2}px, ${ramka.height / 2}px) `
-       + `scale(${skala}) translate(${-srodekX}px, ${-srodekY}px)`;
-}
-
-const bezRuchu = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+/* ---------- podmiana zdjęcia ---------- */
 
 /**
  * Czekanie na zdekodowanie zdjęcia — ale nie w nieskończoność.
  * `decode()` w karcie schowanej w tle potrafi nie rozwiązać się wcale,
- * a od tego wisi cała sekwencja wejścia w kadr.
+ * a od tego wisiałoby całe przejście.
  */
 function zdekoduj(img, limit = 600) {
   if (!img.decode) return Promise.resolve();
@@ -407,107 +388,11 @@ function zdekoduj(img, limit = 600) {
   ]);
 }
 
-/**
- * Animacje jedziemy przez Web Animations API, a nie przez przejścia CSS.
- * Powód jest praktyczny: WAAPI daje `finished`, więc następny krok
- * odpala się wtedy, kiedy animacja naprawdę się skończyła. Przy
- * przejściach trzeba było zgadywać licznikiem czasu, a licznik potrafi
- * się rozjechać z tym, co widać na ekranie.
- */
-function graj(el, klatki, czas) {
-  if (!el.animate || bezRuchu()) return Promise.resolve();
-  const a = el.animate(klatki, {
-    duration: czas,
-    easing: 'cubic-bezier(0.65, 0, 0.2, 1)',
-    fill: 'forwards'
-  });
-
-  // Bezpiecznik: w karcie w tle przeglądarka wstrzymuje animacje, więc
-  // `finished` potrafi nie przyjść przez cały czas, gdy ktoś patrzy na
-  // inną zakładkę. Bez tego wejście w kadr zawisłoby w połowie.
-  const spoznione = new Promise(r => setTimeout(r, czas + 250));
-
-  return Promise.race([a.finished.catch(() => {}), spoznione])
-    .then(() => a.cancel());
-}
-
-/** Wjazd w obszar z przenikaniem w zbliżenie. */
-async function najedz(area, zdjecieKadru) {
-  const ramka = $('[data-stage]').getBoundingClientRect();
-  const zoom = $('[data-stage-zoom]');
-  const detal = $('[data-stage-detal]');
-  const docelowa = transformacjaNa(area, ramka);
-
-  detal.src = zdjecieKadru;
-  $('[data-hotspots]').classList.add('is-znika');
-  $('[data-kadry]').classList.add('is-znika');
-
-  // Zbliżenie to inne ujęcie, nie wycinek zdjęcia wnętrza. Gdyby weszło
-  // w połowie drogi, kadr jechałby jeszcze w jedno miejsce, a na ekranie
-  // stałoby już co innego — i stąd wrażenie, że animacja nie trzyma się
-  // kupy. Dlatego najazd ma się prawie skończyć, zanim zbliżenie się
-  // pokaże, a samo zbliżenie dojeżdża razem z nim: wchodzi lekko
-  // powiększone i osiada do swojej wielkości.
-  await Promise.all([
-    graj(zoom, [{ transform: 'none' }, { transform: docelowa }], CZAS_NAJAZDU),
-    graj(detal, [
-      { opacity: 0, transform: 'scale(1.14)', offset: 0 },
-      { opacity: 0, transform: 'scale(1.11)', offset: 0.58 },
-      { opacity: 1, transform: 'scale(1)' }
-    ], CZAS_NAJAZDU)
-  ]);
-
-  // Zbliżenie staje się zwykłym zdjęciem sceny: ramka znów oblepia je
-  // co do piksela, więc punkty na nim trafiają tam, gdzie mają.
+/** Podmiana zdjęcia sceny. Czekamy na dekodowanie, żeby nie mrugnęło pustą ramką. */
+async function podmienZdjecieSceny(src) {
   const img = $('[data-scene-img]');
-  img.src = zdjecieKadru;
+  img.src = src;
   await zdekoduj(img);
-
-  zoom.style.transform = '';
-  detal.style.opacity = '';
-  detal.style.transform = '';
-  $('[data-hotspots]').classList.remove('is-znika');
-  $('[data-kadry]').classList.remove('is-znika');
-}
-
-/** Odwrotność najazdu: odjazd ze zbliżenia z powrotem na całe wnętrze. */
-async function cofnij(area, zdjecieKadru, zdjecieWnetrza) {
-  const zoom = $('[data-stage-zoom]');
-  const detal = $('[data-stage-detal]');
-  const img = $('[data-scene-img]');
-
-  $('[data-hotspots]').classList.add('is-znika');
-  $('[data-kadry]').classList.add('is-znika');
-
-  // Zbliżenie zostaje na wierzchu, a pod nim wraca zdjęcie wnętrza.
-  // Czekamy, aż wnętrze się zdekoduje — inaczej odjazd zaczyna się od
-  // pustej ramki. Na `load` nie ma co liczyć: przy zdjęciu z pamięci
-  // potrafi nie przyjść wcale.
-  detal.src = zdjecieKadru;
-  detal.style.opacity = '1';
-  img.src = zdjecieWnetrza;
-  await zdekoduj(img);
-
-  const ramka = $('[data-stage]').getBoundingClientRect();
-  const startowa = transformacjaNa(area, ramka);
-  zoom.style.transform = startowa;
-
-  // Odjazd lustrzanie: zbliżenie schodzi na początku, powiększając się
-  // lekko, a wnętrze wyjeżdża spod niego na swoje miejsce.
-  await Promise.all([
-    graj(zoom, [{ transform: startowa }, { transform: 'none' }], CZAS_NAJAZDU),
-    graj(detal, [
-      { opacity: 1, transform: 'scale(1)', offset: 0 },
-      { opacity: 0, transform: 'scale(1.11)', offset: 0.42 },
-      { opacity: 0, transform: 'scale(1.14)' }
-    ], CZAS_NAJAZDU)
-  ]);
-
-  zoom.style.transform = '';
-  detal.style.opacity = '';
-  detal.style.transform = '';
-  $('[data-hotspots]').classList.remove('is-znika');
-  $('[data-kadry]').classList.remove('is-znika');
 }
 
 /* ---------- adres i przycisk „wstecz" ---------- */

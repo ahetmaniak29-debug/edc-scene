@@ -203,44 +203,11 @@ svg { width: 1em; height: 1em; fill: none; stroke: currentColor; stroke-width: 2
 
 
 /* =========================================================
-   KOLEKCJA — obszary na zdjęciu wnętrza i wjazd w kadr
-   Kliknięcie obszaru najeżdża kadrem na wskazany mebel, a w trakcie
-   najazdu przenika w zbliżenie. Animujemy jedno pudełko (.stage__zoom),
-   więc punkty i obszary jadą razem ze zdjęciem, piksel w piksel.
+   KOLEKCJA — obszary na zdjęciu wnętrza
+   Kliknięcie obszaru podmienia zdjęcie na zbliżenie. Bez przejścia:
+   zbliżenia to osobne ujęcia, a nie wycinki zdjęcia wnętrza, więc
+   każdy najazd obiecywał ciągłość, której między tymi zdjęciami nie ma.
    ========================================================= */
-
-.stage__zoom {
-  position: relative;
-  display: block;
-  will-change: transform;
-  /* Kluczowe: przekształcenie liczone jest od lewego górnego rogu.
-     Przy domyślnym środku (50% 50%) kadr najeżdża zawsze mniej więcej
-     w to samo miejsce zamiast w kliknięty fragment — wzór na najazd
-     zakłada punkt zaczepienia w rogu. */
-  transform-origin: 0 0;
-}
-
-/* Zbliżenie leży nad wnętrzem tylko na czas animacji. Kadruje z
-   przycięciem (cover), bo przez te 900 ms i tak nikt nie zdąży
-   sprawdzić proporcji — a nie może zostawić pasów przy krawędziach. */
-/* Przezroczystością steruje JS (Web Animations API), więc nie ma tu
-   żadnego przejścia — dwa mechanizmy naraz kłóciłyby się o tę samą
-   właściwość i przenikanie zaczynałoby migać. */
-.stage__detal {
-  position: absolute; inset: 0; z-index: 4;
-  width: 100%; height: 100%;
-  object-fit: cover;
-  opacity: 0;
-  pointer-events: none;
-}
-
-/* Punkty i obszary schodzą z drogi, zanim kadr ruszy. */
-.stage__hotspots.is-znika,
-.stage__kadry.is-znika {
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 180ms var(--ease);
-}
 
 .stage__kadry { position: absolute; inset: 0; z-index: 3; }
 .stage__kadry[hidden] { display: none; }
@@ -326,8 +293,6 @@ svg { width: 1em; height: 1em; fill: none; stroke: currentColor; stroke-width: 2
   .stage__wroc { left: 10px; top: 10px; padding: 8px 13px 8px 10px; }
 }
 
-/* Kto prosił o mniej ruchu, dostaje podmianę zdjęcia bez najazdu —
-   sprawdza to JS przed uruchomieniem animacji (patrz bezRuchu w app.js). */
 
 /* ---------- Zwijana lista ---------- */
 .fold {
