@@ -5,9 +5,13 @@
    siedzą w style.css.
    ========================================================= */
 
-/* Strona ma swoją szerokość i trochę wolnego miejsca po bokach — bez tego
-   ściana klei się do krawędzi ekranu i robi się duszno. */
-.shell { max-width: 1560px; margin: 0 auto; padding: 0 var(--gap); }
+/* Po bokach zostaje wąski margines — tyle, żeby ściana nie kleiła się do
+   krawędzi ekranu, ale bez pustych pasów z połowy monitora.
+   Limit u góry łapie tylko bardzo szerokie ekrany. */
+.shell { max-width: 2400px; margin: 0 auto; padding: 0 80px; }
+
+@media (max-width: 1200px) { .shell { padding: 0 40px; } }
+@media (max-width: 860px)  { .shell { padding: 0 var(--gap); } }
 .sr-only {
   position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
   overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
