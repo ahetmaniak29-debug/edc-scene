@@ -234,6 +234,14 @@ function initFold() {
   const details = $('.fold');
   if (!details) return;
 
+  // Na szerokim ekranie lista stoi obok zdjęcia i ma tam swoje miejsce —
+  // zwinięta wyglądałaby jak pusta kolumna. Na wąskim zostaje zwinięta,
+  // żeby nie spychać zdjęcia poza ekran.
+  const szeroko = window.matchMedia('(min-width: 1200px)');
+  const dopasuj = () => { if (szeroko.matches) details.open = true; };
+  dopasuj();
+  szeroko.addEventListener('change', dopasuj);
+
   const head = $('.fold__head', details);
   const body = $('.fold__body', details);
   if (!head || !body) return;

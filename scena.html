@@ -7,9 +7,9 @@
   <meta name="description" content="Wyselekcjonowany sprzęt na jednym zdjęciu. Dotknij przedmiotu, żeby zobaczyć szczegóły.">
   <meta name="theme-color" content="#1b1917">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="assets/css/style.css?v=19">
-  <link rel="stylesheet" href="assets/css/home.css?v=19">
-  <link rel="stylesheet" href="assets/css/produkt.css?v=19">
+  <link rel="stylesheet" href="assets/css/style.css?v=22">
+  <link rel="stylesheet" href="assets/css/home.css?v=22">
+  <link rel="stylesheet" href="assets/css/produkt.css?v=22">
 </head>
 <body class="home">
   <a class="skip-link" href="#tresc">Przejdź do treści</a>
@@ -52,6 +52,12 @@
         <p class="chead__sub" data-scene-subtitle></p>
       </section>
 
+      <!-- Na szerokim ekranie zdjęcie i lista stoją obok siebie: zdjęcie ma
+           ograniczoną wysokość, więc samo nigdy nie wypełni szerokiego monitora,
+           a lista przedmiotów jest dokładnie tym, co powinno stać obok wystawy. -->
+      <div class="widok">
+       <div class="widok__scena">
+
       <!-- ================= DUŻE ZDJĘCIE ================= -->
       <!-- Punkty są pozycjonowane w % względem obrazka, więc trzymają się
            przedmiotów niezależnie od wielkości ekranu. Panel produktu wysuwa się
@@ -86,9 +92,12 @@
         <div class="gal__dots" data-gal-dots role="tablist" aria-label="Wybór zdjęcia"></div>
       </section>
 
+       </div><!-- /.widok__scena -->
+
       <!-- Lista tekstowa: to samo, co punkty na zdjęciu. Zwijana, żeby nie
-           przytłaczała zdjęcia — <details> działa też bez JS i z klawiatury. -->
-      <section id="lista">
+           przytłaczała zdjęcia — <details> działa też bez JS i z klawiatury.
+           Na szerokim ekranie otwiera ją JS, bo tam jest na nią miejsce. -->
+      <section id="lista" class="widok__lista">
         <details class="fold">
           <summary class="fold__head">
             <h2 class="fold__title">Wszystko na tym zdjęciu</h2>
@@ -102,6 +111,7 @@
           </div>
         </details>
       </section>
+      </div><!-- /.widok -->
 
       <section class="trust" aria-label="Nasze zasady">
         <ul class="trust__list" data-trust></ul>
@@ -189,6 +199,6 @@
     <ul data-mnav-list></ul>
   </nav>
 
-  <script src="assets/js/app.js?v=19" type="module"></script>
+  <script src="assets/js/app.js?v=22" type="module"></script>
 </body>
 </html>

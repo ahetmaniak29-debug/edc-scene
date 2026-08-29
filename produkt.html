@@ -6,9 +6,9 @@
   <title>Produkt</title>
   <meta name="theme-color" content="#1b1917">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="assets/css/style.css?v=19">
-  <link rel="stylesheet" href="assets/css/home.css?v=19">
-  <link rel="stylesheet" href="assets/css/produkt.css?v=19">
+  <link rel="stylesheet" href="assets/css/style.css?v=22">
+  <link rel="stylesheet" href="assets/css/home.css?v=22">
+  <link rel="stylesheet" href="assets/css/produkt.css?v=22">
 </head>
 <body class="home">
   <a class="skip-link" href="#tresc">Przejdź do treści</a>
@@ -49,78 +49,74 @@
 
       <p class="pr__ladowanie" data-loading>Wczytywanie produktu…</p>
 
-      <!-- ================= PRODUKT — MOZAIKA =================
-           Kafle układa CSS Grid z gęstym pakowaniem, więc gdy produkt
-           ma mniej zdjęć, dziury same się domykają. -->
+      <!-- ================= PRODUKT — ŚCIANA =================
+           Kolejność kafli w kodzie jest kolejnością na telefonie:
+           zdjęcie, cena, zakup, opis, parametry, reszta zdjęć.
+           Na dużym ekranie rozstawia je grid-template-areas w CSS. -->
       <article class="bento" data-produkt hidden>
         <div class="bento__grid" data-bento-grid>
 
-        <!-- duże zdjęcie z nazwą na dole -->
-        <div class="bt bt--hero" data-bt-hero>
-          <img class="bt__img" data-pr-img alt="">
-          <div class="bt__pusto" data-pr-pusto hidden>
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <rect x="3" y="5" width="18" height="14" rx="2"/>
-              <circle cx="8.5" cy="10" r="1.6"/><path d="M21 16l-5-5-6 6"/>
-            </svg>
-            <p>Ten produkt nie ma jeszcze zdjęć</p>
-            <p class="bt__pusto-sub">Dodasz je w panelu</p>
+          <!-- zdjęcie główne z nazwą na dole -->
+          <div class="bt bt--hero" data-bt-hero>
+            <img class="bt__img" data-pr-img alt="">
+            <div class="bt__pusto" data-pr-pusto hidden>
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <rect x="3" y="5" width="18" height="14" rx="2"/>
+                <circle cx="8.5" cy="10" r="1.6"/><path d="M21 16l-5-5-6 6"/>
+              </svg>
+              <p>Ten produkt nie ma jeszcze zdjęć</p>
+              <p class="bt__pusto-sub">Dodasz je w panelu</p>
+            </div>
+
+            <div class="bt__hero-tekst">
+              <p class="bt__brand" data-pr-brand></p>
+              <h1 class="bt__name" data-pr-name></h1>
+            </div>
+
+            <button class="bt__arrow bt__arrow--prev" type="button" data-pr-prev aria-label="Poprzednie zdjęcie">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+            </button>
+            <button class="bt__arrow bt__arrow--next" type="button" data-pr-next aria-label="Następne zdjęcie">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+            </button>
+            <span class="bt__licznik" data-pr-licznik hidden></span>
           </div>
 
-          <div class="bt__hero-tekst">
-            <p class="bt__brand" data-pr-brand></p>
-            <h1 class="bt__name" data-pr-name></h1>
-          </div>
-
-          <button class="bt__arrow bt__arrow--prev" type="button" data-pr-prev aria-label="Poprzednie zdjęcie">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
-          </button>
-          <button class="bt__arrow bt__arrow--next" type="button" data-pr-next aria-label="Następne zdjęcie">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
-          </button>
-          <span class="bt__licznik" data-pr-licznik hidden></span>
-        </div>
-
-        <!-- dlaczego polecamy -->
-        <div class="bt bt--tekst bt--why">
-          <p class="bt__label">Dlaczego polecamy</p>
-          <p class="bt__tresc" data-pr-why></p>
-        </div>
-
-        <!-- pozostałe zdjęcia — dorzuca je JS -->
-        <div class="bt bt--foto" data-bt-foto-1 hidden><img class="bt__img" alt=""></div>
-        <div class="bt bt--foto" data-bt-foto-2 hidden><img class="bt__img" alt=""></div>
-
-        <!-- parametry -->
-        <div class="bt bt--tekst bt--specs" data-bt-specs hidden>
-          <p class="bt__label">Parametry</p>
-          <ul class="bt__specs" data-pr-specs></ul>
-        </div>
-
-        <!-- cena i koszyk -->
-        <div class="bt bt--kup">
-          <div class="bt__kup-gora">
+          <!-- cena -->
+          <div class="bt bt--tekst bt--cena">
             <p class="bt__label">Cena</p>
             <p class="bt__cena" data-pr-price></p>
+            <p class="bt__kup-nota" data-pr-note></p>
           </div>
-          <button class="bt__dokoszyka" type="button" data-do-koszyka>
-            <span>Dodaj do koszyka</span>
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8h12l-1 12H7L6 8z"/><path d="M9 8V6a3 3 0 016 0v2"/></svg>
-          </button>
-          <p class="bt__kup-nota" data-pr-note></p>
-        </div>
+
+          <!-- zakup i skok do sąsiednich produktów -->
+          <div class="bt bt--nav">
+            <button class="bt__dokoszyka" type="button" data-do-koszyka>
+              <span>Dodaj do koszyka</span>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8h12l-1 12H7L6 8z"/><path d="M9 8V6a3 3 0 016 0v2"/></svg>
+            </button>
+            <a class="bt__nav-btn" data-nav-prev href="#">Poprzedni</a>
+            <a class="bt__nav-btn" data-nav-next href="#">Następny</a>
+          </div>
+
+          <!-- dlaczego polecamy -->
+          <div class="bt bt--tekst bt--why">
+            <p class="bt__label">Dlaczego polecamy</p>
+            <p class="bt__tresc" data-pr-why></p>
+          </div>
+
+          <!-- parametry -->
+          <div class="bt bt--specs" data-bt-specs hidden>
+            <p class="bt__label">Parametry</p>
+            <ul class="bt__specs" data-pr-specs></ul>
+          </div>
+
+          <!-- pozostałe zdjęcia — dorzuca je JS -->
+          <div class="bt bt--foto bt--foto1" data-bt-foto-1 hidden><img class="bt__img" alt=""></div>
+          <div class="bt bt--foto bt--foto2" data-bt-foto-2 hidden><img class="bt__img" alt=""></div>
+          <div class="bt bt--foto bt--foto3" data-bt-foto-3 hidden><img class="bt__img" alt=""></div>
 
         </div><!-- /.bento__grid -->
-
-        <!-- nawigacja między produktami sceny -->
-        <div class="bt--nav">
-          <a class="bt__nav-btn" data-pr-back href="#">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
-            <span data-pr-back-label>Wróć do zdjęcia</span>
-          </a>
-          <a class="bt__nav-btn" data-nav-prev href="#">Poprzedni</a>
-          <a class="bt__nav-btn" data-nav-next href="#">Następny</a>
-        </div>
 
         <div class="bt__thumbs" data-pr-thumbs></div>
       </article>
@@ -150,6 +146,6 @@
     <ul data-mnav-list></ul>
   </nav>
 
-  <script src="assets/js/produkt.js?v=19" type="module"></script>
+  <script src="assets/js/produkt.js?v=22" type="module"></script>
 </body>
 </html>

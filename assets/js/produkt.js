@@ -151,9 +151,6 @@ function rysuj() {
 
   $('[data-pr-note]').textContent = 'Wysyłka i zwroty na zasadach sklepu';
 
-  $('[data-pr-back]').href = `${adresSceny}#${encodeURIComponent(p.id)}`;
-  $('[data-pr-back-label]').textContent = `Wróć do: ${s.label || 'scena'}`;
-
   rysujGalerie(p);
   rysujNawigacje();
   rysujInne(adresSceny);
@@ -237,9 +234,9 @@ function rysujGalerie(p) {
   $('[data-pr-next]').hidden = !wiele;
   $('[data-pr-licznik]').hidden = !wiele;
 
-  // Drugie i trzecie zdjęcie dostają własne kafle w mozaice.
+  // Kolejne zdjęcia dostają własne kafle w ścianie.
   // Wszystkie razem są dostępne w pasku miniatur.
-  [1, 2].forEach(nr => {
+  [1, 2, 3].forEach(nr => {
     const kafel = $(`[data-bt-foto-${nr}]`);
     const z = stan.zdjecia[nr];
     if (!z) { kafel.hidden = true; return; }
@@ -270,24 +267,18 @@ function rysujGalerie(p) {
 }
 
 /**
- * Wybiera wariant mozaiki. Kafle mają stałe rozmiary, więc to, ile ich
- * jest, decyduje o tym, czy siatka domknie się bez pustego rogu.
- *   a — dwa dodatkowe zdjęcia i parametry
- *   b — jedno dodatkowe zdjęcie
- *   c — bez dodatkowych zdjęć, są parametry
- *   d — bez zdjęć i bez parametrów
+ * Wybiera wariant ściany. Kafle mają w CSS gotowe rozstawienia dla każdej
+ * kombinacji, więc tu wystarczy powiedzieć, z czym mamy do czynienia:
+ * ile jest dodatkowych zdjęć (0–3) i czy produkt ma parametry.
+ * Bez tego przy niektórych kombinacjach zostawał pusty róg.
  */
 function ustawUklad() {
-  const dodatkowe = Math.min(Math.max(stan.zdjecia.length - 1, 0), 2);
+  const dodatkowe = Math.min(Math.max(stan.zdjecia.length - 1, 0), 3);
   const maSpecs = !$('[data-bt-specs]').hidden;
 
-  let uklad;
-  if (dodatkowe >= 2 && maSpecs) uklad = 'a';
-  else if (dodatkowe >= 1)       uklad = 'b';
-  else if (maSpecs)              uklad = 'c';
-  else                           uklad = 'd';
-
-  $('[data-produkt]').dataset.uklad = uklad;
+  const wall = $('[data-produkt]');
+  wall.dataset.uklad = String(dodatkowe);
+  wall.dataset.specs = maSpecs ? 'tak' : 'nie';
 }
 
 function pokaz(i) {

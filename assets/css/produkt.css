@@ -1,8 +1,10 @@
 /* =========================================================
-   STRONA JEDNEGO PRODUKTU — MOZAIKA
-   Kafle na całą szerokość i wysokość okna, bez pudełka dookoła.
-   Zdjęcie główne bierze lewą połowę ekranu; reszta dobiera się
-   do tego, ile produkt ma zdjęć i parametrów.
+   STRONA JEDNEGO PRODUKTU — ŚCIANA KAFLI
+   Zdjęcie produktu bierze lewą górną ćwiartkę i niesie nazwę,
+   dookoła układają się płyty z tekstem i pozostałe zdjęcia.
+   Rozstawienie robią nazwane obszary (grid-template-areas) —
+   osiem wariantów, zależnie od liczby zdjęć i tego, czy produkt
+   ma parametry. Dzięki temu ściana zawsze domyka się bez dziur.
    ========================================================= */
 
 .pr__ladowanie {
@@ -17,12 +19,9 @@
 }
 .bento[hidden] { display: none; }
 
-/* Siatka kafli. Nawigacja i miniatury leżą pod nią, w tym samym panelu,
-   ale poza siatką — inaczej wymuszałyby pełnej wysokości wiersz. */
 .bento__grid {
   display: grid;
   grid-template-columns: 1fr;
-  grid-auto-flow: dense;
   gap: var(--gap);
 }
 
@@ -43,31 +42,30 @@
 .bt__img.is-widoczne { opacity: 1; }
 
 /* ---------- zdjęcie główne ---------- */
-.bt--hero { min-height: 58svh; background: var(--paper-warm); }
+.bt--hero { min-height: 56svh; background: var(--paper-warm); }
 .bt--hero::after {                 /* przyciemnienie pod napisem */
   content: "";
-  position: absolute; inset: auto 0 0 0; height: 55%;
-  background: linear-gradient(to top, rgba(14, 12, 10, 0.9), transparent);
+  position: absolute; inset: auto 0 0 0; height: 58%;
+  background: linear-gradient(to top, rgba(14, 12, 10, 0.92), transparent);
   pointer-events: none;
 }
-.bt__hero-tekst { position: absolute; left: 26px; right: 26px; bottom: 24px; z-index: 2; }
+.bt__hero-tekst { position: absolute; left: 30px; right: 30px; bottom: 28px; z-index: 2; }
 .bt__brand {
-  font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase;
+  font-size: 10.5px; letter-spacing: 0.2em; text-transform: uppercase;
   color: var(--sand); font-weight: 700;
 }
 .bt__name {
-  margin-top: 8px;
+  margin-top: 10px;
   font-family: var(--font-display);
-  font-size: clamp(28px, 4.4vw, 46px);
-  line-height: 1.06; letter-spacing: -0.02em; font-weight: 400;
-  color: #fff;
-  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.4);
+  font-size: clamp(30px, 4.2vw, 52px);
+  line-height: 1.04; letter-spacing: -0.025em; font-weight: 400;
+  color: var(--ink);
 }
 
 .bt__pusto {
   position: absolute; inset: 0;
   display: grid; place-content: center; justify-items: center;
-  color: rgba(247, 245, 242, 0.42);
+  color: var(--ink-dim);
   font-size: 13.5px; text-align: center; padding: 24px;
 }
 .bt__pusto[hidden] { display: none; }
@@ -108,25 +106,42 @@
 }
 .bt__licznik[hidden] { display: none; }
 
-/* ---------- kafle tekstowe ---------- */
-.bt--tekst { background: var(--sand); color: var(--sand-ink); padding: 24px 26px; }
+/* ---------- płyty z tekstem ---------- */
+/* Piaskowe płyty niosą to, co ma się czytać: cenę i powód. */
+.bt--tekst {
+  background: var(--sand); color: var(--sand-ink);
+  padding: 26px 28px;
+  display: flex; flex-direction: column;
+}
 .bt__label {
   font-size: 10.5px; letter-spacing: 0.18em; text-transform: uppercase;
-  font-weight: 700; color: rgba(27, 23, 18, 0.62);
+  font-weight: 700; color: rgba(27, 23, 18, 0.6);
 }
-.bt__tresc { margin-top: 10px; font-size: 14.5px; line-height: 1.6; }
-/* Parametry i zakup zostają grafitowe — dwie piaskowe płyty obok siebie
-   przestają być akcentem. */
-.bt--specs { background: var(--surface); color: var(--ink); }
-/* etykieta piszczy na piaskowej płycie ciemnym drukiem — na grafitowej
-   musi zrobić odwrotnie, inaczej znika */
-.bt--specs .bt__label,
-.bt--kup .bt__label { color: var(--ink-dim); }
+.bt__tresc { margin-top: 12px; font-size: 15px; line-height: 1.6; }
 
-.bt__specs { margin-top: 12px; display: grid; gap: 9px; }
+.bt--cena { justify-content: space-between; }
+.bt__cena {
+  margin-top: 10px;
+  font-family: var(--font-display);
+  font-size: clamp(34px, 4.6vw, 54px); font-weight: 400;
+  letter-spacing: -0.03em; line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.bt__kup-nota { margin-top: 16px; font-size: 11.5px; color: rgba(27, 23, 18, 0.55); }
+
+
+
+/* Parametry zostają grafitowe — dwie piaskowe płyty obok siebie
+   przestałyby być akcentem, a stałyby się tłem. */
+.bt--specs {
+  background: var(--surface); color: var(--ink);
+  padding: 26px 28px;
+}
+.bt--specs .bt__label { color: var(--ink-dim); }
+.bt__specs { margin-top: 16px; display: grid; gap: 11px; }
 .bt__specs li {
   display: flex; justify-content: space-between; gap: 12px;
-  padding-bottom: 9px;
+  padding-bottom: 11px;
   border-bottom: 1px solid var(--line);
   font-size: 13.5px;
 }
@@ -134,49 +149,46 @@
 .bt__specs .k { color: var(--ink-dim); }
 .bt__specs .v { font-weight: 600; text-align: right; }
 
-/* ---------- cena i koszyk ---------- */
-.bt--kup {
-  background: var(--surface); color: var(--ink);
-  padding: 24px 26px;
-  display: flex; flex-direction: column; gap: 14px;
-}
-.bt__kup-gora { flex: 1 1 auto; }
-.bt__cena {
-  margin-top: 8px;
-  font-size: clamp(28px, 3.6vw, 38px); font-weight: 700;
-  font-variant-numeric: tabular-nums; color: var(--ink);
+/* ---------- rząd przycisków ---------- */
+/* Jeden pełny przycisk i dwa ciche obok — zakup ma być widać z drugiego
+   końca pokoju, przeskok między produktami nie musi krzyczeć. */
+.bt--nav {
+  display: flex; flex-wrap: wrap; gap: var(--gap);
+  min-height: 0; background: none; overflow: visible;
 }
 .bt__dokoszyka {
+  flex: 2 1 260px;
   display: flex; align-items: center; justify-content: center; gap: 10px;
-  width: 100%; min-height: 54px;
-  border: 0; border-radius: 14px;
+  min-height: 62px; padding: 0 26px;
+  border: 0; border-radius: var(--r-lg);
   background: var(--sand); color: var(--sand-ink);
-  font: inherit; font-size: 15.5px; font-weight: 700;
+  font: inherit; font-size: 13px; font-weight: 700;
+  letter-spacing: 0.1em; text-transform: uppercase;
   cursor: pointer;
   transition: filter 0.16s var(--ease), transform 0.1s var(--ease), background 0.2s var(--ease);
 }
-.bt__dokoszyka svg { width: 18px; height: 18px; }
+.bt__dokoszyka svg { width: 17px; height: 17px; }
 .bt__dokoszyka:hover { filter: brightness(1.08); }
 .bt__dokoszyka:active { transform: translateY(1px); }
 .bt__dokoszyka.is-dodane { background: var(--accent-bright); color: var(--accent-ink); }
-.bt__kup-nota { font-size: 11.5px; color: var(--ink-dim); text-align: center; }
 
-/* ---------- nawigacja ---------- */
-.bt--nav { display: flex; flex-wrap: wrap; gap: 10px; }
 .bt__nav-btn {
-  flex: 1 1 auto;
-  display: flex; align-items: center; justify-content: center; gap: 8px;
-  min-height: 52px; padding: 0 18px;
-  border-radius: 14px;
+  flex: 1 1 130px;
+  display: flex; align-items: center; justify-content: center;
+  min-height: 62px; padding: 0 18px;
+  border-radius: var(--r-lg);
   background: var(--surface);
   color: var(--ink-mid);
-  font-size: 13px; font-weight: 600; letter-spacing: 0.06em;
+  font-size: 12.5px; font-weight: 600; letter-spacing: 0.1em;
   text-transform: uppercase; text-decoration: none;
   transition: background 0.16s var(--ease), color 0.16s var(--ease);
 }
 .bt__nav-btn:hover { background: var(--sand); color: var(--sand-ink); }
 .bt__nav-btn[hidden] { display: none; }
-.bt__nav-btn svg { width: 15px; height: 15px; }
+
+/* ---------- pozostałe zdjęcia ---------- */
+.bt--foto { background: var(--paper-warm); }
+.bt--foto .bt__img { cursor: pointer; }
 
 /* ---------- miniatury ---------- */
 .bt__thumbs {
@@ -199,65 +211,168 @@
 
 [data-inne][hidden] { display: none; }
 
-/* ---------- mozaika na szerokim ekranie ---------- */
-@media (min-width: 760px) {
-  .bento__grid {
-    grid-template-columns: repeat(4, 1fr);
-    grid-auto-rows: minmax(150px, auto);
-  }
-  /* Szkielet: zdjęcie główne bierze lewą połowę, reszta układa się
-     w prawej. Dokładne rozpiętości ustawia sekcja niżej — zależnie
-     od tego, ile produkt ma zdjęć i czy ma parametry. */
-  .bt--hero  { grid-column: span 2; grid-row: span 3; min-height: 0; }
-  .bt--why   { grid-column: span 2; grid-row: span 1; }
-  .bt--foto  { grid-column: span 1; grid-row: span 2; }
-  .bt--specs { grid-column: span 1; grid-row: span 2; }
-  .bt--kup   { grid-column: 1 / -1;  grid-row: span 2; }
-
-  .bento[data-uklad="a"] .bt--specs { grid-column: span 2; grid-row: span 2; }
-  .bento[data-uklad="a"] .bt--kup   { grid-column: span 2; grid-row: span 2; }
-  .bento[data-uklad="b"] .bt--kup   { grid-column: 1 / -1; }
-  .bento[data-uklad="c"] .bt--specs { grid-column: span 2; grid-row: span 2; }
-  .bento[data-uklad="d"] .bt--kup   { grid-column: span 2; grid-row: span 2; }
+/* ---------- średni ekran: dwie kolumny ---------- */
+@media (min-width: 720px) and (max-width: 1079px) {
+  .bento__grid { grid-template-columns: repeat(2, 1fr); }
+  .bt--hero, .bt--nav, .bt--why { grid-column: 1 / -1; }
 }
 
-/* ---------- pełny ekran ----------
-   Na dużym ekranie mozaika zajmuje całą wysokość okna: pięć rzędów,
-   zdjęcie na całą lewą połowę. Prawa połowa to dziesięć pól i każdy
-   wariant wypełnia je co do jednego, żeby nie zostawał pusty róg.
-   (a: dwa dodatkowe zdjęcia + parametry, b: jedno zdjęcie,
-    c: bez zdjęć, d: bez zdjęć i bez parametrów) */
+/* =========================================================
+   PEŁNY EKRAN — ściana na cztery kolumny i sześć rzędów
+   Zdjęcie główne trzyma lewą górną ćwiartkę, rząd przycisków
+   domyka dół. Każdy wariant wypełnia wszystkie pola co do jednego.
+     uklad — liczba dodatkowych zdjęć (0–3)
+     specs — czy produkt ma parametry
+   ========================================================= */
 @media (min-width: 1080px) {
+  /* Wysokość musi być twarda, nie „co najmniej". Przy min-height rzędy 1fr
+     rozciągają się do naturalnej wysokości zdjęć i ściana rośnie na dwa
+     ekrany zamiast trzymać się jednego. */
   .bento__grid {
-    min-height: calc(100svh - var(--hdr-h) - 210px);
-    grid-template-rows: repeat(5, minmax(108px, 1fr));
-    grid-auto-rows: minmax(108px, 1fr);
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(6, minmax(0, 1fr));
+    height: calc(100svh - var(--hdr-h) - 190px);
+    min-height: 560px;
   }
-  .bt { min-height: 0; }
-  .bt--hero { grid-column: span 2; grid-row: span 5; }
+  .bt, .bt--hero { min-height: 0; }
+
+  /* Nazwane obszary mają sens tylko przy tej siatce — niżej kafle
+     układają się po kolei, tak jak stoją w kodzie. */
+  .bt--hero  { grid-area: hero; }
+  .bt--cena  { grid-area: cena; }
+  .bt--nav   { grid-area: nav; }
+  .bt--why   { grid-area: why; }
+  .bt--specs { grid-area: specs; }
+  .bt--foto1 { grid-area: foto1; }
+  .bt--foto2 { grid-area: foto2; }
+  .bt--foto3 { grid-area: foto3; }
+  /* Gdyby opis albo lista parametrów nie mieściły się w swoim kaflu,
+     przewijają się w środku, zamiast rozpychać całą ścianę. */
+  .bt--tekst, .bt--specs { overflow-y: auto; scrollbar-width: thin; }
   .bt__hero-tekst { left: 34px; right: 34px; bottom: 32px; }
 
-  .bento[data-uklad="a"] .bt--why   { grid-column: span 2; grid-row: span 1; }
-  .bento[data-uklad="a"] .bt--foto  { grid-column: span 1; grid-row: span 2; }
-  .bento[data-uklad="a"] .bt--specs { grid-column: span 2; grid-row: span 1; }
-  .bento[data-uklad="a"] .bt--kup   { grid-column: span 2; grid-row: span 1; }
+  /* --- trzy dodatkowe zdjęcia --- */
+  .bento[data-uklad="3"] .bento__grid {
+    grid-template-areas:
+      "hero hero  cena  foto3"
+      "hero hero  cena  foto3"
+      "hero hero  foto2 foto3"
+      "why  foto1 foto2 specs"
+      "why  foto1 foto2 specs"
+      "nav  nav   nav   specs";
+  }
+  .bento[data-uklad="3"][data-specs="nie"] .bento__grid {
+    grid-template-areas:
+      "hero hero  cena  foto3"
+      "hero hero  cena  foto3"
+      "hero hero  foto2 foto3"
+      "why  foto1 foto2 foto3"
+      "why  foto1 foto2 foto3"
+      "nav  nav   nav   nav";
+  }
 
-  .bento[data-uklad="b"] .bt--why   { grid-column: span 2; grid-row: span 1; }
-  .bento[data-uklad="b"] .bt--foto  { grid-column: span 2; grid-row: span 2; }
-  .bento[data-uklad="b"] .bt--specs { grid-column: span 2; grid-row: span 1; }
-  .bento[data-uklad="b"] .bt--kup   { grid-column: span 2; grid-row: span 1; }
-  /* jedno zdjęcie, a parametrów brak — zdjęcie bierze zwolniony rząd */
-  .bento[data-uklad="b"]:has(.bt--specs[hidden]) .bt--foto { grid-row: span 3; }
+  /* --- dwa dodatkowe zdjęcia --- */
+  .bento[data-uklad="2"] .bento__grid {
+    grid-template-areas:
+      "hero hero  cena  cena"
+      "hero hero  cena  cena"
+      "hero hero  foto2 specs"
+      "why  foto1 foto2 specs"
+      "why  foto1 foto2 specs"
+      "nav  nav   nav   specs";
+  }
+  .bento[data-uklad="2"][data-specs="nie"] .bento__grid {
+    grid-template-areas:
+      "hero hero  cena  cena"
+      "hero hero  cena  cena"
+      "hero hero  foto2 foto2"
+      "why  foto1 foto2 foto2"
+      "why  foto1 foto2 foto2"
+      "nav  nav   nav   nav";
+  }
 
-  .bento[data-uklad="c"] .bt--why   { grid-column: span 2; grid-row: span 1; }
-  .bento[data-uklad="c"] .bt--specs { grid-column: span 2; grid-row: span 2; }
-  .bento[data-uklad="c"] .bt--kup   { grid-column: span 2; grid-row: span 2; }
+  /* --- jedno dodatkowe zdjęcie --- */
+  .bento[data-uklad="1"] .bento__grid {
+    grid-template-areas:
+      "hero hero  cena  cena"
+      "hero hero  cena  cena"
+      "hero hero  specs specs"
+      "why  foto1 specs specs"
+      "why  foto1 specs specs"
+      "nav  nav   nav   nav";
+  }
+  .bento[data-uklad="1"][data-specs="nie"] .bento__grid {
+    grid-template-areas:
+      "hero hero  cena  cena"
+      "hero hero  cena  cena"
+      "hero hero  foto1 foto1"
+      "why  why   foto1 foto1"
+      "why  why   foto1 foto1"
+      "nav  nav   nav   nav";
+  }
 
-  .bento[data-uklad="d"] .bt--why   { grid-column: span 2; grid-row: span 2; }
-  .bento[data-uklad="d"] .bt--kup   { grid-column: span 2; grid-row: span 3; }
+  /* --- bez dodatkowych zdjęć --- */
+  .bento[data-uklad="0"] .bento__grid {
+    grid-template-areas:
+      "hero hero cena  cena"
+      "hero hero cena  cena"
+      "hero hero specs specs"
+      "why  why  specs specs"
+      "why  why  specs specs"
+      "nav  nav  nav   nav";
+  }
+  .bento[data-uklad="0"][data-specs="nie"] .bento__grid {
+    grid-template-areas:
+      "hero hero cena cena"
+      "hero hero cena cena"
+      "hero hero cena cena"
+      "why  why  why  why"
+      "why  why  why  why"
+      "nav  nav  nav  nav";
+  }
+}
 
-  .bt--kup { justify-content: flex-end; }
-  .bt__dokoszyka { max-width: none; }
+
+/* =========================================================
+   TELEFON — inny pomysł niż ściana
+   Na wąskim ekranie siatka kafli nie ma sensu: wszystko i tak
+   staje w słupku. Zamiast tego zdjęcie idzie od krawędzi do
+   krawędzi jak w galerii, zakup siedzi tuż pod ceną, a pozostałe
+   zdjęcia zostają w karuzeli zdjęcia głównego i w pasku miniatur —
+   bez powtarzania ich drugi raz w osobnych kaflach.
+   ========================================================= */
+@media (max-width: 719px) {
+  .bento { margin: 0 0 36px; gap: 8px; }
+  .bento__grid { gap: 8px; }
+
+  /* zdjęcie od krawędzi do krawędzi — wychodzi poza margines strony */
+  .bt--hero {
+    margin: 0 calc(var(--gap) * -1);
+    border-radius: 0;
+    height: 64svh; min-height: 0;
+  }
+  .bt__hero-tekst { left: 20px; right: 20px; bottom: 22px; }
+  .bt__name { font-size: clamp(28px, 8vw, 38px); }
+  /* na dotyku strzałki tylko zasłaniają zdjęcie — zostaje przesuwanie palcem */
+  .bt__arrow { display: none; }
+  .bt__licznik { opacity: 1; }
+
+  .bt--tekst, .bt--specs { padding: 20px 22px; min-height: 0; }
+  .bt--cena { flex-direction: row; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+  .bt--cena .bt__label { flex: 1 0 100%; }
+  .bt__cena { margin-top: 0; font-size: 38px; }
+  .bt__kup-nota { margin-top: 0; margin-left: auto; }
+
+  /* zakup na pełną szerokość, skok do sąsiadów pod spodem po połowie */
+  .bt--nav { gap: 8px; }
+  .bt__dokoszyka { flex: 1 0 100%; min-height: 58px; }
+  .bt__nav-btn { flex: 1 1 0; min-height: 50px; font-size: 11.5px; }
+
+  /* dodatkowe zdjęcia są już w karuzeli i w miniaturach */
+  .bt--foto { display: none; }
+
+  .bt__thumbs { gap: 8px; margin: 0 calc(var(--gap) * -1); padding: 2px var(--gap) 0; }
+  .bt__thumb { width: 64px; height: 64px; }
 }
 
 /* =========================================================
