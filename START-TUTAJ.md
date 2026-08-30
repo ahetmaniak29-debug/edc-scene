@@ -90,6 +90,10 @@ Jak założyć kolekcję:
 Kadry nie pokazują się w menu ani wśród kategorii na stronie głównej —
 wchodzi się w nie wyłącznie ze zdjęcia wnętrza.
 
+Salon jest też kaflem na stronie głównej — sceny z plików wchodzą na listę
+kategorii razem ze scenami z bazy, a przy tym samym identyfikatorze wygrywa
+baza, więc przeniesienie salonu do panelu niczego nie zdubluje.
+
 Gotowa kolekcja do obejrzenia: **`scena.html?scene=salon`** — salon ze
 stolikiem kawowym i stolikiem z lampą. Siedzi w plikach
 (`data/scenes/salon*.json` + `ZDJECIA/kolekcje/salon*.jpg`), więc działa

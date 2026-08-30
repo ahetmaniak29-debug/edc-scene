@@ -44,9 +44,9 @@ export const ph = (folder, size, variant = '') => `
 export const media = (src, alt, folder, size, variant = '') =>
   src ? `<img class="img" src="${esc(src)}" alt="${esc(alt || '')}" loading="lazy">` : ph(folder, size, variant);
 
-import { naZmiane, pobierz, ustawIlosc, ile as ileWKoszyku, suma } from './koszyk.js?v=38';
-import { initDb, dbGotowa, select } from './db.js?v=38';
-import { formatujCene } from './mapowanie.js?v=38';
+import { naZmiane, pobierz, ustawIlosc, ile as ileWKoszyku, suma } from './koszyk.js?v=40';
+import { initDb, dbGotowa, select } from './db.js?v=40';
+import { formatujCene } from './mapowanie.js?v=40';
 
 const $  = (sel, root = document) => root.querySelector(sel);
 const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
@@ -75,17 +75,60 @@ export async function loadSite() {
   return res.json();
 }
 
-/** Opublikowane sceny — sluza za kategorie na stronie glownej. */
+/**
+ * Opublikowane sceny — służą za kategorie w menu i na stronie głównej.
+ *
+ * Źródłem prawdy jest baza, ale scena może też siedzieć w pliku
+ * (data/scenes/*.json) — tak działa scena.html, gdy baza milczy, i tak
+ * powstała kolekcja „Salon". Skoro taka scena otwiera się pod swoim
+ * adresem, ma też prawo pokazać się na liście kategorii. Baza wygrywa
+ * przy tym samym identyfikatorze, więc przeniesienie sceny do panelu
+ * niczego nie dubluje.
+ */
 export async function loadScenes() {
+  let zBazy = [];
   try {
     await initDb();
-    if (!dbGotowa()) return [];
-    const sceny = await select('scenes', 'select=*&order=position.asc') || [];
-    // Kadry kolekcji (sceny z rodzicem) nie są osobnymi kategoriami —
-    // wchodzi się w nie ze zdjęcia wnętrza, a nie z menu.
-    return sceny.filter(s => !s.parent_id);
+    if (dbGotowa()) {
+      const sceny = await select('scenes', 'select=*&order=position.asc') || [];
+      // Kadry kolekcji (sceny z rodzicem) nie są osobnymi kategoriami —
+      // wchodzi się w nie ze zdjęcia wnętrza, a nie z menu.
+      zBazy = sceny.filter(s => !s.parent_id);
+    }
   } catch (err) {
     console.warn('Nie udalo sie wczytac kategorii:', err.message);
+  }
+
+  return [...zBazy, ...await scenyZPlikow(zBazy.map(s => s.id))];
+}
+
+/** Sceny z repozytorium, których baza nie zna. */
+async function scenyZPlikow(znane) {
+  try {
+    const cfg = await (await fetch(`data/scenes.json?v=${Date.now()}`, { cache: 'no-store' })).json();
+    const braki = (cfg.scenes || []).filter(id => !znane.includes(id));
+    if (!braki.length) return [];
+
+    const wczytane = await Promise.all(braki.map(async id => {
+      try {
+        const s = await (await fetch(`data/scenes/${id}.json?v=${Date.now()}`, { cache: 'no-store' })).json();
+        if (s.parent_id || s.parentId) return null;   // kadr, nie kategoria
+        return {
+          id: s.id,
+          label: s.label || s.id,
+          image: s.image || '',
+          thumb: s.thumb || s.image || '',
+          badge: s.badge || (Array.isArray(s.kadry) && s.kadry.length ? 'Kolekcja' : ''),
+          published: true,
+          position: 999
+        };
+      } catch {
+        return null;
+      }
+    }));
+
+    return wczytane.filter(Boolean);
+  } catch {
     return [];
   }
 }

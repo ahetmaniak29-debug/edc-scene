@@ -1,7 +1,7 @@
-import { track, getScene, getAll, reset, fetchSummary } from './counter.js?v=38';
-import { icon, media, loadSite, renderChrome } from './chrome.js?v=38';
-import { initDb, dbGotowa, select } from './db.js?v=38';
-import { zBazy, formatujCene } from './mapowanie.js?v=38';
+import { track, getScene, getAll, reset, fetchSummary } from './counter.js?v=40';
+import { icon, media, loadSite, renderChrome } from './chrome.js?v=40';
+import { initDb, dbGotowa, select } from './db.js?v=40';
+import { zBazy, formatujCene } from './mapowanie.js?v=40';
 
 const $  = (sel, root = document) => root.querySelector(sel);
 const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];

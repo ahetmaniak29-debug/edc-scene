@@ -333,9 +333,13 @@
 .tile--dark .tile__text { color: rgba(27, 23, 18, 0.74); }
 .tile--dark .tile__cta { color: var(--sand-ink); }
 
-/* Rozkład kafli na pierwszym ekranie: dwa wysokie, reszta szeroka. */
+/* Rozkład kafli na pierwszym ekranie: dwa wysokie, reszta szeroka.
+   Kategorie dobierają szerokość do swojej liczby — jedna bierze pół
+   ściany, dwie stają obok siebie w słupkach, więcej schodzi do kwadratów.
+   Chodzi o to, żeby ściana zawsze domykała cztery rzędy bez dziury. */
 @media (min-width: 1080px) {
-  .sciana .cat { grid-column: span 2; grid-row: span 2; }
+  .sciana .cat { grid-column: span 1; grid-row: span 2; }
+  .sciana .cats__list li:only-child .cat { grid-column: span 2; }
   .cats[data-ile="srednio"] .cat,
   .cats[data-ile="duzo"] .cat { grid-column: span 1; grid-row: span 1; }
   .sciana .tile:nth-child(1),
