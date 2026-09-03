@@ -1,0 +1,27 @@
+# Nagłówki dla Cloudflare Pages.
+# Plik czyta wyłącznie Cloudflare — na GitHub Pages leży bezczynnie.
+
+# Style i skrypty mają w adresie ?v=N, więc każda zmiana to inny adres.
+# Dlatego mogą siedzieć w cache rok: podbicie numeru w plikach .html
+# i tak wymusza pobranie nowej wersji.
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Zdjęcia z repozytorium zmieniają się rzadko, ale bez numeru wersji —
+# miesiąc to rozsądny kompromis między szybkością a podmianą pliku.
+/ZDJECIA/*
+  Cache-Control: public, max-age=2592000
+
+# Kopia awaryjna treści. Ma być świeża, bo to z niej strona korzysta,
+# kiedy baza nie odpowiada.
+/data/*
+  Cache-Control: no-cache
+
+# HTML trzyma numery wersji reszty plików, więc nie może być nieświeży.
+/*.html
+  Cache-Control: public, max-age=0, must-revalidate
+
+# Panel administratora nie ma czego szukać w wyszukiwarkach.
+/admin.html
+  X-Robots-Tag: noindex
+  Cache-Control: public, max-age=0, must-revalidate

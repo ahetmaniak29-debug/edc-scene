@@ -24,6 +24,24 @@ w ciągu 1–2 minut, bez żadnego budowania.
 
 ---
 
+## Gdzie to stoi
+
+Strona jest statyczna — same pliki, żadnego budowania. Cała ruchoma część
+(treść, produkty, zdjęcia, logowanie do panelu) siedzi w Supabase, więc
+hosting ma tylko podać pliki i nic więcej nie musi umieć.
+
+| Adres | Co to |
+|---|---|
+| `ahetmaniak29-debug.github.io/edc-scene/` | GitHub Pages — publikuje się z gałęzi `main` |
+| `_headers` | ustawienia cache dla Cloudflare Pages; GitHub Pages ten plik ignoruje |
+
+Gdyby strona miała trafić na Cloudflare Pages: framework **None**, komenda
+budowania **pusta**, katalog wyjściowy **/** (kropka). Nic w kodzie nie
+wymaga zmiany — wszystkie ścieżki są względne, a adres Supabase siedzi
+w `data/scenes.json` i nie zależy od domeny.
+
+---
+
 ## Strony
 
 | Plik | Co to |
