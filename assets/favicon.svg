@@ -1,5 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-  <rect width="32" height="32" rx="8" fill="#f7f4ee"/>
-  <circle cx="16" cy="16" r="5" fill="#f26522"/>
-  <circle cx="16" cy="16" r="10" fill="none" stroke="#f26522" stroke-width="1.5" opacity="0.4"/>
+  <!-- Grafit i piasek — te same kolory co witryna (zmienne w style.css).
+       Litera zamiast figury, bo ikonka w karcie ma mówić, czyja to strona. -->
+  <rect width="32" height="32" rx="8" fill="#1b1917"/>
+  <text x="16" y="23.5"
+        font-family="Iowan Old Style, Palatino Linotype, Palatino, Book Antiqua, Georgia, serif"
+        font-size="21" text-anchor="middle" fill="#a08b72">e</text>
 </svg>

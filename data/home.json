@@ -1,6 +1,6 @@
 {
   "_uwaga": "Cała treść strony głównej siedzi w tym pliku. Puste \"image\" pokazuje na stronie szarą ramkę z podpowiedzią, jakie zdjęcie tam wrzucić. Wpisz ścieżkę, np. \"ZDJECIA/hero/moje-zdjecie.jpg\", żeby podmienić.",
-  "brand": "NAZWA SKLEPU",
+  "brand": "eStoro",
   "nav": [
     {
       "label": "Sklep",
